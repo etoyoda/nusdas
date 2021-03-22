@@ -1,0 +1,531 @@
+\section{オプション}
+\label{sec:opts}
+
+NuSDaS 1.4 の動作を調整するために
+ライブラリのコンパイル時および
+アプリケーションの実行時にさまざまなオプションを指定できます。
+
+\subsection{クイックガイド}
+
+\subsubsection{なんか動きがおかしい時}
+
+みなさんのアプリケーションをそのまま、
+環境変数を追加して
+実行時オプション GDBG を指定して実行すると詳細ログが標準エラー出力に
+出てきます。お問い合わせの前にこれを採取していただくと話が早いです。
+
+\begin{screen}
+\begin{verbatim}
+$ NUSDAS_OPTS=GDBG ./a.out args ...
+D   pds_open.c:1830 $PANDORA_SERVER_LIST unset
+D glb_dsscan.c:78   allds_push_callback => 0
+D       dset.c:102  allds_push => 0
+D  api_write.c:69   --- NuSDaS_write _GSMLLPP.FCSV.STD1/2006-07-24t1200/none/20
+06-07-24t1200/SURF/PSEA
+D   io_posix.c:368  open(NUSDAS10/PPSTD1/200607241200, 0102, 0755) => 3
+...
+D   io_posix.c:46   lseek skipped pio.fd.tell=384
+D   io_posix.c:250  write(3, 164) => 164
+D   io_posix.c:125  close(3) => 0
+D   dds_open.c:506  df_close => 0
+D glb_dsscan.c:94   listp_each => 0
+\end{verbatim}
+\end{screen}
+
+何らかの事情により環境変数が使えない場合は、カレントディレクトリの
+設定ファイルを使えます。
+
+\begin{screen}
+\begin{verbatim}
+$ echo GDBG > nusdas.ini
+$ ./a.out args ...
+\end{verbatim}
+\end{screen}
+
+なお、この機能は configure スクリプトに \verb|--disable-debug| オプションを
+与えている場合は使えません。
+NAPS10からインストールされているライブラリに{\tt --disable-debug}
+を指定しなくなっています。
+
+\subsubsection{入出力バッファ長を増やしたい}
+
+ディスクの性能によっては、バッファ長を大きくすると性能が改善することがあります。
+
+まず、次表によってデータファイル入出力の方式を判定します。
+
+\begin{center}
+\begin{tabular}{l|lll}
+\hline
+			& \multicolumn{3}{c}{実行時オプション} \\
+コンパイル環境		& なし		& ISTD	& IPSX \\
+\hline
+(数値予報ルーチン環境)	& stdio		& stdio	& POSIX API \\
+{\tt configure --with-sio} & stdio	& stdio	& POSIX API \\
+{\tt configure}		& POSIX API	& stdio	& POSIX API \\
+\hline
+\end{tabular}
+\end{center}
+
+よく分からない場合は、
+前項の GDBG オプションをつけて実行すると、
+色々のメッセージでソースコードのファイル名が表示されます。
+\verb|io_stdio.c| が使われる場合は stdio (fopen などのライブラリ関数) で、
+\verb|io_posix.c| が使われる場合は POSIX API (open などのシステムコール) です。
+
+まず stdio の場合、既定のバッファ長は 512 KB ですが、KB 単位の数値を
+GSVB オプションで指定することによってさらに拡張することができます。
+次の例は 16 メガバイトのバッファを与える例です。
+
+\begin{screen}
+\begin{verbatim}
+$ NUSDAS_OPTS=GSVB:16384 ./a.out args ...
+\end{verbatim}
+\end{screen}
+
+POSIX API の場合、実行時オプション FWBF が書き込みバッファ長 (KB 単位) を
+指定し、 FRBF が読み込みバッファ長 (2 の指数マイナス1) を指定します。
+既定値は出力にバッファなし、入力に 256 KB のバッファをとります。
+次の例は読み書きともに 16 メガバイトのバッファを与える例です。
+
+\begin{screen}
+\begin{verbatim}
+$ NUSDAS_OPTS=FWBF:16384,FRBF:24 ./a.out args ...
+\end{verbatim}
+\end{screen}
+
+後述日立 CSES ライブラリを使う場合も同じ FWBF/FRBF オプションが使えます。
+
+\subsubsection{OpenMP を使いたい}
+
+デフォルトで OpenMP 指示行が入るようになっていますので、
+コンパイラのオプションで OpenMP を有効にしてください。
+たとえば gcc であれば次のように CFLAGS 環境変数を与えて
+configure を起動すれば Makefile にコンパイルオプションが
+書き込まれるでしょう。
+
+\begin{screen}
+\begin{verbatim}
+$ CFLAGS="-fopenmp -O2" CC=gcc sh configure (その他のオプション)
+$ make
+\end{verbatim}
+\end{screen}
+
+OpenMP 3.1 以降が使える場合は、configure に \verb|--enable-omp=31| を与えると
+適切な指示行が使われるようになります。
+
+NuSDaS の OpenMP 対応は、ビットパックなどの配列演算を並列化
+しようとするものです。
+複数の並列スレッドから API を呼び出して使えるようにはできていません。
+
+\subsubsection{MPI で高速化したい}
+
+無理です。
+
+NuSDaS には複数プロセス間で競合を解決するような機構がありません。
+したがって、MPI の複数プロセスから同じデータファイルに書き出しを行うと、
+まともには動きません。
+気象庁では、MPI のランク 0 のプロセスに出力を担当させ、
+他のプロセスで演算を行うようにしています。
+
+上記の方法では出力が律速になってしまい、
+なおかつ出力を行うMPI プロセス数を増やせば総帯域が向上するような場合
+(比較的計算量が少ないまたはメモリバンド幅が大きい場合、
+あるいは所謂I/Oノードを多数占有できる計算機の場合)、
+2個から数個のプロセスで別のデータセットに出力するようにすれば、
+時間短縮が見込めるはずです。
+
+\subsubsection{日立CSESファイルシステムを使いたい}
+
+CSES ファイルシステムは一種のメモリファイルシステムです。
+今日的には所要時間短縮というよりは、
+ディスク出力負荷集中軽減を狙って使われることになるだろうと思います。
+
+コンパイル前の configure に \verb|--enable-cses| を与えると
+CSES ライブラリが見つかった場合には使うようにコンパイルされます
+(CSES ライブラリが見つからない場合には
+POSIX ファイルシステムでエミュレーションされます)。
+
+さらに定義ファイルには \verb|PATH NWP_ESF| 及び \verb|OPTION IESF| を
+書いてください。
+また、実行時には環境変数 \verb|CSES_DEVICE_NAME| を与えて
+CSESデバイス名を指定してください
+(エミュレーション時はデータファイルを置くディレクトリ名)。
+これで、データファイルは NRD の下ではなく CSES デバイスに置かれるようになります。
+
+環境変数 \verb|CSES_DEVICE_NAME| を与えない場合の既定値は \verb|es_dev|
+ですが、エミュレーション時には \verb|/dev/shm|
+となります (Linux tmpfs によるデバグを想定)。
+
+既存のアプリケーションを改修せずに CSES 出力時の速度性能を評価したい場合は、
+環境変数で実行時オプションを
+\verb|NUSDAS_OPTS=IESF,GPTH:NWP_ESF| のように指定してやれば、
+すべてのデータセットについて、あたかも
+\verb|PATH NWP_ESF| 及び \verb|OPTION IESF| が書かれているかのように
+動作します。	
+この他に実行時オプション FWBF, FRBF, GESP, GESS などがチューニングに使われます。
+
+\subsubsection{ライブラリ内部の実行時間測定}
+
+NuSDaS には簡易なプロファイリング（実行時間測定）機能があります。
+これを有効にするには configure に \verb|--enable-profile| を与えてコンパイル
+する必要があります。そのうえで実行時オプション GRPF を指定すると、
+プログラムの終了時にカレントディレクトリの \verb|nusprof.txt| に
+次のような書式で実行時間 (マイクロ秒単位) を出力します
+(ファイルが既にある場合は追記します)。
+
+\begin{screen}
+\begin{verbatim}
+GRPF 00:          0.000048
+GRPF 01:          0.000423
+GRPF 02:          0.000108
+GRPF 03:          0.000018
+GRPF 04:          0.000000
+GRPF 05:          0.000000
+\end{verbatim}
+\end{screen}
+
+項目番号はそれぞれ \newline
+00: ユーザロジック (最初のAPI呼び出し以前はカウントされません)、 \newline
+01: NuSDaS インターフェイスの下記以外 (主にデータセット探索)、 \newline
+02: データレコード書き出し、 \newline
+03: データレコードのエンコード、 \newline
+04: 未使用 (ゼロになる)、 \newline
+05: データレコード書き出し時の
+	\verb|write(2)| または \verb|es_write(2)| システムコールです。
+
+ちょっと分類がわかりにくいと思われるので今後改訂するかもしません。
+
+\subsection{configure オプション}
+\label{sec:opts:configure}
+
+NuSDaS ライブラリをコンパイルする際
+に実行する configure スクリプトは、
+環境変数とコマンドラインオプションによっていろいろの設定ができます。
+
+次の例は Fortran コンパイラ gfortran と C コンパイラ gcc を用いて、
+JasPer ライブラリと OpenJPEG ライブラリを使わないように設定を行います。
+
+\begin{quote}
+\begin{verbatim}
+$ F90=gfortran CC=gcc sh configure --disable-jasper --disable-openjpeg
+\end{verbatim}
+\end{quote}
+
+\subsubsection{configure に与える環境変数}
+
+\paragraph{\tt ARFLAGS}
+オブジェクトファイル \verb|*.o| からライブラリ \verb|lib*.a| を作るのには
+ar コマンドが用いられます (環境変数 \verb|AR| で変更可能)。
+通常は \verb|ar rv libXXX.a *.o| のように起動するのですが、
+AIX で 64 ビットオブジェクトを扱う場合は
+\verb|ar -X32_64 rv libXXX.a *.o| のように起動する必要があります。
+そこで \verb|AR="-X32_64 rv"| のように環境変数を与えることになります。
+環境変数の値に空白が入るので、引用符をつけなければなりません。
+
+\paragraph{\tt CC}
+C コンパイラの名前を指定します。ほうっておくと gcc があれば優先されます
+ので、 cc を使いたいなら \verb|CC=cc| とします。
+
+\paragraph{\tt CFLAGS}
+C コンパイラに与えるオプションを指定します。 
+たとえば最適化オプション -O3 を渡すならば \verb|CFLAGS=-O3| とします。
+なお、Makefile に同じ名前の CFLAGS マクロが書き込まれますが、
+configure が別のオプション (-I など) を付加しますので、
+configure の後で \verb|make CFLAGS=-O3| のように指定しても
+同じようには動きません。
+
+\paragraph{\tt F90}
+Fortran コンパイラの名前を指定します。
+configure のオプション \verb|--with-f90=|{\it compiler} でも
+指定できますので、そちらも参照してください。
+
+\paragraph{\tt FFLAGS}
+Fortran コンパイラに与えるオプションを指定します。
+
+\subsubsection{configure に与えるコマンドラインオプション}
+
+\paragraph{\tt --prefix=\it path}
+
+NuSDaS ライブラリのインストール先を指定します。
+既定値 \verb|--prefix=/usr/local| を指定した場合は
+ライブラリが \verb|/usr/local/lib| に、
+ヘッダファイル等が \verb|/usr/local/include| に、
+nusdas-config コマンドが \verb|/usr/local/bin| にインストールされます。
+システムディレクトリの書き込み権限をもっていない場合はホームディレクトリなどを
+指定するとよいでしょう。
+
+\begin{description}
+\item[{\tt --without-net}]
+ネットワーク NuSDaS 機能を無効にする。NAPS10 ルーチン環境では
+\_netと名前の付いたライブラリ以外こうなっている。
+\item[{\tt --disable-debug}]
+デバッグ機能を無効にする。NAPS10 ルーチン環境からは無効にしていないので
+環境変数(\ref{sec:opts:runtime})の指定によりデバッグ出力が可能となっている。
+\item[{\tt --enable-profile}]
+組込みプロファイラを有効にする。
+\item[{\tt --enable-le}]
+ビッグエンディアンと誤判定されてしまうリトルエンディアン機で
+強制的にリトルエンディアンにする。
+\item[{\tt --without-srf}]
+降水短時間ライブラリをビルドしない。
+\item[{\tt --with-f90=}{\it command}]
+Fortran 90 コンパイラを指示する。
+単に \verb|--with-f90| とすると、
+環境変数 F90, ifort, gfortran, f95, f90 の順に試す。
+\item[{\tt --enable-dfver}]
+デフォルトのファイル出力形式を 14 から 11 に変更する。
+NAPS10 ルーチン環境ではこうなっている。
+\item[{\tt --enable-dfver=13}]
+デフォルトのファイル出力形式を 14 から 13 に変更する。
+\item[{\tt --with-sio}]
+STDIO による入出力をデフォルトとする。NAPS10 ルーチン環境ではこうなっている。
+\item[{\tt --without-zlib}]
+ネットワーク NuSDaS 内部で使われる圧縮機能を使わない。
+\item[{\tt --disable-nusmalloc}]
+メモリが足りなくなったら整理する機能を使わない。
+速いがメモリが足りなくなったときに落ちやすくなる。
+\item[{\tt --enable-cses}]
+日立 CSES 対応機能を有効にする。
+\item[{\tt --disable-omp}]
+トランク r4386 (2015-01-05) 以降では、
+デフォルトでは OpenMP 並列化のための指示行を
+ソースコードに入れるようになった
+(コンパイラが対応していない、あるいは適切な最適化オプションが指定されていない
+場合は並列実行はされない)。
+本オプション \verb|--disable-omp| はそれを無効にして、
+日立最適化Cのための要素並列化オプションを有効にする
+(これもコンパイラの適切なオプションが指定されなければ無視される)。
+\item[{\tt --enable-omp=31}]
+OpenMP 3.1 以降で使えるようになった \verb|#pragma omp for reduction| 指示行を
+挿入するようになる。首都圏装置の\_ompと名前の付いたライブラリに設定されている。
+\item[{\tt --disable-jasper}]
+JasPerライブラリを利用しなくなる。2UPJ形式を扱う場合はJasPerライブラリ又はOpenJPEGライブラリのどちらかが必要。
+JasPerライブラリとOpenJPEGライブラリの両方が有効な場合はOpenJPEGライブラリの利用が優先される。
+\item[{\tt --disable-openjpeg}]
+OpenJPEGライブラリを利用しなくなる。2UPJ形式を扱う場合はJasPerライブラリ又はOpenJPEGライブラリのどちらかが必要。
+JasPerライブラリとOpenJPEGライブラリの両方が有効な場合はOpenJPEGライブラリの利用が優先される。
+\item[{\tt --enable-gpfs-archive-chk}]
+GPFSライブラリを利用して IBM Spectrum Archive のテープライブラリ上のデータかを判別し、
+テープ上のデータであれば読込を中止する。NAPS10 ルーチン環境では無効にしているが
+NAPS10 Pandora用のNuSDaSでは有効にしているため、Pandora経由でのテープアクセスはできない。
+\item[{\tt --enable-fsync}]
+ファイルcloseの前にfsyncを行う。1.4-1から利用可能。NAPS10 ルーチン環境では有効にしている。
+\item[{\tt --host=}{\it host}]
+通常不要であるが、クロスコンパイラ環境では以下のようなメッセージが表示され、
+configureに失敗する場合がある。
+\begin{screen}
+\begin{verbatim}
+# 例1
+configure: error: C compiler cannot create executables
+See `config.log' for more details
+\end{verbatim}
+\end{screen}
+\begin{screen}
+\begin{verbatim}
+# 例2
+configure: error: cannot run C compiled programs.
+If you meant to cross compile, use `--host'.
+See `config.log' for more details
+\end{verbatim}
+\end{screen}
+こうした場合 {\tt--host=x86\_64-unknown-linux-gnu} や
+{\tt--host=sparc64-unknown-linux-gnu} といったホストの指定により解決できる場合がある。
+なお {\tt--host} を指定した場合 configure から環境変数 INTMODEL を指定するよう
+指示される場合があるので、表示された選択肢の中から適切なものを設定して再度 configure を行う。
+\end{description}
+
+\subsection{実行時オプション}
+\label{sec:opts:runtime}
+
+NuSDaS サブルーチン%
+\footnote{サービスサブルーチン (\ref{fapi:service}, \ref{capi:service})
+を除く}%
+が最初に呼ばれたときに次の場所から実行時オプションが読み取られる。
+\begin{itemize}
+\item{} カレントディレクトリのファイル ``{\tt nusdas.ini}'' (全部小文字)
+\item{} ついで環境変数 {\tt NUSDAS\_OPTS}
+\end{itemize}
+
+読み取られたテキストは次の文法にしたがって設定項目に分解される%
+\footnote{関数 nusdas\_opts()}。
+\begin{itemize}
+\item{} 入力はヌル文字、空白、コンマ ({\tt,})、
+	またはセミコロン ({\tt;})
+	によって設定項目に区切られる。
+\item{}	設定項目は英数字または下線 ({\tt \_}) が 4 文字であり、
+	それに加えて等号 ({\tt =}) またはコロン ({\tt :}) に続けて
+	任意の引数文字列を続けることができる。
+\item{} 引数文字列が英数下線以外の文字を含む場合は二重引用符 ({\tt "}) で
+	囲む。
+\item{} 引数文字列内で二重引用符を記述するにはバックスラッシュ
+	({\tt \BACKSLASH}) を前置する。
+\item{}	今のところコメントは用意されていない%
+	\footnote{ファイルにセーブできるのにこれはダメだな。要改修}。
+\end{itemize}
+
+分解された設定項目は一つ一つ評価され、設定を変更する。
+認識される設定項目は次の通りである。
+認識されない設定項目は黙って無視される。
+引数の記述がない設定項目に引数を与えても無視される。
+
+名前の先頭が `G' の設定項目は、
+NuSDaS ライブラリ全体に同じ効力をもつ。
+定義ファイルの OPTIONS 文 (\SectionRef{sec:def:OPTIONS}) では上書きできない。
+
+名前の先頭が `F' または `I' の設定項目は、
+各データセットについて別の設定が管理される。
+定義ファイルの OPTIONS 文で上書きした設定は他のデータセットに波及しない。
+
+\begin{description}
+\item[GFCL]
+ 	API 関数が終了するたびにデータファイルを閉じない。（開いたままにする）
+
+	\verb|nusdas_iocntl(N_IO_W_FCLOSE, 0)|
+	と
+	\verb|nusdas_iocntl(N_IO_R_FCLOSE, 0)|
+	を併用した場合に同じ。
+	データファイルの操作が終了した後でファイルを閉じる関数
+	\verb|nusdas_allfile_close|
+	または \\*
+	\verb|nusdas_onefile_close|
+	を呼ぶ必要がある。
+\item[GDBG]
+	デバッグおよび警告のメッセージを有効化する。
+	\verb|nusdas_iocntl(N_IO_WARNING_OUT, 2)|
+	(これは NuSDaS 1.3 からの新機能だが従来のライブラリでもエラーにはならない)
+	とした場合に同じ。
+	コンパイル時オプションで無効化されることがある。
+	既定値では警告メッセージだけ有効になっている。
+\item[GWRN]
+	警告のメッセージを有効化する。
+	\verb|nusdas_iocntl(N_IO_WARNING_OUT, 1)|
+	とした場合に同じ。
+	既定値で有効になっているので今のところ意味はない。
+\item[FVER]
+	引数文字列は整数値として評価され、
+	定義ファイルに定めがなかった場合のデータファイルのバージョン番号となる。
+	既定値は {\tt configure} 時の {\tt --enable-dfver} の設定に依存する。
+	{\tt --enable-dfver} なら 11, {\tt --enable-dfver=13} なら 13,
+	これらが無いか {\tt --disable-dfver} なら 14 が規定値となる。
+	判読できない文字列またはライブラリが対応していない版数を与えると
+	最新版である 14 とみなされる。
+\item[FWBF]
+	引数文字列は整数値として評価され、
+	\APIRef{nusdas.write}{nusdas\_write}
+	等のデータ出力時のバッファ長 (1024 バイト単位) として用いられる。
+	既定値はゼロでこのとき出力バッファリングは行われない (GSVB も参照)。
+\item[FRBF]
+	引数文字列は整数値 $f$ として評価され、
+	\APIRef{nusdas.read}{nusdas\_read}
+	等のデータ入力時のバッファ長が $2^{f + 1}$ バイトになる。
+        0 の場合は入力バッファリングは行われない (GSVB も参照)。
+	負値または30以上の値を設定した場合の動作は保証されない。
+	既定値は 17 で、バッファ長 256KB に相当する。
+	ただし、configure で {\tt --with-sio} を指定した場合既定値は 0 となる
+	(数値予報ルーチンはそうなっている)。
+\item[GSVB]
+	引数文字列は非負整数値として評価される。
+	既定値は 512 である。
+	非零に設定された場合、
+	標準入出力ライブラリを用いてデータファイルを開く際に
+	({\tt configure --with-sio} または ISTD 実行時オプション参照)、
+	setvbuf(3) 関数を用いてバッファを拡張する際の大きさとして
+	使われる (1024 バイト単位)。
+	0 になっている場合は setvbuf() を呼ばず、OS のデフォルトの
+	長さのバッファが用いられる。
+\item[GALG]
+	このオプションはたとえば HP PA-RISC のような、
+	int * に 4 の倍数でないアドレスを設定すると SIGBUS シグナルにより
+	プログラムが異常終了するような環境のためにある。
+	値 4 を設定すると、
+	データ入力時のレコードの先頭アドレスが 4 の倍数でない場合、
+	レコードが別途 malloc() で確保されたバッファに転写される
+	ことにより問題を回避する。
+	値 0 を設定するとこのような処置は行われない。
+	既定値は通常の環境では 0 だが、
+	PA-RISC 2.0 環境で configure すると既定値が 4 となる。
+\item[GKCF]
+	引数文字列は整数値 $n$ として評価され、
+	{\tt nusdas\_parameter\_change(N\_PC\_KEEP\_CFILE, }$n${\tt )}
+	と同様、$n$ 個のデータファイルを閉じた後でメモリの掃除を行う。
+	メモリが足りないばあい小さな値を設定すると有効なことがある。
+	デフォルトは -1 で、メモリ掃除をしない。
+\item[GBAD]
+	データファイル作成時に行う投影法パラメタのチェックで
+	問題がみつかっても処理を続行する: \\*
+	\verb|nusdas_iocntl(N_IO_BADGRID, 1)|
+	と同様。
+\item[GRCK]
+	GBAD の逆のデフォルト設定で、
+	\verb|nusdas_iocntl(N_IO_BADGRID, 0)|
+	と同じくデータファイル作成時に行う投影法パラメタのチェックで
+	問題がみつかったら処理を続行しない。
+	設定ファイル指示を環境変数で上書きするなどの目的のために
+	用意されている。
+\item[GPTH]
+	定義ファイルの PATH 文 \SectionRef{sec:def:PATH} の指定を
+	引数文字列で上書きする。
+	例1: 実行時に強制的に CSES ファイルシステムを使わせるには
+	{\tt GPTH:NWP\_ESF,IESF} と指定する。
+	例2: 相対パス指定の上書きは {\tt GPTH:./dir} のようにする。
+\item[IPSX]
+	データファイルを開くときに POSIX 標準システムコールつまり
+	open(2), read(2), write(2), close(2) などを用いる。
+	32 ビット環境でも 2GB/4GB を超えるファイルが読み書きできれば
+	対応して open64(2) などが用いられる。
+	デフォルト設定 (ただし configure で変更される)。
+\item[ISTD]
+	データファイルを開くときに標準入出力ライブラリつまり
+	fopen(3), fread(3), fwrite(3), fclose(3) などを用いる。
+	UNIX ではない環境でも動作するが、
+	32 ビット環境では大抵の場合 2GB (4GB のこともある) を超える大きさの
+	ファイルを読み書きすることができない (先頭部分だけとかいうのもダメ)。
+\item[IESF]
+	日立 CSES という一種のメモリファイルシステムに
+	データファイルを置くためのオプション。
+	コンパイル時設定 {\tt configure} {\tt --enable-cses}
+	によって有効となる。
+	(CSES ライブラリがインストールされていない場合は、
+	open(2) などの標準システムコールでエミュレーションを行うので
+	Linux tmpfs でデータファイル名などの確認ができる)。
+	CSES ES ファイルシステムにはディレクトリ階層がないため、
+	定義ファイルで決まるパス \SectionRef{sec:def:PATH} のうち
+	ディレクトリは無視される。
+	通常はジョブスクリプトから
+	固定名称のデータファイルを確保できるようにするために
+	定義ファイルにおいて {\tt PATH NWP\_ESF} を指定する。
+	ファイルが置かれる CSES デバイスは環境変数 ~ 
+	{\tt \$CSES\_DEVICE\_NAME} で指定される
+	(未定義時は {\tt es\_dev},
+	エミュレーション時は {\tt /dev/shm} が既定値)。
+	なお、コンパイル時設定 {\tt configure} {\tt --enable-cses} を
+	設定していない場合は {\tt IPSX} とまったく同じ動作になる。
+\item[GESP]
+	引数文字列は非負整数と解釈される。既定値は 256 である。
+	上述 IESF オプションによって es\_open(2) でファイルが作成される場合、
+	メガバイト単位で初期確保量を指定する。
+\item[GESS]
+	引数文字列は非負整数と解釈される。既定値は 256 である。
+	上述 IESF オプションによって es\_open(2) でファイルが作成される場合、
+	メガバイト単位で増分確保量を指定する。
+\item[GNTS]
+        指定するとNuSDaSファイルに記録されるタイムスタンプに
+        現在時刻でなく1970/01/01 00:00:00 が格納される。
+	このオプションはGDBGが有効な場合だけ効果を発揮する。
+\item[IASY]
+	廃止されたオプションで、 {\tt IPSX} と同じ動作になる。
+	ファイルの読み書きに非同期入出力システムコール
+	aio\_read(2), aio\_write(2) を用いるものであった。
+\item[IMMP]
+	廃止されたオプションで、 {\tt IPSX} と同じ動作になる。
+	ファイルの読み書きにメモリマップ入出力 mmap(2) を用いるものであった。
+	コンパイル時設定で無効化された場合 {\tt IPSX} と同じ動作となる。
+\item[IBMS]
+	廃止されたオプションで、 {\tt IPSX} と同じ動作になる。
+	mmap(2) のかわりに IBM AIX 固有のシステムコール shmat(SHM\_MAP)
+	を用いるものであった。
+\item[GRPF]
+	組込みプロファイラを有効にする。
+	コンパイル前に configure に {\tt --enable-profile} を指定しないと
+	このオプションは有効になりません。
+\end{description}

@@ -1,0 +1,27 @@
+\subsection{NUSDAS\_GRID2: 格子情報へのアクセス }
+\APILabel{nusdas.grid2}
+
+\Prototype
+\begin{quote}
+CALL {\bf NUSDAS\_GRID2}({\it type1}, {\it type2}, {\it type3}, {\it basetime}, {\it member}, {\it validtime1}, {\it validtime2}, {\it proj}, {\it gridsize}, {\it gridinfo}, {\it value}, {\it getput}, {\it result})
+\end{quote}
+
+\begin{tabular}{l|rllp{16em}}
+\hline
+\ArgName & \ArgType & \ArrayDim & I/O & \ArgRole \\
+\hline
+{\it type1} & CHARACTER(8) &  & IN &  種別1  \\
+{\it type2} & CHARACTER(4) &  & IN &  種別2  \\
+{\it type3} & CHARACTER(4) &  & IN &  種別3  \\
+{\it basetime} & INTEGER(4) &  & IN &  基準時刻(通算分)  \\
+{\it member} & CHARACTER(4) &  & IN &  メンバー名  \\
+{\it validtime1} & INTEGER(4) &  & IN &  対象時刻1(通算分)  \\
+{\it validtime2} & INTEGER(4) &  & IN &  対象時刻2(通算分)  \\
+{\it proj} & CHARACTER(4) &  & I/O &  投影法3字略号  \\
+{\it gridsize} & INTEGER(4) & 2 & I/O &  格子数  \\
+{\it gridinfo} & REAL(4) & 14 & I/O &  投影法緒元  \\
+{\it value} & CHARACTER(4) &  & I/O &  格子点値が周囲の場を代表する方法  \\
+{\it getput} & CHARACTER(3) &  & IN &  入出力指示 ({\it "GET}" または {\it "PUT}")  \\
+{\it result} & INTEGER(4) &  & OUT & \ResultCode \\
+\hline
+\end{tabular}

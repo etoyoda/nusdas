@@ -1,0 +1,494 @@
+# edit Makefile.in.rb instead of Makefile or Makefile.in
+
+CC =		@CC@ $(CCFlags)
+CFLAGS = 	-I../src -I../nwplib8 -I../libsrf @CFLAGS@ @CPPFLAGS@ $(CFlags)
+AR =            @ARCHIVER@
+ARFLAGS =	@ARFLAGS@
+RUBY =          ruby
+prefix =        @prefix@
+exec_prefix =   @exec_prefix@
+LIBDIR =        @libdir@
+INCDIR =        @includedir@
+INSTALLD =      mkdir -p
+INSTALLF =      cp
+
+.SUFFIXES:
+.SUFFIXES: .c .o
+
+.c.o:
+	$(CC) $(CFLAGS) -c $<
+
+OBJS_N= n2subcsigm.o n1eterchange.o n2ubcpreset1.o n2bcsrfship2.o \
+    n0crgauinqjn.o n3subceta.o n2cut2.o n3subcrgau2.o n0ubcpreset1.o \
+    n2info.o n3subctdif.o n1fileclose2.o n0write3d.o n3setmask.o \
+    n3eterchange.o n3uncpsd.o n1write3d.o n2hybpreset1.o n0iocntl.o \
+    n3scands.o n2subczhyb2.o n1rlen8biti1.o n0inqdef.o n1subcsrf.o \
+    n2read2raw.o n3cpsdnbytes.o n3bcetainqnz.o n3info2.o n0bcetainqnz.o \
+    n0swab8.o n2subcrgau2.o n0lfileclose.o n3nqnrdvtime.o n2makemask.o \
+    n0inqcntl2.o n2qparameter.o n2eterchange.o n0nqnrdbtime.o n2cut.o \
+    n1unpack.o n0write2.o n0subcrgau.o n1esfflush.o n0rgauinqjn2.o \
+    n0read2.o n2write2.o n0hybpreset1.o n2cetainqnz2.o n1inqdata.o \
+    n3subctdif2.o n1read2.o n0cutraw.o n2subcsrf.o n0info.o n1subcsigm2.o \
+    n3inqcntl2.o n1inqcntl.o n3inqdata.o n0grid2.o n2subczhyb.o n0qparameter.o \
+    n0efileclose.o n0rlen8biti1.o n3swabfmt.o n0swab2.o n2subcrgau.o \
+    n1lfileclose.o n1derlen8bit.o n2grid.o n3nqsubcinfo.o n3write2.o \
+    n2inqdef.o n1swab8.o n0subctdif.o n1rgauinqjn2.o n2gzip.o n2lfileclose.o \
+    n3ubcsrfship.o n3meterreset.o n0ubcsrfship.o n1info2.o n3subcrgau.o \
+    n1gzip.o n0read.o n1qparameter.o n3read3d.o n3efileclose.o n0uncpsd.o \
+    n3unpack.o n0setmask.o n0write.o n1subctdif2.o n3subcdelt2.o \
+    n0subczhyb2.o n1subcrgau.o n0esfflush.o n2cpsdnbytes.o n3subcdelt.o \
+    n1read.o n2subctdif2.o n0subcsigm.o n0subcsrf.o n2subceta2.o \
+    n3cut.o n1cut2raw.o n3rlen8biti1.o n3inqdef.o n0derlen8bit.o \
+    n2gunzip.o n0subcdelt.o n3gunzip.o n0eltpreset1.o n2swab8.o n2bcetainqnz.o \
+    n0subceta.o n3grid.o n3grid2.o n1inqcntl2.o n3subcsrf2.o n0subcrgau2.o \
+    n1makemask.o n1rlennbiti1.o n2grid2.o n1swabfmt.o n3eltpreset1.o \
+    n1subcsrf2.o n3iocntl.o n1nzipnbytes.o n0subceta2.o n1subceta.o \
+    n1write2.o n2subcdelt2.o n1subczhyb.o n3inqdata2.o n1setmask.o \
+    n0inqdata2.o n1inqdata2.o n3nzipnbytes.o n2info2.o n1bcetainqnz.o \
+    n1subcrgau2.o n1ubcsrfship.o n1read3d.o n2fileclose2.o n0rlennbiti1.o \
+    n0scands.o n2subcsrf2.o n3cutraw.o n0subcsrf2.o n2rgauinqjn2.o \
+    n2nzipnbytes.o n2write3d.o n1eltpreset1.o n0gaupreset1.o n0grid.o \
+    n3subczhyb.o n0unpack.o n0nqsubcinfo.o n2rlennbiti1.o n2efileclose.o \
+    n2nqnrdvtime.o n3write3d.o n2eltpreset1.o n3cut2raw.o n2setmask.o \
+    n3info.o n0inqdata.o n2derlen8bit.o n3gzip.o n3swab2.o n2swabfmt.o \
+    n2unpack.o n2uncpsd.o n2subcdelt.o n2subctdif.o n1bcsrfship2.o \
+    n2nqnrdbtime.o n1write.o n3swab4.o n2inqdata.o n2meterreset.o \
+    n2crgauinqjn.o n2inqcntl.o n1nqnrdbtime.o n3qparameter.o n0cut2raw.o \
+    n1subceta2.o n1cut2.o n1iocntl.o n3write.o n0subcsigm2.o n1meterreset.o \
+    n1read2raw.o n1efileclose.o n0nzipnbytes.o n3read2raw.o n1cetainqnz2.o \
+    n3cetainqnz2.o n1swab2.o n3esfflush.o n1grid.o n1cutraw.o n3lfileclose.o \
+    n0nqnrdvtime.o n0cut2.o n3ubcpreset1.o n1swab4.o n3read2.o n3bcsrfship2.o \
+    n1subczhyb2.o n2cut2raw.o n0bcsrfship2.o n2ubcsrfship.o n0cut.o \
+    n0fileclose2.o n2subcsigm2.o n0meterreset.o n0swabfmt.o n3gaupreset1.o \
+    n2read.o n1inqdef.o n1nqsubcinfo.o n1gunzip.o n1uncpsd.o n1info.o \
+    n0subczhyb.o n3swab8.o n0eterchange.o n1subctdif.o n3rgauinqjn2.o \
+    n1subcsigm.o n3read.o n2rlen8biti1.o n3fileclose2.o n2iocntl.o \
+    n3makemask.o n3subcsigm.o n3crgauinqjn.o n0makemask.o n3subcsigm2.o \
+    n1hybpreset1.o n3nqnrdbtime.o n0subctdif2.o n2subceta.o n1grid2.o \
+    n0info2.o n1gaupreset1.o n0gzip.o n3hybpreset1.o n2read2.o n3subcsrf.o \
+    n2scands.o n0gunzip.o n2inqdata2.o n1nqnrdvtime.o n1subcdelt.o \
+    n0read3d.o n1scands.o n1cpsdnbytes.o n2write.o n2nqsubcinfo.o \
+    n2inqcntl2.o n0cetainqnz2.o n0inqcntl.o n3subczhyb2.o n2gaupreset1.o \
+    n1ubcpreset1.o n1subcdelt2.o n0subcdelt2.o n2read3d.o n3inqcntl.o \
+    n0cpsdnbytes.o n1cut.o n3cut2.o n3rlennbiti1.o n2swab4.o n2swab2.o \
+    n2esfflush.o n3derlen8bit.o n0read2raw.o n3subceta2.o n1crgauinqjn.o \
+    n2cutraw.o n0swab4.o 
+OBJS_S= s0srfrdrdic.o s2srfrdrdic.o s0archamdstn.o s0srfamdrdic.o \
+    s0srfamdaqc.o s1srfamdslct.o s1rdrlvtrans.o s2srfamdaqc.o s0srflvtrans.o \
+    s2rdrlvtrans.o s0srfamdslct.o s2srfamdslct.o s0srflvset.o s1srfrdrdic.o \
+    s2srflvset.o s1srflvset.o s2archamdstn.o s0rdrlvtrans.o s2srflvtrans.o \
+    s2srfamdrdic.o s1archamdstn.o s1srfamdrdic.o s1srfamdaqc.o s1srflvtrans.o 
+HDRS= 
+SRCS_N= n2subcsigm.c n1eterchange.c n2ubcpreset1.c n2bcsrfship2.c \
+    n0crgauinqjn.c n3subceta.c n2cut2.c n3subcrgau2.c n0ubcpreset1.c \
+    n2info.c n3subctdif.c n1fileclose2.c n0write3d.c n3setmask.c \
+    n3eterchange.c n3uncpsd.c n1write3d.c n2hybpreset1.c n0iocntl.c \
+    n3scands.c n2subczhyb2.c n1rlen8biti1.c n0inqdef.c n1subcsrf.c \
+    n2read2raw.c n3cpsdnbytes.c n3bcetainqnz.c n3info2.c n0bcetainqnz.c \
+    n0swab8.c n2subcrgau2.c n0lfileclose.c n3nqnrdvtime.c n2makemask.c \
+    n0inqcntl2.c n2qparameter.c n2eterchange.c n0nqnrdbtime.c n2cut.c \
+    n1unpack.c n0write2.c n0subcrgau.c n1esfflush.c n0rgauinqjn2.c \
+    n0read2.c n2write2.c n0hybpreset1.c n2cetainqnz2.c n1inqdata.c \
+    n3subctdif2.c n1read2.c n0cutraw.c n2subcsrf.c n0info.c n1subcsigm2.c \
+    n3inqcntl2.c n1inqcntl.c n3inqdata.c n0grid2.c n2subczhyb.c n0qparameter.c \
+    n0efileclose.c n0rlen8biti1.c n3swabfmt.c n0swab2.c n2subcrgau.c \
+    n1lfileclose.c n1derlen8bit.c n2grid.c n3nqsubcinfo.c n3write2.c \
+    n2inqdef.c n1swab8.c n0subctdif.c n1rgauinqjn2.c n2gzip.c n2lfileclose.c \
+    n3ubcsrfship.c n3meterreset.c n0ubcsrfship.c n1info2.c n3subcrgau.c \
+    n1gzip.c n0read.c n1qparameter.c n3read3d.c n3efileclose.c n0uncpsd.c \
+    n3unpack.c n0setmask.c n0write.c n1subctdif2.c n3subcdelt2.c \
+    n0subczhyb2.c n1subcrgau.c n0esfflush.c n2cpsdnbytes.c n3subcdelt.c \
+    n1read.c n2subctdif2.c n0subcsigm.c n0subcsrf.c n2subceta2.c \
+    n3cut.c n1cut2raw.c n3rlen8biti1.c n3inqdef.c n0derlen8bit.c \
+    n2gunzip.c n0subcdelt.c n3gunzip.c n0eltpreset1.c n2swab8.c n2bcetainqnz.c \
+    n0subceta.c n3grid.c n3grid2.c n1inqcntl2.c n3subcsrf2.c n0subcrgau2.c \
+    n1makemask.c n1rlennbiti1.c n2grid2.c n1swabfmt.c n3eltpreset1.c \
+    n1subcsrf2.c n3iocntl.c n1nzipnbytes.c n0subceta2.c n1subceta.c \
+    n1write2.c n2subcdelt2.c n1subczhyb.c n3inqdata2.c n1setmask.c \
+    n0inqdata2.c n1inqdata2.c n3nzipnbytes.c n2info2.c n1bcetainqnz.c \
+    n1subcrgau2.c n1ubcsrfship.c n1read3d.c n2fileclose2.c n0rlennbiti1.c \
+    n0scands.c n2subcsrf2.c n3cutraw.c n0subcsrf2.c n2rgauinqjn2.c \
+    n2nzipnbytes.c n2write3d.c n1eltpreset1.c n0gaupreset1.c n0grid.c \
+    n3subczhyb.c n0unpack.c n0nqsubcinfo.c n2rlennbiti1.c n2efileclose.c \
+    n2nqnrdvtime.c n3write3d.c n2eltpreset1.c n3cut2raw.c n2setmask.c \
+    n3info.c n0inqdata.c n2derlen8bit.c n3gzip.c n3swab2.c n2swabfmt.c \
+    n2unpack.c n2uncpsd.c n2subcdelt.c n2subctdif.c n1bcsrfship2.c \
+    n2nqnrdbtime.c n1write.c n3swab4.c n2inqdata.c n2meterreset.c \
+    n2crgauinqjn.c n2inqcntl.c n1nqnrdbtime.c n3qparameter.c n0cut2raw.c \
+    n1subceta2.c n1cut2.c n1iocntl.c n3write.c n0subcsigm2.c n1meterreset.c \
+    n1read2raw.c n1efileclose.c n0nzipnbytes.c n3read2raw.c n1cetainqnz2.c \
+    n3cetainqnz2.c n1swab2.c n3esfflush.c n1grid.c n1cutraw.c n3lfileclose.c \
+    n0nqnrdvtime.c n0cut2.c n3ubcpreset1.c n1swab4.c n3read2.c n3bcsrfship2.c \
+    n1subczhyb2.c n2cut2raw.c n0bcsrfship2.c n2ubcsrfship.c n0cut.c \
+    n0fileclose2.c n2subcsigm2.c n0meterreset.c n0swabfmt.c n3gaupreset1.c \
+    n2read.c n1inqdef.c n1nqsubcinfo.c n1gunzip.c n1uncpsd.c n1info.c \
+    n0subczhyb.c n3swab8.c n0eterchange.c n1subctdif.c n3rgauinqjn2.c \
+    n1subcsigm.c n3read.c n2rlen8biti1.c n3fileclose2.c n2iocntl.c \
+    n3makemask.c n3subcsigm.c n3crgauinqjn.c n0makemask.c n3subcsigm2.c \
+    n1hybpreset1.c n3nqnrdbtime.c n0subctdif2.c n2subceta.c n1grid2.c \
+    n0info2.c n1gaupreset1.c n0gzip.c n3hybpreset1.c n2read2.c n3subcsrf.c \
+    n2scands.c n0gunzip.c n2inqdata2.c n1nqnrdvtime.c n1subcdelt.c \
+    n0read3d.c n1scands.c n1cpsdnbytes.c n2write.c n2nqsubcinfo.c \
+    n2inqcntl2.c n0cetainqnz2.c n0inqcntl.c n3subczhyb2.c n2gaupreset1.c \
+    n1ubcpreset1.c n1subcdelt2.c n0subcdelt2.c n2read3d.c n3inqcntl.c \
+    n0cpsdnbytes.c n1cut.c n3cut2.c n3rlennbiti1.c n2swab4.c n2swab2.c \
+    n2esfflush.c n3derlen8bit.c n0read2raw.c n3subceta2.c n1crgauinqjn.c \
+    n2cutraw.c n0swab4.c 
+SRCS_S= s0srfrdrdic.c s2srfrdrdic.c s0archamdstn.c s0srfamdrdic.c \
+    s0srfamdaqc.c s1srfamdslct.c s1rdrlvtrans.c s2srfamdaqc.c s0srflvtrans.c \
+    s2rdrlvtrans.c s0srfamdslct.c s2srfamdslct.c s0srflvset.c s1srfrdrdic.c \
+    s2srflvset.c s1srflvset.c s2archamdstn.c s0rdrlvtrans.c s2srflvtrans.c \
+    s2srfamdrdic.c s1archamdstn.c s1srfamdrdic.c s1srfamdaqc.c s1srflvtrans.c 
+SRCS = $(SRCS_N)
+LIBNUS = libnusdas.a
+LIBNUSf = ../src/$(LIBNUS)
+LIBNWP = libnwp.a
+LIBSRFf = ../libsrf/libsrf.a
+
+all: $(LIBNUSf) $(LIBSRFf)
+
+$(LIBNUSf): $(OBJS_N)
+	$(AR) $(ARFLAGS) $(LIBNUSf) $(OBJS_N)
+
+$(LIBSRFf): $(OBJS_S)
+	$(AR) $(ARFLAGS) $(LIBSRFf) $(OBJS_S)
+
+echo-objs-nusdas:
+	@echo OBJS=$(OBJS_N)
+
+echo-objs-srf:
+	@echo OBJS=$(OBJS_S)
+
+tags: $(SRCS) $(HDRS)
+	ctags *.c *.h
+
+clean:
+	-rm -f *~ *.bak *.o
+
+distclean: clean
+	-rm -f Makefile Testbin.mk config.h nusdas.h euc-jp shift_jis
+
+WRAPTOOL = ../src/cwrap.rb ../src/cparse.rb  ../src/cptree.rb
+WRAPGEN = $(RUBY) -I../src ../src/cwrap.rb
+
+wrapper: wrap_n wrap_s
+
+wrap_n: $(WRAPTOOL) ../src/nusdas.h
+	$(WRAPGEN) -i nusdas.h -m s/nusdas_swab/endian_swab/i 		-m s/nusdas_encode/n_encode/i 		-m s/nusdas_decode/n_decode/i 		-x NuSDaS_bf -x NuSDaS_snprintf 		-o n@.c ../src/nusdas.h
+wrap_s: $(WRAPTOOL) ../libsrf/libsrf.h
+	$(WRAPGEN) -i libsrf.h --si4 @SI4_TYPE@ 		-f gnu,ifc,win 		-o s@.c ../libsrf/libsrf.h
+
+$(SRCS_N): $(WRAPTOOL) ../src/nusdas.h
+	touch $(SRCS_N)
+$(SRCS_S): $(WRAPTOOL) ../libsrf/libsrf.h
+	touch $(SRCS_S)
+
+# following are made by "gcc -MM -I../nwplib8 -I../src -I. *.c"
+n2subcsigm.o: n2subcsigm.c ../src/nusdas.h
+n1eterchange.o: n1eterchange.c ../src/nusdas.h
+n2ubcpreset1.o: n2ubcpreset1.c ../src/nusdas.h
+n2bcsrfship2.o: n2bcsrfship2.c ../src/nusdas.h
+n0crgauinqjn.o: n0crgauinqjn.c ../src/nusdas.h
+n3subceta.o: n3subceta.c ../src/nusdas.h
+n2cut2.o: n2cut2.c ../src/nusdas.h
+n3subcrgau2.o: n3subcrgau2.c ../src/nusdas.h
+n0ubcpreset1.o: n0ubcpreset1.c ../src/nusdas.h
+n2info.o: n2info.c ../src/nusdas.h
+s0srfrdrdic.o: s0srfrdrdic.c ../libsrf/libsrf.h
+n3subctdif.o: n3subctdif.c ../src/nusdas.h
+n1fileclose2.o: n1fileclose2.c ../src/nusdas.h
+n0write3d.o: n0write3d.c ../src/nusdas.h
+n3setmask.o: n3setmask.c ../src/nusdas.h
+n3eterchange.o: n3eterchange.c ../src/nusdas.h
+n3uncpsd.o: n3uncpsd.c ../src/nusdas.h
+n1write3d.o: n1write3d.c ../src/nusdas.h
+n2hybpreset1.o: n2hybpreset1.c ../src/nusdas.h
+n0iocntl.o: n0iocntl.c ../src/nusdas.h
+n3scands.o: n3scands.c ../src/nusdas.h
+n2subczhyb2.o: n2subczhyb2.c ../src/nusdas.h
+n1rlen8biti1.o: n1rlen8biti1.c ../src/nusdas.h
+n0inqdef.o: n0inqdef.c ../src/nusdas.h
+n1subcsrf.o: n1subcsrf.c ../src/nusdas.h
+n2read2raw.o: n2read2raw.c ../src/nusdas.h
+n3cpsdnbytes.o: n3cpsdnbytes.c ../src/nusdas.h
+n3bcetainqnz.o: n3bcetainqnz.c ../src/nusdas.h
+n3info2.o: n3info2.c ../src/nusdas.h
+n0bcetainqnz.o: n0bcetainqnz.c ../src/nusdas.h
+n0swab8.o: n0swab8.c ../src/nusdas.h
+s2srfrdrdic.o: s2srfrdrdic.c ../libsrf/libsrf.h
+n2subcrgau2.o: n2subcrgau2.c ../src/nusdas.h
+n0lfileclose.o: n0lfileclose.c ../src/nusdas.h
+n3nqnrdvtime.o: n3nqnrdvtime.c ../src/nusdas.h
+n2makemask.o: n2makemask.c ../src/nusdas.h
+n0inqcntl2.o: n0inqcntl2.c ../src/nusdas.h
+s0archamdstn.o: s0archamdstn.c ../libsrf/libsrf.h
+n2qparameter.o: n2qparameter.c ../src/nusdas.h
+n2eterchange.o: n2eterchange.c ../src/nusdas.h
+n0nqnrdbtime.o: n0nqnrdbtime.c ../src/nusdas.h
+s0srfamdrdic.o: s0srfamdrdic.c ../libsrf/libsrf.h
+n2cut.o: n2cut.c ../src/nusdas.h
+n1unpack.o: n1unpack.c ../src/nusdas.h
+n0write2.o: n0write2.c ../src/nusdas.h
+n0subcrgau.o: n0subcrgau.c ../src/nusdas.h
+n1esfflush.o: n1esfflush.c ../src/nusdas.h
+n0rgauinqjn2.o: n0rgauinqjn2.c ../src/nusdas.h
+n0read2.o: n0read2.c ../src/nusdas.h
+n2write2.o: n2write2.c ../src/nusdas.h
+s0srfamdaqc.o: s0srfamdaqc.c ../libsrf/libsrf.h
+n0hybpreset1.o: n0hybpreset1.c ../src/nusdas.h
+n2cetainqnz2.o: n2cetainqnz2.c ../src/nusdas.h
+n1inqdata.o: n1inqdata.c ../src/nusdas.h
+s1srfamdslct.o: s1srfamdslct.c ../libsrf/libsrf.h
+n3subctdif2.o: n3subctdif2.c ../src/nusdas.h
+n1read2.o: n1read2.c ../src/nusdas.h
+n0cutraw.o: n0cutraw.c ../src/nusdas.h
+n2subcsrf.o: n2subcsrf.c ../src/nusdas.h
+n0info.o: n0info.c ../src/nusdas.h
+n1subcsigm2.o: n1subcsigm2.c ../src/nusdas.h
+n3inqcntl2.o: n3inqcntl2.c ../src/nusdas.h
+n1inqcntl.o: n1inqcntl.c ../src/nusdas.h
+n3inqdata.o: n3inqdata.c ../src/nusdas.h
+n0grid2.o: n0grid2.c ../src/nusdas.h
+n2subczhyb.o: n2subczhyb.c ../src/nusdas.h
+s1rdrlvtrans.o: s1rdrlvtrans.c ../libsrf/libsrf.h
+n0qparameter.o: n0qparameter.c ../src/nusdas.h
+n0efileclose.o: n0efileclose.c ../src/nusdas.h
+n0rlen8biti1.o: n0rlen8biti1.c ../src/nusdas.h
+n3swabfmt.o: n3swabfmt.c ../src/nusdas.h
+s2srfamdaqc.o: s2srfamdaqc.c ../libsrf/libsrf.h
+n0swab2.o: n0swab2.c ../src/nusdas.h
+n2subcrgau.o: n2subcrgau.c ../src/nusdas.h
+n1lfileclose.o: n1lfileclose.c ../src/nusdas.h
+n1derlen8bit.o: n1derlen8bit.c ../src/nusdas.h
+n2grid.o: n2grid.c ../src/nusdas.h
+n3nqsubcinfo.o: n3nqsubcinfo.c ../src/nusdas.h
+n3write2.o: n3write2.c ../src/nusdas.h
+s0srflvtrans.o: s0srflvtrans.c ../libsrf/libsrf.h
+n2inqdef.o: n2inqdef.c ../src/nusdas.h
+n1swab8.o: n1swab8.c ../src/nusdas.h
+n0subctdif.o: n0subctdif.c ../src/nusdas.h
+n1rgauinqjn2.o: n1rgauinqjn2.c ../src/nusdas.h
+n2gzip.o: n2gzip.c ../src/nusdas.h
+n2lfileclose.o: n2lfileclose.c ../src/nusdas.h
+n3ubcsrfship.o: n3ubcsrfship.c ../src/nusdas.h
+n3meterreset.o: n3meterreset.c ../src/nusdas.h
+n0ubcsrfship.o: n0ubcsrfship.c ../src/nusdas.h
+n1info2.o: n1info2.c ../src/nusdas.h
+n3subcrgau.o: n3subcrgau.c ../src/nusdas.h
+n1gzip.o: n1gzip.c ../src/nusdas.h
+n0read.o: n0read.c ../src/nusdas.h
+n1qparameter.o: n1qparameter.c ../src/nusdas.h
+n3read3d.o: n3read3d.c ../src/nusdas.h
+n3efileclose.o: n3efileclose.c ../src/nusdas.h
+n0uncpsd.o: n0uncpsd.c ../src/nusdas.h
+n3unpack.o: n3unpack.c ../src/nusdas.h
+n0setmask.o: n0setmask.c ../src/nusdas.h
+n0write.o: n0write.c ../src/nusdas.h
+n1subctdif2.o: n1subctdif2.c ../src/nusdas.h
+n3subcdelt2.o: n3subcdelt2.c ../src/nusdas.h
+n0subczhyb2.o: n0subczhyb2.c ../src/nusdas.h
+n1subcrgau.o: n1subcrgau.c ../src/nusdas.h
+n0esfflush.o: n0esfflush.c ../src/nusdas.h
+n2cpsdnbytes.o: n2cpsdnbytes.c ../src/nusdas.h
+n3subcdelt.o: n3subcdelt.c ../src/nusdas.h
+n1read.o: n1read.c ../src/nusdas.h
+n2subctdif2.o: n2subctdif2.c ../src/nusdas.h
+n0subcsigm.o: n0subcsigm.c ../src/nusdas.h
+n0subcsrf.o: n0subcsrf.c ../src/nusdas.h
+n2subceta2.o: n2subceta2.c ../src/nusdas.h
+n3cut.o: n3cut.c ../src/nusdas.h
+n1cut2raw.o: n1cut2raw.c ../src/nusdas.h
+n3rlen8biti1.o: n3rlen8biti1.c ../src/nusdas.h
+n3inqdef.o: n3inqdef.c ../src/nusdas.h
+n0derlen8bit.o: n0derlen8bit.c ../src/nusdas.h
+n2gunzip.o: n2gunzip.c ../src/nusdas.h
+n0subcdelt.o: n0subcdelt.c ../src/nusdas.h
+n3gunzip.o: n3gunzip.c ../src/nusdas.h
+n0eltpreset1.o: n0eltpreset1.c ../src/nusdas.h
+n2swab8.o: n2swab8.c ../src/nusdas.h
+n2bcetainqnz.o: n2bcetainqnz.c ../src/nusdas.h
+n0subceta.o: n0subceta.c ../src/nusdas.h
+n3grid.o: n3grid.c ../src/nusdas.h
+n3grid2.o: n3grid2.c ../src/nusdas.h
+n1inqcntl2.o: n1inqcntl2.c ../src/nusdas.h
+n3subcsrf2.o: n3subcsrf2.c ../src/nusdas.h
+n0subcrgau2.o: n0subcrgau2.c ../src/nusdas.h
+n1makemask.o: n1makemask.c ../src/nusdas.h
+n1rlennbiti1.o: n1rlennbiti1.c ../src/nusdas.h
+n2grid2.o: n2grid2.c ../src/nusdas.h
+n1swabfmt.o: n1swabfmt.c ../src/nusdas.h
+n3eltpreset1.o: n3eltpreset1.c ../src/nusdas.h
+n1subcsrf2.o: n1subcsrf2.c ../src/nusdas.h
+n3iocntl.o: n3iocntl.c ../src/nusdas.h
+n1nzipnbytes.o: n1nzipnbytes.c ../src/nusdas.h
+n0subceta2.o: n0subceta2.c ../src/nusdas.h
+n1subceta.o: n1subceta.c ../src/nusdas.h
+s2rdrlvtrans.o: s2rdrlvtrans.c ../libsrf/libsrf.h
+n1write2.o: n1write2.c ../src/nusdas.h
+n2subcdelt2.o: n2subcdelt2.c ../src/nusdas.h
+n1subczhyb.o: n1subczhyb.c ../src/nusdas.h
+n3inqdata2.o: n3inqdata2.c ../src/nusdas.h
+n1setmask.o: n1setmask.c ../src/nusdas.h
+n0inqdata2.o: n0inqdata2.c ../src/nusdas.h
+n1inqdata2.o: n1inqdata2.c ../src/nusdas.h
+n3nzipnbytes.o: n3nzipnbytes.c ../src/nusdas.h
+n2info2.o: n2info2.c ../src/nusdas.h
+n1bcetainqnz.o: n1bcetainqnz.c ../src/nusdas.h
+n1subcrgau2.o: n1subcrgau2.c ../src/nusdas.h
+n1ubcsrfship.o: n1ubcsrfship.c ../src/nusdas.h
+n1read3d.o: n1read3d.c ../src/nusdas.h
+n2fileclose2.o: n2fileclose2.c ../src/nusdas.h
+n0rlennbiti1.o: n0rlennbiti1.c ../src/nusdas.h
+n0scands.o: n0scands.c ../src/nusdas.h
+n2subcsrf2.o: n2subcsrf2.c ../src/nusdas.h
+n3cutraw.o: n3cutraw.c ../src/nusdas.h
+n0subcsrf2.o: n0subcsrf2.c ../src/nusdas.h
+n2rgauinqjn2.o: n2rgauinqjn2.c ../src/nusdas.h
+s0srfamdslct.o: s0srfamdslct.c ../libsrf/libsrf.h
+n2nzipnbytes.o: n2nzipnbytes.c ../src/nusdas.h
+n2write3d.o: n2write3d.c ../src/nusdas.h
+n1eltpreset1.o: n1eltpreset1.c ../src/nusdas.h
+n0gaupreset1.o: n0gaupreset1.c ../src/nusdas.h
+n0grid.o: n0grid.c ../src/nusdas.h
+n3subczhyb.o: n3subczhyb.c ../src/nusdas.h
+s2srfamdslct.o: s2srfamdslct.c ../libsrf/libsrf.h
+n0unpack.o: n0unpack.c ../src/nusdas.h
+n0nqsubcinfo.o: n0nqsubcinfo.c ../src/nusdas.h
+n2rlennbiti1.o: n2rlennbiti1.c ../src/nusdas.h
+s0srflvset.o: s0srflvset.c ../libsrf/libsrf.h
+n2efileclose.o: n2efileclose.c ../src/nusdas.h
+s1srfrdrdic.o: s1srfrdrdic.c ../libsrf/libsrf.h
+n2nqnrdvtime.o: n2nqnrdvtime.c ../src/nusdas.h
+n3write3d.o: n3write3d.c ../src/nusdas.h
+n2eltpreset1.o: n2eltpreset1.c ../src/nusdas.h
+n3cut2raw.o: n3cut2raw.c ../src/nusdas.h
+n2setmask.o: n2setmask.c ../src/nusdas.h
+n3info.o: n3info.c ../src/nusdas.h
+n0inqdata.o: n0inqdata.c ../src/nusdas.h
+n2derlen8bit.o: n2derlen8bit.c ../src/nusdas.h
+n3gzip.o: n3gzip.c ../src/nusdas.h
+n3swab2.o: n3swab2.c ../src/nusdas.h
+n2swabfmt.o: n2swabfmt.c ../src/nusdas.h
+n2unpack.o: n2unpack.c ../src/nusdas.h
+n2uncpsd.o: n2uncpsd.c ../src/nusdas.h
+n2subcdelt.o: n2subcdelt.c ../src/nusdas.h
+n2subctdif.o: n2subctdif.c ../src/nusdas.h
+n1bcsrfship2.o: n1bcsrfship2.c ../src/nusdas.h
+n2nqnrdbtime.o: n2nqnrdbtime.c ../src/nusdas.h
+s2srflvset.o: s2srflvset.c ../libsrf/libsrf.h
+s1srflvset.o: s1srflvset.c ../libsrf/libsrf.h
+n1write.o: n1write.c ../src/nusdas.h
+n3swab4.o: n3swab4.c ../src/nusdas.h
+n2inqdata.o: n2inqdata.c ../src/nusdas.h
+n2meterreset.o: n2meterreset.c ../src/nusdas.h
+n2crgauinqjn.o: n2crgauinqjn.c ../src/nusdas.h
+n2inqcntl.o: n2inqcntl.c ../src/nusdas.h
+n1nqnrdbtime.o: n1nqnrdbtime.c ../src/nusdas.h
+n3qparameter.o: n3qparameter.c ../src/nusdas.h
+n0cut2raw.o: n0cut2raw.c ../src/nusdas.h
+n1subceta2.o: n1subceta2.c ../src/nusdas.h
+n1cut2.o: n1cut2.c ../src/nusdas.h
+n1iocntl.o: n1iocntl.c ../src/nusdas.h
+n3write.o: n3write.c ../src/nusdas.h
+n0subcsigm2.o: n0subcsigm2.c ../src/nusdas.h
+n1meterreset.o: n1meterreset.c ../src/nusdas.h
+n1read2raw.o: n1read2raw.c ../src/nusdas.h
+n1efileclose.o: n1efileclose.c ../src/nusdas.h
+n0nzipnbytes.o: n0nzipnbytes.c ../src/nusdas.h
+s2archamdstn.o: s2archamdstn.c ../libsrf/libsrf.h
+n3read2raw.o: n3read2raw.c ../src/nusdas.h
+n1cetainqnz2.o: n1cetainqnz2.c ../src/nusdas.h
+n3cetainqnz2.o: n3cetainqnz2.c ../src/nusdas.h
+s0rdrlvtrans.o: s0rdrlvtrans.c ../libsrf/libsrf.h
+n1swab2.o: n1swab2.c ../src/nusdas.h
+n3esfflush.o: n3esfflush.c ../src/nusdas.h
+n1grid.o: n1grid.c ../src/nusdas.h
+n1cutraw.o: n1cutraw.c ../src/nusdas.h
+n3lfileclose.o: n3lfileclose.c ../src/nusdas.h
+n0nqnrdvtime.o: n0nqnrdvtime.c ../src/nusdas.h
+n0cut2.o: n0cut2.c ../src/nusdas.h
+n3ubcpreset1.o: n3ubcpreset1.c ../src/nusdas.h
+n1swab4.o: n1swab4.c ../src/nusdas.h
+n3read2.o: n3read2.c ../src/nusdas.h
+n3bcsrfship2.o: n3bcsrfship2.c ../src/nusdas.h
+n1subczhyb2.o: n1subczhyb2.c ../src/nusdas.h
+n2cut2raw.o: n2cut2raw.c ../src/nusdas.h
+n0bcsrfship2.o: n0bcsrfship2.c ../src/nusdas.h
+n2ubcsrfship.o: n2ubcsrfship.c ../src/nusdas.h
+n0cut.o: n0cut.c ../src/nusdas.h
+n0fileclose2.o: n0fileclose2.c ../src/nusdas.h
+n2subcsigm2.o: n2subcsigm2.c ../src/nusdas.h
+n0meterreset.o: n0meterreset.c ../src/nusdas.h
+n0swabfmt.o: n0swabfmt.c ../src/nusdas.h
+n3gaupreset1.o: n3gaupreset1.c ../src/nusdas.h
+n2read.o: n2read.c ../src/nusdas.h
+n1inqdef.o: n1inqdef.c ../src/nusdas.h
+n1nqsubcinfo.o: n1nqsubcinfo.c ../src/nusdas.h
+n1gunzip.o: n1gunzip.c ../src/nusdas.h
+n1uncpsd.o: n1uncpsd.c ../src/nusdas.h
+n1info.o: n1info.c ../src/nusdas.h
+n0subczhyb.o: n0subczhyb.c ../src/nusdas.h
+n3swab8.o: n3swab8.c ../src/nusdas.h
+n0eterchange.o: n0eterchange.c ../src/nusdas.h
+n1subctdif.o: n1subctdif.c ../src/nusdas.h
+n3rgauinqjn2.o: n3rgauinqjn2.c ../src/nusdas.h
+n1subcsigm.o: n1subcsigm.c ../src/nusdas.h
+n3read.o: n3read.c ../src/nusdas.h
+n2rlen8biti1.o: n2rlen8biti1.c ../src/nusdas.h
+n3fileclose2.o: n3fileclose2.c ../src/nusdas.h
+n2iocntl.o: n2iocntl.c ../src/nusdas.h
+n3makemask.o: n3makemask.c ../src/nusdas.h
+n3subcsigm.o: n3subcsigm.c ../src/nusdas.h
+n3crgauinqjn.o: n3crgauinqjn.c ../src/nusdas.h
+n0makemask.o: n0makemask.c ../src/nusdas.h
+n3subcsigm2.o: n3subcsigm2.c ../src/nusdas.h
+n1hybpreset1.o: n1hybpreset1.c ../src/nusdas.h
+n3nqnrdbtime.o: n3nqnrdbtime.c ../src/nusdas.h
+n0subctdif2.o: n0subctdif2.c ../src/nusdas.h
+n2subceta.o: n2subceta.c ../src/nusdas.h
+n1grid2.o: n1grid2.c ../src/nusdas.h
+n0info2.o: n0info2.c ../src/nusdas.h
+n1gaupreset1.o: n1gaupreset1.c ../src/nusdas.h
+n0gzip.o: n0gzip.c ../src/nusdas.h
+n3hybpreset1.o: n3hybpreset1.c ../src/nusdas.h
+n2read2.o: n2read2.c ../src/nusdas.h
+n3subcsrf.o: n3subcsrf.c ../src/nusdas.h
+n2scands.o: n2scands.c ../src/nusdas.h
+n0gunzip.o: n0gunzip.c ../src/nusdas.h
+n2inqdata2.o: n2inqdata2.c ../src/nusdas.h
+n1nqnrdvtime.o: n1nqnrdvtime.c ../src/nusdas.h
+n1subcdelt.o: n1subcdelt.c ../src/nusdas.h
+s2srflvtrans.o: s2srflvtrans.c ../libsrf/libsrf.h
+n0read3d.o: n0read3d.c ../src/nusdas.h
+n1scands.o: n1scands.c ../src/nusdas.h
+n1cpsdnbytes.o: n1cpsdnbytes.c ../src/nusdas.h
+n2write.o: n2write.c ../src/nusdas.h
+n2nqsubcinfo.o: n2nqsubcinfo.c ../src/nusdas.h
+s2srfamdrdic.o: s2srfamdrdic.c ../libsrf/libsrf.h
+n2inqcntl2.o: n2inqcntl2.c ../src/nusdas.h
+n0cetainqnz2.o: n0cetainqnz2.c ../src/nusdas.h
+n0inqcntl.o: n0inqcntl.c ../src/nusdas.h
+n3subczhyb2.o: n3subczhyb2.c ../src/nusdas.h
+n2gaupreset1.o: n2gaupreset1.c ../src/nusdas.h
+n1ubcpreset1.o: n1ubcpreset1.c ../src/nusdas.h
+n1subcdelt2.o: n1subcdelt2.c ../src/nusdas.h
+n0subcdelt2.o: n0subcdelt2.c ../src/nusdas.h
+s1archamdstn.o: s1archamdstn.c ../libsrf/libsrf.h
+n2read3d.o: n2read3d.c ../src/nusdas.h
+s1srfamdrdic.o: s1srfamdrdic.c ../libsrf/libsrf.h
+n3inqcntl.o: n3inqcntl.c ../src/nusdas.h
+n0cpsdnbytes.o: n0cpsdnbytes.c ../src/nusdas.h
+n1cut.o: n1cut.c ../src/nusdas.h
+n3cut2.o: n3cut2.c ../src/nusdas.h
+n3rlennbiti1.o: n3rlennbiti1.c ../src/nusdas.h
+n2swab4.o: n2swab4.c ../src/nusdas.h
+s1srfamdaqc.o: s1srfamdaqc.c ../libsrf/libsrf.h
+n2swab2.o: n2swab2.c ../src/nusdas.h
+n2esfflush.o: n2esfflush.c ../src/nusdas.h
+n3derlen8bit.o: n3derlen8bit.c ../src/nusdas.h
+n0read2raw.o: n0read2raw.c ../src/nusdas.h
+n3subceta2.o: n3subceta2.c ../src/nusdas.h
+n1crgauinqjn.o: n1crgauinqjn.c ../src/nusdas.h
+n2cutraw.o: n2cutraw.c ../src/nusdas.h
+s1srflvtrans.o: s1srflvtrans.c ../libsrf/libsrf.h
+n0swab4.o: n0swab4.c ../src/nusdas.h

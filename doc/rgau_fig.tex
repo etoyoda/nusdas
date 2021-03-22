@@ -1,0 +1,60 @@
+%#!platex rgau_fig && dvips -E -D600 rgau_fig
+\documentclass{article}
+\usepackage{pstricks}
+\usepackage{pst-eps}
+\usepackage{pst-plot}
+\usepackage{pst-node}
+\begin{document}
+\bfseries
+\TeXtoEPS
+\psset{unit=10mm}
+
+\pspicture(-10, -8)(10, 8)
+\pscircle(0,0){6}
+\psline[linestyle=dashed](0,6)(0,-6)
+\psline[linewidth=4pt](-4.47, 4)(4.47, 4)
+\psline[linewidth=4pt](-5.66, 2)(5.66, 2)
+\psline[linewidth=4pt](-6, 0)(6, 0)
+\psline[linewidth=4pt](-5.66, -2)(5.66, -2)
+\psline[linewidth=4pt](-4.47, -4)(4.47, -4)
+\psline[linewidth=4pt](-3.5, -2)(-3.5, 2)
+\psline[linewidth=4pt](3.5, -2)(3.5, 2)
+\psarc[linewidth=4pt](0,0){6}{19.5}{41.8}
+\psarc[linewidth=4pt](0,0){6}{138.2}{160.5}
+\psarc[linewidth=4pt](0,0){6}{-41.8}{-19.5}
+\psarc[linewidth=4pt](0,0){6}{-160.5}{-138.2}
+\pscustom[fillstyle=vlines, fillcolor=lightgray]{
+\psarc(0,0){6}{-19.5}{19.5}
+\psline(5.66,2)(3.55,2)(3.55,-2)(5.66,-2)
+}
+\psline{->}(5,5.5)(2,4.5)
+\rput[l]{0}(5,5.5){\psframebox{
+\parbox{3.5cm}{南北方向の格子番号1\\東西方向の格子番号1}}}
+
+\psline{->}(5.6,3)(2,3)
+\rput[l]{0}(5.6,3){\psframebox{
+\parbox{3.5cm}{南北方向の格子番号2\\東西方向の格子番号1}}}
+
+\psline{->}(-5.6,4)(-1,1)
+\rput[r]{0}(-5.6,4){\psframebox{
+\parbox{3.5cm}{南北方向の格子番号3\\東西方向の格子番号1}}}
+
+\psline{->}(-7, -0.5)(-5,1)
+\rput[tr]{0}(-6.0,-0.5){\psframebox{
+\parbox{3.5cm}{南北方向の格子番号3\\東西方向の格子番号3}}}
+
+\psline{->}(7, -0.5)(5,1)
+\rput[tl]{0}(6.0,-0.5){\psframebox{
+\parbox{3.5cm}{南北方向の格子番号3\\東西方向の格子番号2}}}
+
+\psline{->}(5,-5.5)(2,-4.5)
+\rput[l]{0}(5,-5.5){\psframebox{
+\parbox{3.5cm}{南北方向の格子番号6\\東西方向の格子番号1}}}
+
+\rput[r]{0}(-6,-6){太線は格子の境界}
+\rput[r]{0}(-6,-6.5){点線は東経0$^\circ$}
+
+\endpspicture
+
+\endTeXtoEPS
+\end{document}

@@ -1,0 +1,28 @@
+\subsection{NUSDAS\_GUNZIP\_NBYTES: gzip 圧縮データの展開後の長さを得る}
+\APILabel{nusdas.gunzip.nbytes}
+
+\Prototype
+\begin{quote}
+CALL {\bf NUSDAS\_GUNZIP\_NBYTES}({\it in\_data}, {\it in\_nbytes}, {\it result})
+\end{quote}
+
+\begin{tabular}{l|rllp{16em}}
+\hline
+\ArgName & \ArgType & \ArrayDim & I/O & \ArgRole \\
+\hline
+{\it in\_data} & \AnyType & \AnySize & IN &  圧縮データ  \\
+{\it in\_nbytes} & INTEGER(4) &  & IN &  圧縮データのバイト数  \\
+{\it result} & INTEGER(4) &  & OUT & \ResultCode \\
+\hline
+\end{tabular}
+\paragraph{\FuncDesc}
+入力データ {\it in\_data} を gzip 展開するときに必要となる
+結果格納領域のバイト数を返す。
+\paragraph{\ResultCode}
+\begin{quote}
+\begin{description}
+\item[{\bf -98}] NuSDaS が ZLib を使うように設定されていない。
+\item[{\bf 正}] 展開後の長さ
+\end{description}\end{quote}
+\paragraph{履歴}
+本関数は NuSDaS 1.3 で新設された。

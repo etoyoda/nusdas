@@ -1,0 +1,74 @@
+all: lib
+
+.PHONY: all lib testbin clean doc distclean
+
+lib: charset
+	cd libsrf && $(MAKE) all
+	cd libnwprpack && $(MAKE) all
+	cd nwplib8 && $(MAKE) all
+	cd src && $(MAKE) all CFlags=$(CFlags) CCFlags=$(CCFlags)
+	cd wrap && $(MAKE) all CFlags=$(CFlags) CCFlags=$(CCFlags)
+
+testbin: lib
+	cd test && $(MAKE) testbin CFlags=$(CFlags) CCFlags=$(CCFlags)
+
+install: lib
+	cd libsrf && $(MAKE) install
+	cd libnwprpack && $(MAKE) install
+	cd nwplib8 && $(MAKE) install
+	cd src && $(MAKE) install
+
+clean: decharset
+	cd libsrf && $(MAKE) clean
+	cd libnwprpack && $(MAKE) clean
+	cd nwplib8 && $(MAKE) clean
+	cd src && $(MAKE) clean
+	cd test && $(MAKE) clean
+	cd wrap && $(MAKE) clean
+	-rm -rf *~ autom4te.cache
+
+charset:
+	cd src && $(MAKE) charset
+	cd nwplib8 && $(MAKE) charset
+	cd libsrf && $(MAKE) charset
+	cd libnwprpack && $(MAKE) charset
+
+decharset:
+	cd src && $(MAKE) decharset
+	cd nwplib8 && $(MAKE) decharset
+	cd libsrf && $(MAKE) decharset
+	cd libnwprpack && $(MAKE) decharset
+
+shift_jis:
+	cd src && $(MAKE) shift_jis
+	cd nwplib8 && $(MAKE) shift_jis
+	cd libsrf && $(MAKE) shift_jis
+	cd libnwprpack && $(MAKE) shift_jis
+
+euc-jp:
+	cd src && $(MAKE) euc-jp
+	cd nwplib8 && $(MAKE) euc-jp
+	cd libsrf && $(MAKE) euc-jp
+	cd libnwprpack && $(MAKE) euc-jp
+
+utf8:
+	cd src && $(MAKE) utf8
+	cd nwplib8 && $(MAKE) utf8
+	cd libsrf && $(MAKE) utf8
+	cd libnwprpack && $(MAKE) utf8
+
+test: testbin
+	cd test && $(MAKE) test
+
+doc:
+	cd src && $(MAKE) doc
+
+distclean: clean
+	-rm -f config.status config.log
+	cd nwplib8 && $(MAKE) distclean
+	cd libnwprpack && $(MAKE) distclean
+	cd libsrf && $(MAKE) distclean
+	cd wrap && $(MAKE) distclean
+	cd src && $(MAKE) distclean
+	cd test && $(MAKE) distclean
+	-rm -f InstNaps8.rb Makefile

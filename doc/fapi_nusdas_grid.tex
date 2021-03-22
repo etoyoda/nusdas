@@ -1,0 +1,48 @@
+\subsection{NUSDAS\_GRID: 格子情報へのアクセス}
+\APILabel{nusdas.grid}
+
+\Prototype
+\begin{quote}
+CALL {\bf NUSDAS\_GRID}({\it type1}, {\it type2}, {\it type3}, {\it basetime}, {\it member}, {\it validtime}, {\it proj}, {\it gridsize}, {\it gridinfo}, {\it value}, {\it getput}, {\it result})
+\end{quote}
+
+\begin{tabular}{l|rllp{16em}}
+\hline
+\ArgName & \ArgType & \ArrayDim & I/O & \ArgRole \\
+\hline
+{\it type1} & CHARACTER(8) &  & IN &  種別1  \\
+{\it type2} & CHARACTER(4) &  & IN &  種別2  \\
+{\it type3} & CHARACTER(4) &  & IN &  種別3  \\
+{\it basetime} & INTEGER(4) &  & IN &  基準時刻(通算分)  \\
+{\it member} & CHARACTER(4) &  & IN &  メンバー名  \\
+{\it validtime} & INTEGER(4) &  & IN &  対象時刻(通算分)  \\
+{\it proj} & CHARACTER(4) &  & I/O &  投影法3字略号  \\
+{\it gridsize} & INTEGER(4) & 2 & I/O &  格子数  \\
+{\it gridinfo} & REAL(4) & 14 & I/O &  投影法緒元  \\
+{\it value} & CHARACTER(4) &  & I/O &  格子点値が周囲の場を代表する方法  \\
+{\it getput} & CHARACTER(3) &  & IN &  入出力指示 ({\it "GET}" または {\it "PUT}")  \\
+{\it result} & INTEGER(4) &  & OUT & \ResultCode \\
+\hline
+\end{tabular}
+\paragraph{\FuncDesc}このAPIは、CNTLレコードに格納された格子情報(つまり定義ファイルに書かれた
+格子情報)を返す。nusdas\_parameter\_change を使って、定義ファイルに書いた
+格子数から変更した場合には正しい情報が得られない。このような場合は 
+nusdas\_inq\_data を使う。
+
+gridinfo には4バイト単精度浮動小数点型の配列で14要素存在するものを指定する。
+
+これはCNTLレコードの項番 15 〜 21に対応する。
+順に基準点X座標、基準点Y座標、基準点緯度、基準点経度、
+X方向格子間隔、Y方向格子間隔、標準緯度、標準経度、第2標準緯度、第2標準経度、
+緯度1、経度1、緯度2、経度2となる。
+
+value の値については\TabRef{tab:value}を参照。
+
+\paragraph{\ResultCode}
+\begin{quote}
+\begin{description}
+\item[{\bf 0}] 正常
+\item[{\bf -5}] 入出力指示が不正
+\end{description}\end{quote}
+\paragraph{ 履歴 }
+この関数は NuSDaS 1.0 から実装されていた。

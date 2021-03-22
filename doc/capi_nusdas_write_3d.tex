@@ -1,0 +1,45 @@
+\subsection{nusdas\_write\_3d: 高次元書き出し}
+\APILabel{nusdas.write.3d}
+
+\Prototype
+\begin{quote}
+N\_SI4 {\bf nusdas\_write\_3d}(const char {\it type1}[8], const char {\it type2}[4], const char {\it type3}[4], const N\_SI4 $\ast${\it basetime}, const char {\it member[\,]}[4], const N\_SI4 {\it validtime}[\,], const char {\it plane[\,]}[6], const char {\it element[\,]}[6], const N\_SI4 $\ast${\it nrecs}, const void $\ast${\it udata}, const char {\it utype}[2], const N\_SI4 $\ast${\it usize});
+\end{quote}
+
+\begin{tabular}{l|rp{20em}}
+\hline
+\ArgName & \ArgType & \ArgRole \\
+\hline
+{\it type1} & const char [8] &  種別1  \\
+{\it type2} & const char [4] &  種別2  \\
+{\it type3} & const char [4] &  種別3  \\
+{\it basetime} & const N\_SI4 $\ast$ &  基準時刻  \\
+{\it member} & const char [\,][4] &  メンバ名の配列  \\
+{\it validtime} & const N\_SI4 [\,] &  対象時刻の配列  \\
+{\it plane} & const char [\,][6] &  面名の配列  \\
+{\it element} & const char [\,][6] &  要素名の配列  \\
+{\it nrecs} & const N\_SI4 $\ast$ &  レコード数  \\
+{\it udata} & const void $\ast$ &  データ配列  \\
+{\it utype} & const char [2] &  データ配列の型  \\
+{\it usize} & const N\_SI4 $\ast$ &  レコードあたり要素数  \\
+\hline
+\end{tabular}
+
+\paragraph{\FuncDesc}
+{\it member}, {\it validtime}, {\it plane}, {\it element} には {\it nrecs} 個の大きさを持つ配列を指定する。
+これらの配列の各要素を指定して \APILink{nusdas.write}{nusdas\_write} を順次呼びだす。
+データ配列の要素数は {\it nrecs} * {\it usize} 個でなければならない。
+nusdas\_write の返却値（終了コード）が {\it usize} と一致しなかった場合は書き出しを終了する。
+
+utypeは\ref{tab:typename}のものを指定するが、これらの値はN\_を接頭辞につけた定数で参照できる。
+例えば'R4'であれば定数N\_R4で参照できる。
+
+\paragraph{\ResultCode}
+\begin{quote}
+\begin{description}
+\item[{\bf 正}] 全てのデータを書き出すことができた場合は {\it nrecs} * {\it usize} を返す。
+\item[{\bf 負}] 最後に呼び出した \APILink{nusdas.write}{nusdas\_write} の終了コードを返す。
+\end{description}\end{quote}
+
+\paragraph{ 注意 }
+書き出しを途中で終了した場合、どこまで処理したかを知る方法は無い。

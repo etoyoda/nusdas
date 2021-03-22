@@ -1,0 +1,48 @@
+\subsection{SRF\_AMD\_SLCT: アメダスデータを指定の地点番号順に並べる}
+\APILabel{srf.amd.slct}
+
+\Prototype
+\begin{quote}
+CALL {\bf SRF\_AMD\_SLCT}({\it st\_r}, {\it n\_st\_r}, {\it d\_r}, {\it t\_r}, {\it st\_n}, {\it n\_st\_n}, {\it d\_n}, {\it t\_n}, {\it sort\_f}, {\it result})
+\end{quote}
+
+\begin{tabular}{l|rllp{16em}}
+\hline
+\ArgName & \ArgType & \ArrayDim & I/O & \ArgRole \\
+\hline
+{\it st\_r} & INTEGER(4) &  & IN &  結果の順を指示する地点番号表  \\
+{\it n\_st\_r} & INTEGER(4) &  & IN &  結果配列長  \\
+{\it d\_r} & \AnyType & \AnySize & OUT &  結果配列  \\
+{\it t\_r} & CHARACTER($\ast$) & \AnySize & IN &  結果配列の型  \\
+{\it st\_n} & INTEGER(4) &  & I/O &  元データ地点番号配列  \\
+{\it n\_st\_n} & INTEGER(4) &  & IN &  元データ配列長  \\
+{\it d\_n} & \AnyType & \AnySize & I/O &  元データ配列  \\
+{\it t\_n} & CHARACTER($\ast$) & \AnySize & IN &  元データ配列の型  \\
+{\it sort\_f} & INTEGER(4) &  & IN &  未ソートフラグ  \\
+{\it result} & INTEGER(4) &  & OUT & \ResultCode \\
+\hline
+\end{tabular}
+\paragraph{\FuncDesc}
+長さ {\it n\_st\_n} の地点番号配列 {\it st\_n} と
+対応する順に並んだ {\it t\_n} 型の配列 {\it d\_n} から、
+別の地点番号配列 {\it st\_r} (要素数 {\it n\_st\_r} 個) の順に並んだ
+{\it t\_r} 型の配列 {\it d\_r} (要素数 {\it n\_st\_r} 個) を作る。
+
+配列 {\it st\_n} と {\it d\_n} があらかじめソートされている場合 {\it sort\_f} に
+N\_OFF (nusdas.h で定義される) を指定する。
+そうでない場合 {\it sort\_f} に N\_ON を指定するとソートされる。
+
+\paragraph{\ResultCode}
+\begin{quote}
+\begin{description}
+\item[{\bf 0}] 配列 {\it st\_r} の全地点が見付かった
+\item[{\bf 正}] みつからなかった地点数
+\end{description}\end{quote}
+
+\begin{itemize}
+\item 型は nusdas.h で定義される N\_R4, N\_I4, N\_I2 のいずれかで指定する。
+\item 配列 {\it st\_r} に含まれる地点番号が {\it st\_n} で見付からない場合は
+nusdas.h で定義される欠損値 N\_MV\_R4, N\_MV\_SI4, N\_MV\_SI2 が入る。
+\end{itemize}
+\paragraph{履歴}
+この関数は NAPS7 時代から存在した。

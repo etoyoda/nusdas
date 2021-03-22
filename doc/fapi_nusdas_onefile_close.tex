@@ -1,0 +1,32 @@
+\subsection{NUSDAS\_ONEFILE\_CLOSE: 指定データファイルを閉じる}
+\APILabel{nusdas.onefile.close}
+
+\Prototype
+\begin{quote}
+CALL {\bf NUSDAS\_ONEFILE\_CLOSE}({\it type1}, {\it type2}, {\it type3}, {\it basetime}, {\it member}, {\it validtime}, {\it result})
+\end{quote}
+
+\begin{tabular}{l|rllp{16em}}
+\hline
+\ArgName & \ArgType & \ArrayDim & I/O & \ArgRole \\
+\hline
+{\it type1} & CHARACTER(8) &  & IN &  種別1  \\
+{\it type2} & CHARACTER(4) &  & IN &  種別2  \\
+{\it type3} & CHARACTER(4) &  & IN &  種別3  \\
+{\it basetime} & INTEGER(4) &  & IN &  基準時刻(通算分)  \\
+{\it member} & CHARACTER(4) &  & IN &  メンバー名  \\
+{\it validtime} & INTEGER(4) &  & IN &  対象時刻  \\
+{\it result} & INTEGER(4) &  & OUT & \ResultCode \\
+\hline
+\end{tabular}
+
+\paragraph{\ResultCode}
+\begin{quote}
+\begin{description}
+\item[{\bf 0}] 正常終了
+\item[{\bf 1}] ファイルクローズ前の書き込み時に定義ファイルを読み込めなかった
+\item[{\bf -1}] ファイルクローズ前の書き込み時にIOエラーが発生
+\end{description}\end{quote}
+
+\paragraph{\FuncDesc}\paragraph{履歴}
+この関数は NuSDaS 1.0 から存在した.

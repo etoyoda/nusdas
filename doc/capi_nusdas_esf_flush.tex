@@ -1,0 +1,24 @@
+\subsection{nusdas\_esf\_flush: NAPS7型ESファイルの出力完了}
+\APILabel{nusdas.esf.flush}
+
+\Prototype
+\begin{quote}
+N\_SI4 {\bf nusdas\_esf\_flush}(const char {\it type1}[8], const char {\it type2}[4], const char {\it type3}[4], const N\_SI4 $\ast${\it basetime}, const char {\it member}[4], const N\_SI4 $\ast${\it validtime});
+\end{quote}
+
+\begin{tabular}{l|rp{20em}}
+\hline
+\ArgName & \ArgType & \ArgRole \\
+\hline
+{\it type1} & const char [8] &  種別1  \\
+{\it type2} & const char [4] &  種別2  \\
+{\it type3} & const char [4] &  種別3  \\
+{\it basetime} & const N\_SI4 $\ast$ &  基準時刻  \\
+{\it member} & const char [4] &  メンバー名  \\
+{\it validtime} & const N\_SI4 $\ast$ &  対象時刻  \\
+\hline
+\end{tabular}
+\paragraph{\FuncDesc}
+\paragraph{履歴} \APILink{nusdas.esf.flush}{nusdas\_esf\_flush} は NuSDaS 1.0 から存在する。
+\paragraph{\Bug} NuSDaS 1.3 からは ES をサポートしていないため、
+この関数はダミーである。

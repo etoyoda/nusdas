@@ -1,0 +1,30 @@
+\subsection{NUSDAS\_SUBC\_RGAU2: SUBC RGAU へのアクセス }
+\APILabel{nusdas.subc.rgau2}
+
+\Prototype
+\begin{quote}
+CALL {\bf NUSDAS\_SUBC\_RGAU2}({\it type1}, {\it type2}, {\it type3}, {\it basetime}, {\it member}, {\it validtime1}, {\it validtime2}, {\it j}, {\it j\_start}, {\it j\_n}, {\it i}, {\it i\_start}, {\it i\_n}, {\it lat}, {\it getput}, {\it result})
+\end{quote}
+
+\begin{tabular}{l|rllp{16em}}
+\hline
+\ArgName & \ArgType & \ArrayDim & I/O & \ArgRole \\
+\hline
+{\it type1} & CHARACTER(8) &  & IN &  種別1  \\
+{\it type2} & CHARACTER(4) &  & IN &  種別2  \\
+{\it type3} & CHARACTER(4) &  & IN &  種別3  \\
+{\it basetime} & INTEGER(4) &  & IN &  基準時刻(通算分)  \\
+{\it member} & CHARACTER(4) &  & IN &  メンバー名  \\
+{\it validtime1} & INTEGER(4) &  & IN &  対象時刻1(通算分)  \\
+{\it validtime2} & INTEGER(4) &  & IN &  対象時刻2(通算分)  \\
+{\it j} & INTEGER(4) &  & I/O &  全球の南北分割数  \\
+{\it j\_start} & INTEGER(4) &  & I/O &  データの最北格子の番号(1始まり)  \\
+{\it j\_n} & INTEGER(4) &  & I/O &  データの南北格子数  \\
+{\it i} & INTEGER(4) & \AnySize & I/O &  全球の東西格子数  \\
+{\it i\_start} & INTEGER(4) & \AnySize & I/O &  データの最西格子の番号(1始まり)  \\
+{\it i\_n} & INTEGER(4) & \AnySize & I/O &  データの東西格子数  \\
+{\it lat} & REAL(4) & \AnySize & I/O &  緯度  \\
+{\it getput} & CHARACTER(3) &  & IN &  入出力指示 ({\it "GET}" または {\it "PUT}")  \\
+{\it result} & INTEGER(4) &  & OUT & \ResultCode \\
+\hline
+\end{tabular}

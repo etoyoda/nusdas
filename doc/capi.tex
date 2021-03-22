@@ -1,0 +1,133 @@
+\Chapter{C リファレンスマニュアル}
+\label{chap:capi}
+
+\renewcommand{\APILabel}[1]{\label{capi:#1}}
+\renewcommand{\APILink}[2]{#2 (p. \pageref{capi:#1})}
+
+\section{凡例}
+
+\begin{itemize}
+ \item
+  引数 {\it fmt} または {\it utype} (配列の型) に与えるべき定数名は、
+  \TabRef{tab:typename}参照。
+\end{itemize}
+
+\clearpage
+\section{最低限知るべき関数}
+
+\input{capi_nusdas_read}
+
+\input{capi_nusdas_write}
+
+\input{capi_nusdas_iocntl}
+
+\input{capi_nusdas_allfile_close}
+
+\clearpage
+\section{データ読書関数}
+
+\input{capi_nusdas_cut}
+\input{capi_nusdas_cut_raw}
+\input{capi_nusdas_read2_raw}
+\input{capi_nusdas_read_3d}
+\input{capi_nusdas_write_3d}
+
+\clearpage
+\section{動作制御用関数}
+
+\input{capi_nusdas_esf_flush}
+\input{capi_nusdas_make_mask}
+\input{capi_nusdas_set_mask}
+\input{capi_nusdas_onefile_close}
+\input{capi_nusdas_parameter_change}
+\input{capi_nusdas_parameter_reset}
+\input{capi_nusdas_inq_parameter}
+
+\clearpage
+\section{問合せ関数}
+
+\input{capi_nusdas_grid}
+\input{capi_nusdas_info}
+\input{capi_nusdas_inq_cntl}
+\input{capi_nusdas_inq_data}
+\input{capi_nusdas_inq_def}
+\input{capi_nusdas_inq_nrdbtime}
+\input{capi_nusdas_inq_nrdvtime}
+\input{capi_nusdas_inq_subcinfo}
+
+\paragraph{注意}
+「レコード内容」として取得されるのは表 \ref{table.fmt.subc} 項番 6 と同じで
+あり、その長さはレコード有効長から 16 を引いたものに等しい。
+
+\input{capi_nusdas_scan_ds}
+
+\clearpage
+\section{メタデータ用関数}
+
+\input{capi_nusdas_subc_delt}
+\input{capi_nusdas_subc_delt_preset1}
+\input{capi_nusdas_subc_eta}
+\input{capi_nusdas_subc_eta_inq_nz}
+\input{capi_nusdas_subc_preset1}
+\input{capi_nusdas_subc_rgau}
+\input{capi_nusdas_subc_rgau_inq_jn}
+\input{capi_nusdas_subc_rgau_preset1}
+\input{capi_nusdas_subc_sigm}
+\input{capi_nusdas_subc_srf}
+\input{capi_nusdas_subc_srf_ship}
+\input{capi_nusdas_subc_tdif}
+\input{capi_nusdas_subc_zhyb}
+\input{capi_nusdas_subc_zhyb_preset1}
+
+\clearpage
+\section{サービスサブルーチン関数}
+\label{capi:service}
+
+\input{capi_bfopen}
+\input{capi_bfclose}
+\input{capi_bfread}
+\input{capi_bfwrite}
+\input{capi_bfread_native}
+\input{capi_bfwrite_native}
+\input{capi_bfgetpos}
+\input{capi_bfsetpos}
+\input{capi_bfseek}
+\input{capi_endian_swab2}
+\input{capi_endian_swab4}
+\input{capi_endian_swab8}
+\input{capi_endian_swab_fmt}
+\input{capi_nusdas_gunzip}
+\input{capi_nusdas_gunzip_nbytes}
+\input{capi_nusdas_gzip}
+\input{capi_nusdas_snprintf}
+\input{capi_nusdas_unpack}
+\input{capi_nusdas_uncpsd}
+\input{capi_nusdas_uncpsd_nbytes}
+\input{capi_n_decode_rlen_nbit_i1.tex}
+\input{capi_n_encode_rlen_8bit.tex}
+\input{capi_n_encode_rlen_8bit_i1.tex}
+
+\clearpage
+\section{降水短時間ライブラリ}
+\label{capi:libsrf}
+
+\subsection{概要}
+
+降水短時間ルーチンに関連するアメダスデータ・レーダーデータに
+特有な処理のための関数をまとめたものが
+降水短時間ライブラリ libsrf.a として提供される。
+ライブラリ全体の関数プロトタイプを与えるヘッダは存在しない%
+\footnote{このため IBM 系環境では Fortran ラッパーが提供できない。}が、
+\APILink{srf.amd.rdic}{srf\_amd\_rdic} 及び
+\APILink{srf.search.amdstn}{srf\_search\_amdstn} を呼ぶ時は
+SRF\_AMD\_SINFO 型やマクロの定義を参照するため
+\verb|<srf_amedas.h>| をインクルードする必要がある。
+
+\input{capi_rdr_lv_trans.tex}
+\input{capi_srf_amd_aqc.tex}
+\input{capi_srf_amd_rdic.tex}
+\input{capi_srf_amd_slct.tex}
+\input{capi_srf_lv_set.tex}
+\input{capi_srf_lv_trans.tex}
+\input{capi_srf_rd_rdic.tex}
+\input{capi_srf_search_amdstn.tex}

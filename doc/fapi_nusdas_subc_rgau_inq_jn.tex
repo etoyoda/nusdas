@@ -1,0 +1,32 @@
+\subsection{NUSDAS\_SUBC\_RGAU\_INQ\_JN: SUBC RGAU 記録の大きさを問合せ}
+\APILabel{nusdas.subc.rgau.inq.jn}
+
+\Prototype
+\begin{quote}
+CALL {\bf NUSDAS\_SUBC\_RGAU\_INQ\_JN}({\it type1}, {\it type2}, {\it type3}, {\it basetime}, {\it member}, {\it validtime}, {\it j\_n}, {\it result})
+\end{quote}
+
+\begin{tabular}{l|rllp{16em}}
+\hline
+\ArgName & \ArgType & \ArrayDim & I/O & \ArgRole \\
+\hline
+{\it type1} & CHARACTER(8) &  & IN &  種別1  \\
+{\it type2} & CHARACTER(4) &  & IN &  種別2  \\
+{\it type3} & CHARACTER(4) &  & IN &  種別3  \\
+{\it basetime} & INTEGER(4) &  & IN &  基準時刻(通算分)  \\
+{\it member} & CHARACTER(4) &  & IN &  メンバー名  \\
+{\it validtime} & INTEGER(4) &  & IN &  対象時刻(通算分)  \\
+{\it j\_n} & INTEGER(4) &  & OUT &  南北格子数  \\
+{\it result} & INTEGER(4) &  & OUT & \ResultCode \\
+\hline
+\end{tabular}
+\paragraph{\FuncDesc}RGAU に記録されている j\_n (南北格子数) を問い合わせる。
+\paragraph{\ResultCode}
+\begin{quote}
+\begin{description}
+\item[{\bf 正}] 正常終了
+\item[{\bf -2}] 要求されたレコードが存在しない、または書き込まれていない。
+\item[{\bf -3}] レコードのサイズが不正
+\end{description}\end{quote}
+\paragraph{ 履歴 }
+この関数は NuSDaS1.2で導入された。

@@ -1,0 +1,1122 @@
+#!/usr/bin/env ruby
+
+require 'fileutils'
+require 'optparse'
+
+class Installer
+
+	def initialize
+		@USRDIR = nil
+		@CLASS, @SRCCLASS, @LIBCLASS = 'Comm', 'Nwp', 'Nwp'
+		@CFLAGS = "@CFLAGS@"
+		@FFLAGS = "@FFLAGS@"
+		@ARFLAGS = "@ARFLAGS@".split(/\s+/).reject{|arg|
+			/^-?[rq]v?$/ =~ arg}.join(' ')
+		@SUPCED = nil
+		@mode = nil
+		@fu = FileUtils::Verbose
+		@SYSHDRS = "stdio.h,string.h,stdlib.h,limits.h" +
+		",float.h,sys/types.h,sys/stat.h,fcntl.h,unistd.h" +
+		",stddef.h,ctype.h,stdarg.h,dirent.h,setjmp.h,errno.h" +
+		",aio.h,sys/shm.h,sys/mman.h,time.h,math.h,io.h,assert.h" +
+		",sys/time.h,sys/socket.h,netinet/in.h,arpa/inet.h,netdb.h" +
+		",signal.h,zlib.h,cses/esfile.h,jasper/jasper.h,jasper.h" +
+		",memory.h,omp.h,openjpeg/openjpeg.h,openjpeg.h,gpfs_gpl.h" +
+		",sys/ioctl.h,sys/vfs.h,lustre/lustre_user.h"
+	end
+
+	def help neededflag
+		puts "missing config: specify #{neededflag} " \
+			+ "(try -h for more info)"
+		exit 1
+	end
+
+	def config opts
+		opts.banner = "Usage: #{$0} [options] usrdir nusdas|nwp|srf"
+		opts.separator ""
+		opts.separator "Options:"
+		opts.on('-c', '--class Dir', "[#@CLASS]") { |arg|
+			@CLASS = arg }
+		opts.on('-s', '--subclass Dir', "[#@SRCCLASS]") { |arg|
+			@SRCCLASS = arg }
+		opts.on('-l', '--libclass Dir', "[#@LIBCLASS]") { |arg|
+			@LIBCLASS = arg }
+		opts.on('-f', '--cflags string', "[#@CFLAGS]") { |arg|
+			@CFLAGS = arg }
+		opts.on('-g', '--fflags string', "[#@FFLAGS]") { |arg|
+			@FFLAGS = arg }
+		opts.on('-a', '--arflags string', "[#@ARFLAGS]") { |arg|
+			@ARFLAGS = arg }
+		opts.on('-p', '--supercede path', "[#@SUPCED]") { |arg|
+			@SUPCED = arg }
+		opts.on('-h', 'this help') { puts opts; exit 1 }
+		opts.on('-T', '--print', 'prints PBF and exits') {
+			@mode = :print }
+		opts.on('-n', '--dryrun', 'do not install files') {
+			@mode = :dry
+			@fu = FileUtils::NoWrite
+		}
+		opts.on('-q', '--quiet', 'be more quiet') {
+			raise '-q and -n conflicts' if :dry === @mode
+			@fu = FileUtils
+		}
+	end
+
+	def cp srcfile, instpath
+		f1 = File.read(srcfile)
+		begin
+			f2 = File.read(instpath)
+		rescue Errno::ENOENT
+			f2 = nil
+		end
+		return if f1 == f2
+		if :dry === @mode
+			puts "cp #{srcfile} #{instpath}"
+			return
+		elsif @fu == FileUtils::Verbose
+			puts "cp #{srcfile} #{instpath}"
+		end
+		File.open(instpath, "w") do |fp|
+			fp.write(f1)
+		end
+	end
+
+	def install_common args
+		require './src/Pbfmaker'
+		pbfm = PbfMaker.new
+		pp = ['-u', @USRDIR, '-c', @CLASS, '-s', @SRCCLASS,
+			'-l', @LIBCLASS,
+			'-f', @CFLAGS, '-g', @FFLAGS, '-a', @ARFLAGS]
+		pp += ['-p', @SUPCED] if @SUPCED
+		pp += ['-S', @SYSHDRS]
+		pp += args
+		pbfm.compile pp
+		if :print === @mode
+			print pbfm.pbf
+			return
+		end
+		pbfname = "#@USRDIR/#@CLASS/Pbf/#{pbfm.pbf_path}"
+		@fu.mkdir_p(File.dirname(pbfname))
+		mkfname = "#@USRDIR/#@CLASS/Mk/#{pbfm.pbf_path}"
+		@fu.mkdir_p(File.dirname(mkfname))
+		unless :dry === @mode
+			File.open(pbfname, "w") { |fp| fp.write pbfm.pbf }
+		end
+		mkdir = {}
+		for instpath, srcfile in pbfm
+			instdir = File.dirname(instpath)
+			unless mkdir.include? instdir
+				@fu.mkdir_p(instdir)
+				mkdir[instdir] = true
+			end
+			cp srcfile, instpath
+		end
+	end
+
+	def depend_list(makefile, target)
+		list = nil
+		dir = File.dirname(makefile) + '/'
+		open("|make -f #{makefile} #{target}", 'r') { |fp|
+			for line in fp
+				next unless /^OBJS=/ =~ line
+				list = $'.strip.split(/\s+/).map{|f| dir + f}
+			end
+		}
+		list
+	end
+	
+	def nusdas_detail
+		'"NuSDaS形式データを読み書きするためのサブルーチン集です。"'
+	end
+
+	def install_nusdas
+		args = ['-i', 'Inc14', '-r', 'Nusdas14',
+			'-t', 'libnusdas14.a',
+			'-m', 'nusdas.h,nusdas_fort.h',
+			'-I', 'src',
+			'-A', 'NuSDaSライブラリ バージョン1.4（非SMP版）',
+			'-d', nusdas_detail,
+			'--plib',
+			'${USRDIR}/Comm/Pbf/Nwp/libnwp14.pbf;Nwp/Base14;nwpl_capi.h',
+			'--plib',
+			'${RTNDIR}/Comm/Pbf/Nwp/libjasper.pbf;Nwp/Jasper;jasper.h'
+                ]
+		args += depend_list('src/Makefile', 'echo-objs-nusdas')
+		args.push 'PICK=#undef\s+[A-Z]+'
+		args += depend_list('wrap/Makefile', 'echo-objs-nusdas')
+		install_common args
+	end
+
+	def install_nusdas_smp
+		args = ['-i', 'Inc14', '-r', 'Nusdas14',
+			'-t', 'libnusdas14_smp.a',
+			'-m', 'nusdas.h,nusdas_fort.h',
+			'-I', 'src',
+			'--incmk', 'nwpmake_smp.mk',
+			'-A', 'NuSDaSライブラリ バージョン1.4（SMP版）',
+			'-d', nusdas_detail,
+			'--plib',
+			'${USRDIR}/Comm/Pbf/Nwp/libnwp14_smp.pbf;Nwp/Base14;nwpl_capi.h',
+			'--plib',
+			'${RTNDIR}/Comm/Pbf/Nwp/libjasper.pbf;Nwp/Jasper;jasper.h'
+                ]
+		args += depend_list('src/Makefile', 'echo-objs-nusdas')
+		args.push 'PICK=#undef\s+[A-Z]+'
+		args += depend_list('wrap/Makefile', 'echo-objs-nusdas')
+		install_common args
+	end
+
+	def install_nusdas_dbg
+		args = ['-i', 'Inc14', '-r', 'Nusdas14dbg',
+			'-t', 'libnusdas14_dbg.a',
+			'-m', 'nusdas.h,nusdas_fort.h',
+			'-I', 'src',
+			'-A', 'NuSDaSライブラリ バージョン1.4（DBG版）',
+			'-d', nusdas_detail,
+			'--plib',
+			'${USRDIR}/Comm/Pbf/Nwp/libnwp14.pbf;Nwp/Base14;nwpl_capi.h',
+			'--plib',
+			'${RTNDIR}/Comm/Pbf/Nwp/libjasper.pbf;Nwp/Jasper;jasper.h']
+		args += depend_list('src/Makefile', 'echo-objs-nusdas')
+		args.push 'PICK=#undef\s+[A-Z]+'
+		args += depend_list('wrap/Makefile', 'echo-objs-nusdas')
+		install_common args
+	end
+
+	def install_nusdas_linux
+		args = ['-i', 'Inc14', '-r', 'Nusdas14',
+			'-t', 'libnusdas14.a',
+			'-m', 'nusdas.h,nusdas_fort.h',
+			'-I', 'src',
+			'-s', 'Linux', '-l', 'Linux',
+			'--incmk', 'nwpmake_linux_s2w.mk',
+			'-A', 'NuSDaSライブラリ バージョン1.4（Linux版）',
+			'-d', nusdas_detail,
+			'--plib',
+			'${USRDIR}/Comm/Pbf/Linux/libnwp14.pbf;Linux/Base14;nwpl_capi.h',
+			'--plib',
+			'${RTNDIR}/Comm/Pbf/Linux/libjasper.pbf;Linux/Jasper;jasper.h']
+		args += depend_list('src/Makefile', 'echo-objs-nusdas')
+		args.push 'PICK=#undef\s+[_0-9a-z]+_\b'
+		args += depend_list('wrap/Makefile', 'echo-objs-nusdas')
+		install_common args
+	end
+
+	def install_nusdas_aix6
+		args = ['-i', 'Inc14', '-r', 'Nusdas14',
+			'-t', 'libnusdas14.a',
+			'-m', 'nusdas.h,nusdas_fort.h',
+			'-I', 'src',
+			'-s', 'Nwp', '-l', 'AIX_power6',
+			'-A', 'NuSDaSライブラリ バージョン1.4（AIX6版）',
+			'-d', nusdas_detail,
+			'--plib',
+			'${USRDIR}/Comm/Pbf/AIX_power6/libnwp14.pbf;Nwp/Base14;nwpl_capi.h',
+			'--plib',
+			'${RTNDIR}/Comm/Pbf/AIX_power6/libjasper.pbf;Nwp/Jasper;jasper.h']
+		args += depend_list('src/Makefile', 'echo-objs-nusdas')
+		args.push 'PICK=#undef\s+[A-Z]+'
+		args += depend_list('wrap/Makefile', 'echo-objs-nusdas')
+		install_common args
+	end
+
+	def install_nusdas_intel
+		args = ['-i', 'Inc14', '-r', 'Nusdas14',
+			'-t', 'libnusdas14.a',
+			'-m', 'nusdas.h,nusdas_fort.h',
+			'-I', 'src',
+			'--incmk', 'nwpmake_intel.mk',
+			'-A', 'NuSDaSライブラリ バージョン1.4（intel版）',
+			'-d', nusdas_detail,
+			'--plib',
+			'${USRDIR}/Comm/Pbf/Nwp/libnwp14.pbf;Nwp/Base14;nwpl_capi.h',
+			'--plib',
+			'${RTNDIR}/Comm/Pbf/Nwp/libjasper.pbf;Nwp/Jasper;jasper.h']
+		args += depend_list('src/Makefile', 'echo-objs-nusdas')
+		args.push 'PICK=#undef\s+[_0-9a-z]+_\b'
+		args += depend_list('wrap/Makefile', 'echo-objs-nusdas')
+		install_common args
+	end
+
+	def install_nusdas_intel_omp
+		args = ['-i', 'Inc14_omp', '-r', 'Nusdas14_omp',
+			'-t', 'libnusdas14_omp.a',
+			'-m', 'nusdas.h,nusdas_fort.h',
+			'-I', 'src',
+			'--incmk', 'nwpmake_intel.mk',
+			'-A', 'NuSDaSライブラリ バージョン1.4（intel/omp版）',
+			'-d', nusdas_detail,
+			'--plib',
+			'${USRDIR}/Comm/Pbf/Nwp/libnwp14_omp.pbf;Nwp/Base14;nwpl_capi.h',
+			'--plib',
+			'${RTNDIR}/Comm/Pbf/Nwp/libjasper.pbf;Nwp/Jasper;jasper.h']
+		args += depend_list('src/Makefile', 'echo-objs-nusdas')
+		args.push 'PICK=#undef\s+[_0-9a-z]+_\b'
+		args += depend_list('wrap/Makefile', 'echo-objs-nusdas')
+		install_common args
+	end
+
+	def install_nusdas_naps10_linux
+		args = ['-i', 'Inc14_2_linux', '-r', 'Nusdas14_2_linux',
+			'-t', 'libnusdas14_2.l.a',
+			'-m', 'nusdas.h,nusdas_fort.h',
+			'-I', 'src',
+			'--incmk', 'nwpmake_linux.mk',
+			'-A', 'NuSDaSライブラリ バージョン1.4(業サ)',
+			'-d', nusdas_detail,
+			'-C', 'gcc',
+			'--plib',
+			';Nwp/Base14_2;nwpl_capi.h:nwplib.h,nwplib.h:nwpl_timecnv.h nwpl_mapproj_df.h,nwpl_timecnv.h,nwpl_mapproj_df.h',
+			'--plib',
+			'${RTNDIR}/Comm/Pbf/Nwp/libjasper.l.pbf;Nwp/Jasper;jasper.h']
+		args += depend_list('src/Makefile', 'echo-objs-nusdas')
+		args.push 'PICK=#undef\s+[_0-9a-z]+_\b'
+		args += depend_list('wrap/Makefile', 'echo-objs-nusdas')
+		install_common args
+	end
+
+	def install_nusdas_naps10_linux_net
+		args = ['-i', 'Inc14_2_linux', '-r', 'Nusdas14_2_net',
+			'-t', 'libnusdas14_2_net.l.a',
+			'-m', 'nusdas.h,nusdas_fort.h',
+			'-I', 'src',
+			'--incmk', 'nwpmake_linux.mk',
+			'-A', 'NuSDaSライブラリ バージョン1.4(業サ/pandora)',
+			'-d', nusdas_detail,
+			'-C', 'gcc',
+			'--plib',
+			';Nwp/Base14_2;nwpl_capi.h:nwplib.h,nwplib.h:nwpl_timecnv.h nwpl_mapproj_df.h,nwpl_timecnv.h,nwpl_mapproj_df.h',
+			'--plib',
+			'${RTNDIR}/Comm/Pbf/Nwp/libjasper.l.pbf;Nwp/Jasper;jasper.h']
+		args += depend_list('src/Makefile', 'echo-objs-nusdas')
+		args.push 'PICK=#undef\s+[_0-9a-z]+_\b'
+		args += depend_list('wrap/Makefile', 'echo-objs-nusdas')
+		install_common args
+	end
+
+	def install_nusdas_naps10_intel
+		args = ['-i', 'Inc14_2_intel', '-r', 'Nusdas14_2',
+			'-t', 'libnusdas14_2.i.a',
+			'-m', 'nusdas.h,nusdas_fort.h',
+			'-I', 'src',
+			'--incmk', 'nwpmake_gnu.mk',
+			'-A', 'NuSDaSライブラリ バージョン1.4(XC50)',
+			'-d', nusdas_detail,
+			'-L', 'module load PrgEnv-gnu craype-haswell',
+			'--plib',
+			';Nwp/Base14_2;nwpl_capi.h:nwplib.h,nwplib.h:nwpl_timecnv.h nwpl_mapproj_df.h,nwpl_timecnv.h,nwpl_mapproj_df.h',
+			'--plib',
+			'${RTNDIR}/Comm/Pbf/Nwp/libjasper.i.pbf;Nwp/Jasper;jasper.h']
+		args += depend_list('src/Makefile', 'echo-objs-nusdas')
+		args.push 'PICK=#undef\s+[_0-9a-z]+_\b'
+		args += depend_list('wrap/Makefile', 'echo-objs-nusdas')
+		install_common args
+	end
+
+	def install_nusdas_naps10_cray
+		args = ['-i', 'Inc14_2_cray', '-r', 'Nusdas14_2',
+			'-t', 'libnusdas14_2.c.a',
+			'-m', 'nusdas.h,nusdas_fort.h',
+			'-I', 'src',
+			'--incmk', 'nwpmake_gnu.mk',
+			'-A', 'NuSDaSライブラリ バージョン1.4(XC50)',
+			'-d', nusdas_detail,
+			'-L', 'module load PrgEnv-gnu craype-haswell',
+			'--plib',
+			';Nwp/Base14_2;nwpl_capi.h:nwplib.h,nwplib.h:nwpl_timecnv.h nwpl_mapproj_df.h,nwpl_timecnv.h,nwpl_mapproj_df.h',
+			'--plib',
+			'${RTNDIR}/Comm/Pbf/Nwp/libjasper.c.pbf;Nwp/Jasper;jasper.h']
+		args += depend_list('src/Makefile', 'echo-objs-nusdas')
+		args.push 'PICK=#undef\s+[_0-9a-z]+_\b'
+		args += depend_list('wrap/Makefile', 'echo-objs-nusdas')
+		install_common args
+	end
+
+	def install_nusdas_naps10_omp_intel
+		args = ['-i', 'Inc14_2_omp_intel', '-r', 'Nusdas14_2_omp',
+			'-t', 'libnusdas14_2_omp.i.a',
+			'-m', 'nusdas.h,nusdas_fort.h',
+			'-I', 'src',
+			'--incmk', 'nwpmake_gnu.mk',
+			'-A', 'NuSDaSライブラリ バージョン1.4(XC50/omp)',
+			'-d', nusdas_detail,
+			'-L', 'module load PrgEnv-gnu craype-haswell',
+			'--plib',
+			';Nwp/Base14_2;nwpl_capi.h:nwplib.h,nwplib.h:nwpl_timecnv.h nwpl_mapproj_df.h,nwpl_timecnv.h,nwpl_mapproj_df.h',
+			'--plib',
+			'${RTNDIR}/Comm/Pbf/Nwp/libjasper.i.pbf;Nwp/Jasper;jasper.h']
+		args += depend_list('src/Makefile', 'echo-objs-nusdas')
+		args.push 'PICK=#undef\s+[_0-9a-z]+_\b'
+		args += depend_list('wrap/Makefile', 'echo-objs-nusdas')
+		install_common args
+	end
+
+	def install_nusdas_naps10_omp_cray
+		args = ['-i', 'Inc14_2_omp_cray', '-r', 'Nusdas14_2_omp',
+			'-t', 'libnusdas14_2_omp.c.a',
+			'-m', 'nusdas.h,nusdas_fort.h',
+			'-I', 'src',
+			'--incmk', 'nwpmake_gnu.mk',
+			'-A', 'NuSDaSライブラリ バージョン1.4(XC50/omp)',
+			'-d', nusdas_detail,
+			'-L', 'module load PrgEnv-gnu craype-haswell',
+			'--plib',
+			';Nwp/Base14_2;nwpl_capi.h:nwplib.h,nwplib.h:nwpl_timecnv.h nwpl_mapproj_df.h,nwpl_timecnv.h,nwpl_mapproj_df.h',
+			'--plib',
+			'${RTNDIR}/Comm/Pbf/Nwp/libjasper.c.pbf;Nwp/Jasper;jasper.h']
+		args += depend_list('src/Makefile', 'echo-objs-nusdas')
+		args.push 'PICK=#undef\s+[_0-9a-z]+_\b'
+		args += depend_list('wrap/Makefile', 'echo-objs-nusdas')
+		install_common args
+	end
+
+	def install_nusdas_naps10_intel_noflush
+		args = ['-i', 'Inc14_2_intel', '-r', 'Nusdas14_2_nf',
+			'-t', 'libnusdas14_2_noflush.i.a',
+			'-m', 'nusdas.h,nusdas_fort.h',
+			'-I', 'src',
+			'--incmk', 'nwpmake_gnu.mk',
+			'-A', 'NuSDaSライブラリ バージョン1.4(XC50/noFlush)',
+			'-d', nusdas_detail,
+			'-L', 'module load PrgEnv-gnu craype-haswell',
+			'--plib',
+			';Nwp/Base14_2;nwpl_capi.h:nwplib.h,nwplib.h:nwpl_timecnv.h nwpl_mapproj_df.h,nwpl_timecnv.h,nwpl_mapproj_df.h',
+			'--plib',
+			'${RTNDIR}/Comm/Pbf/Nwp/libjasper.i.pbf;Nwp/Jasper;jasper.h']
+		args += depend_list('src/Makefile', 'echo-objs-nusdas')
+		args.push 'PICK=#undef\s+[_0-9a-z]+_\b'
+		args += depend_list('wrap/Makefile', 'echo-objs-nusdas')
+		install_common args
+	end
+
+	def install_nusdas_naps10_cray_noflush
+		args = ['-i', 'Inc14_2_cray', '-r', 'Nusdas14_2_nf',
+			'-t', 'libnusdas14_2_noflush.c.a',
+			'-m', 'nusdas.h,nusdas_fort.h',
+			'-I', 'src',
+			'--incmk', 'nwpmake_gnu.mk',
+			'-A', 'NuSDaSライブラリ バージョン1.4(XC50/noFlush)',
+			'-d', nusdas_detail,
+			'-L', 'module load PrgEnv-gnu craype-haswell',
+			'--plib',
+			';Nwp/Base14_2;nwpl_capi.h:nwplib.h,nwplib.h:nwpl_timecnv.h nwpl_mapproj_df.h,nwpl_timecnv.h,nwpl_mapproj_df.h',
+			'--plib',
+			'${RTNDIR}/Comm/Pbf/Nwp/libjasper.c.pbf;Nwp/Jasper;jasper.h']
+		args += depend_list('src/Makefile', 'echo-objs-nusdas')
+		args.push 'PICK=#undef\s+[_0-9a-z]+_\b'
+		args += depend_list('wrap/Makefile', 'echo-objs-nusdas')
+		install_common args
+	end
+
+	def install_nusdas_naps10_omp_intel_noflush
+		args = ['-i', 'Inc14_2_omp_intel', '-r', 'Nusdas14_2_ompnf',
+			'-t', 'libnusdas14_2_omp_noflush.i.a',
+			'-m', 'nusdas.h,nusdas_fort.h',
+			'-I', 'src',
+			'--incmk', 'nwpmake_gnu.mk',
+			'-A', 'NuSDaSライブラリ バージョン1.4(XC50/omp/noFlush)',
+			'-d', nusdas_detail,
+			'-L', 'module load PrgEnv-gnu craype-haswell',
+			'--plib',
+			';Nwp/Base14_2;nwpl_capi.h:nwplib.h,nwplib.h:nwpl_timecnv.h nwpl_mapproj_df.h,nwpl_timecnv.h,nwpl_mapproj_df.h',
+			'--plib',
+			'${RTNDIR}/Comm/Pbf/Nwp/libjasper.i.pbf;Nwp/Jasper;jasper.h']
+		args += depend_list('src/Makefile', 'echo-objs-nusdas')
+		args.push 'PICK=#undef\s+[_0-9a-z]+_\b'
+		args += depend_list('wrap/Makefile', 'echo-objs-nusdas')
+		install_common args
+	end
+
+	def install_nusdas_naps10_omp_cray_noflush
+		args = ['-i', 'Inc14_2_omp_cray', '-r', 'Nusdas14_2_ompnf',
+			'-t', 'libnusdas14_2_omp_noflush.c.a',
+			'-m', 'nusdas.h,nusdas_fort.h',
+			'-I', 'src',
+			'--incmk', 'nwpmake_gnu.mk',
+			'-A', 'NuSDaSライブラリ バージョン1.4(XC50/omp/lustreFlush)',
+			'-d', nusdas_detail,
+			'-L', 'module load PrgEnv-gnu craype-haswell',
+			'--plib',
+			';Nwp/Base14_2;nwpl_capi.h:nwplib.h,nwplib.h:nwpl_timecnv.h nwpl_mapproj_df.h,nwpl_timecnv.h,nwpl_mapproj_df.h',
+			'--plib',
+			'${RTNDIR}/Comm/Pbf/Nwp/libjasper.c.pbf;Nwp/Jasper;jasper.h']
+		args += depend_list('src/Makefile', 'echo-objs-nusdas')
+		args.push 'PICK=#undef\s+[_0-9a-z]+_\b'
+		args += depend_list('wrap/Makefile', 'echo-objs-nusdas')
+		install_common args
+	end
+
+
+	def install_nusdas_fx
+		args = ['-i', 'Inc14_2', '-r', 'Nusdas14_2',
+			'-t', 'libnusdas14_2.a',
+			'-m', 'nusdas.h,nusdas_fort.h',
+			'-I', 'src',
+			'--incmk', 'nwpmake_CC_FX.mk',
+			'-A', 'NuSDaSライブラリ バージョン1.4(FX)',
+			'-d', nusdas_detail,
+			'--plib',
+			'${USRDIR}/Comm/Pbf/Nwp/libnwp14_2.pbf;Nwp/Base14_2;nwpl_capi.h']
+		args += depend_list('src/Makefile', 'echo-objs-nusdas')
+		args.push 'PICK=#undef\s+[_0-9a-z]+_\b'
+		args += depend_list('wrap/Makefile', 'echo-objs-nusdas')
+		install_common args
+	end
+
+	def install_nusdas_fx_omp
+		args = ['-i', 'Inc14_2_omp', '-r', 'Nusdas14_2_omp',
+			'-t', 'libnusdas14_2_omp.a',
+			'-m', 'nusdas.h,nusdas_fort.h',
+			'-I', 'src',
+			'--incmk', 'nwpmake_CC_FX.mk',
+			'-A', 'NuSDaSライブラリ バージョン1.4(FX/omp)',
+			'-d', nusdas_detail,
+			'--plib',
+			'${USRDIR}/Comm/Pbf/Nwp/libnwp14_2_omp.pbf;Nwp/Base14_2;nwpl_capi.h']
+		args += depend_list('src/Makefile', 'echo-objs-nusdas')
+		args.push 'PICK=#undef\s+[_0-9a-z]+_\b'
+		args += depend_list('wrap/Makefile', 'echo-objs-nusdas')
+		install_common args
+	end
+
+	def install_nusdas_linux_net
+		args = ['-i', 'Inc14', '-r', 'Nusdas14_net',
+			'-t', 'libnusdas14_net.a',
+			'-m', 'nusdas.h,nusdas_fort.h',
+			'-I', 'src',
+			'--incmk', 'nwpmake_linux_s2w.mk',
+			'-s', 'Linux', '-l', 'Linux',
+			'-A', 'NuSDaSライブラリ バージョン1.4（Linux/net版）',
+			'-d', nusdas_detail,
+			'--plib',
+			'${USRDIR}/Comm/Pbf/Linux/libnwp14.pbf;Linux/Base14;nwpl_capi.h',
+			'--plib',
+			'${RTNDIR}/Comm/Pbf/Linux/libjasper.pbf;Linux/Jasper;jasper.h']
+		args += depend_list('src/Makefile', 'echo-objs-nusdas')
+		args.push 'PICK=#undef\s+[_0-9a-z]+_\b'
+		args += depend_list('wrap/Makefile', 'echo-objs-nusdas')
+		install_common args
+	end
+	
+	def nwp_detail
+		str = [ '数値予報標準ライブラリは、公共性が高いと思われる',
+		  'サブルーチン・関数をまとめたものです。',
+		  '主に以下の機能があります。',
+		  '- 物理要素変換',
+		  '- 地図投影',
+		  '- 時刻計算'
+		].join(',')
+		"\"#{str}\""
+	end
+
+	def install_nwp
+		args = [
+			'-t', 'libnwp14.a', '-i', 'Inc14', '-r', 'Base14',
+			'-m', 'nwpl_capi.h',
+			'-m', 'nwpl_timecnv.h',
+			'-m', 'nwpl_mapproj_df.h',
+			'-m', 'nwpl_elemsub.h',
+			'-m', 'nwpl_map_earth.h',
+			'-m', 'nwpl_retcode.h',
+			'-m', 'nwpl_felemsub.mod',
+			'-m', 'nwpl_map_earth.mod',
+			'-m', 'nwpl_mapproj_fort.mod',
+			'-m', 'nwpl_mapproj_if.mod',
+			'-m', 'nwpl_time.mod',
+			'-m', 'nwplib.h',
+			'-I', 'nwplib8',
+			'-A', '数値予報標準ライブラリ（非SMP版）',
+			'-d', nwp_detail
+			]
+		args += depend_list('nwplib8/Makefile', 'echo-objs-nwp')
+		args.push 'PICK=#undef\s+[A-Z]'
+#		args += depend_list('wrap/Makefile', 'echo-objs-nwp')
+		install_common args
+	end
+
+	def install_nwp_smp
+		args = [
+			'-t', 'libnwp14_smp.a', '-i', 'Inc14', '-r', 'Base14',
+			'-m', 'nwpl_capi.h',
+			'-m', 'nwpl_timecnv.h',
+			'-m', 'nwpl_mapproj_df.h',
+			'-m', 'nwpl_elemsub.h',
+			'-m', 'nwpl_map_earth.h',
+			'-m', 'nwpl_retcode.h',
+			'-m', 'nwpl_felemsub.mod',
+			'-m', 'nwpl_map_earth.mod',
+			'-m', 'nwpl_mapproj_fort.mod',
+			'-m', 'nwpl_mapproj_if.mod',
+			'-m', 'nwpl_time.mod',
+			'-m', 'nwplib.h',
+			'-I', 'nwplib8',
+			'-A', '数値予報標準ライブラリ（SMP版）',
+			'-d', nwp_detail
+			]
+		args += depend_list('nwplib8/Makefile', 'echo-objs-nwp')
+		args.push 'PICK=#undef\s+[A-Z]'
+#		args += depend_list('wrap/Makefile', 'echo-objs-nwp')
+		install_common args
+	end
+
+	def install_nwp_linux
+		args = [
+			'-s', 'Linux', '-l', 'Linux',
+			'--incmk', 'nwpmake_linux_s2w.mk',
+			'-t', 'libnwp14.a', '-i', 'Inc14', '-r', 'Base14',
+			'-m', 'nwpl_capi.h',
+			'-m', 'nwpl_timecnv.h',
+			'-m', 'nwpl_mapproj_df.h',
+			'-m', 'nwpl_elemsub.h',
+			'-m', 'nwpl_map_earth.h',
+			'-m', 'nwpl_retcode.h',
+			'-m', 'nwpl_felemsub.mod',
+			'-m', 'nwpl_map_earth.mod',
+			'-m', 'nwpl_mapproj_fort.mod',
+			'-m', 'nwpl_mapproj_if.mod',
+			'-m', 'nwpl_time.mod',
+			'-m', 'nwplib.h',
+			'-I', 'nwplib8',
+			'-A', '数値予報標準ライブラリ（Linux版）',
+			'-d', nwp_detail
+			]
+		args += depend_list('nwplib8/Makefile', 'echo-objs-nwp')
+		args.push 'PICK=#undef\s+[_0-9a-z]+_\b'
+#		args += depend_list('wrap/Makefile', 'echo-objs-nwp')
+		install_common args
+	end
+
+	def install_nwp_aix6
+		args = [
+			'-s', 'Nwp', '-l', 'AIX_power6',
+			'-t', 'libnwp14.a', '-i', 'Inc14', '-r', 'Base14',
+			'-m', 'nwpl_capi.h',
+			'-m', 'nwpl_timecnv.h',
+			'-m', 'nwpl_mapproj_df.h',
+			'-m', 'nwpl_elemsub.h',
+			'-m', 'nwpl_map_earth.h',
+			'-m', 'nwpl_retcode.h',
+			'-m', 'nwpl_felemsub.mod',
+			'-m', 'nwpl_map_earth.mod',
+			'-m', 'nwpl_mapproj_fort.mod',
+			'-m', 'nwpl_mapproj_if.mod',
+			'-m', 'nwpl_time.mod',
+			'-m', 'nwplib.h',
+			'-I', 'nwplib8',
+			'-A', '数値予報標準ライブラリ（AIX6版）',
+			'-d', nwp_detail
+			]
+		args += depend_list('nwplib8/Makefile', 'echo-objs-nwp')
+		args.push 'PICK=#undef\s+[A-Z]+'
+#		args += depend_list('wrap/Makefile', 'echo-objs-nwp')
+		install_common args
+	end
+
+	def install_nwp_naps10_intel
+		args = [
+			'--incmk', 'nwpmake_intel.mk',
+			'-t', 'libnwp14_2.i.a', '-i', 'Inc14_2_intel', '-r', 'Base14_2',
+			'-m', 'nwpl_capi.h',
+			'-m', 'nwpl_timecnv.h',
+			'-m', 'nwpl_mapproj_df.h',
+			'-m', 'nwpl_elemsub.h',
+			'-m', 'nwpl_map_earth.h',
+			'-m', 'nwpl_retcode.h',
+			'-m', 'nwpl_felemsub.mod',
+			'-m', 'nwpl_map_earth.mod',
+			'-m', 'nwpl_mapproj_fort.mod',
+			'-m', 'nwpl_mapproj_if.mod',
+			'-m', 'nwpl_time.mod',
+			'-m', 'nwplib.h',
+			'-I', 'nwplib8',
+			'-f', '-DUSE_LUSTRE_FLUSH',
+			'-A', '数値予報標準ライブラリ(XC50/intel)',
+			'-C', 'gcc',
+			'-L', 'module load PrgEnv-intel craype-haswell',
+			'-d', nwp_detail
+			]
+		args += depend_list('nwplib8/Makefile', 'echo-objs-nwp')
+		args.push 'PICK=#undef\s+[_0-9a-z]+_\b'
+#		args += depend_list('wrap/Makefile', 'echo-objs-nwp')
+		install_common args
+	end
+
+	def install_nwp_naps10_omp_intel
+		args = [
+			'--incmk', 'nwpmake_intel.mk',
+			'-t', 'libnwp14_2_omp.i.a', '-i', 'Inc14_2_omp_intel', '-r', 'Base14_2',
+			'-m', 'nwpl_capi.h',
+			'-m', 'nwpl_timecnv.h',
+			'-m', 'nwpl_mapproj_df.h',
+			'-m', 'nwpl_elemsub.h',
+			'-m', 'nwpl_map_earth.h',
+			'-m', 'nwpl_retcode.h',
+			'-m', 'nwpl_felemsub.mod',
+			'-m', 'nwpl_map_earth.mod',
+			'-m', 'nwpl_mapproj_fort.mod',
+			'-m', 'nwpl_mapproj_if.mod',
+			'-m', 'nwpl_time.mod',
+			'-m', 'nwplib.h',
+			'-I', 'nwplib8',
+			'-f', '-DUSE_LUSTRE_FLUSH',
+			'-A', '数値予報標準ライブラリ(XC50/intel/omp)',
+			'-C', 'gcc',
+			'-L', 'module load PrgEnv-intel craype-haswell',
+			'-d', nwp_detail
+			]
+		args += depend_list('nwplib8/Makefile', 'echo-objs-nwp')
+		args.push 'PICK=#undef\s+[_0-9a-z]+_\b'
+#		args += depend_list('wrap/Makefile', 'echo-objs-nwp')
+		install_common args
+	end
+	
+	def install_nwp_naps10_cray
+		args = [
+			'--incmk', 'nwpmake_cray.mk',
+			'-t', 'libnwp14_2.c.a', '-i', 'Inc14_2_cray', '-r', 'Base14_2',
+			'-m', 'nwpl_capi.h',
+			'-m', 'nwpl_timecnv.h',
+			'-m', 'nwpl_mapproj_df.h',
+			'-m', 'nwpl_elemsub.h',
+			'-m', 'nwpl_map_earth.h',
+			'-m', 'nwpl_retcode.h',
+			'-m', 'nwpl_felemsub.mod',
+			'-m', 'nwpl_map_earth.mod',
+			'-m', 'nwpl_mapproj_fort.mod',
+			'-m', 'nwpl_mapproj_if.mod',
+			'-m', 'nwpl_time.mod',
+			'-m', 'nwplib.h',
+			'-I', 'nwplib8',
+			'-f', '-DUSE_LUSTRE_FLUSH',
+			'-A', '数値予報標準ライブラリ(XC50/cray)',
+			'-C', 'gcc',
+			'-L', 'module load PrgEnv-cray craype-haswell',
+			#'-L', 'module unload cce/8.6.1;module load cce/8.5.8 PrgEnv-cray cray-mpich/7.5.5 craype-haswell;module swap cray-libsci/16.11.1',
+			'-d', nwp_detail
+			]
+		args += depend_list('nwplib8/Makefile', 'echo-objs-nwp')
+		args.push 'PICK=#undef\s+[_0-9a-z]+_\b'
+#		args += depend_list('wrap/Makefile', 'echo-objs-nwp')
+		install_common args
+	end
+
+	def install_nwp_naps10_omp_cray
+		args = [
+			'--incmk', 'nwpmake_cray.mk',
+			'-t', 'libnwp14_2_omp.c.a', '-i', 'Inc14_2_omp_cray', '-r', 'Base14_2',
+			'-m', 'nwpl_capi.h',
+			'-m', 'nwpl_timecnv.h',
+			'-m', 'nwpl_mapproj_df.h',
+			'-m', 'nwpl_elemsub.h',
+			'-m', 'nwpl_map_earth.h',
+			'-m', 'nwpl_retcode.h',
+			'-m', 'nwpl_felemsub.mod',
+			'-m', 'nwpl_map_earth.mod',
+			'-m', 'nwpl_mapproj_fort.mod',
+			'-m', 'nwpl_mapproj_if.mod',
+			'-m', 'nwpl_time.mod',
+			'-m', 'nwplib.h',
+			'-I', 'nwplib8',
+			'-f', '-DUSE_LUSTRE_FLUSH',
+			'-A', '数値予報標準ライブラリ(cray/omp版)',
+			'-C', 'gcc',
+			'-L', 'module load PrgEnv-cray craype-haswell',
+			#'-L', 'module unload cce/8.6.1;module load cce/8.5.8 PrgEnv-cray cray-mpich/7.5.5 craype-haswell;module swap cray-libsci/16.11.1',
+			'-d', nwp_detail
+			]
+		args += depend_list('nwplib8/Makefile', 'echo-objs-nwp')
+		args.push 'PICK=#undef\s+[_0-9a-z]+_\b'
+#		args += depend_list('wrap/Makefile', 'echo-objs-nwp')
+		install_common args
+	end
+	
+	def install_nwp_naps10_linux
+		args = [
+			'--incmk', 'nwpmake_linux.mk',
+			'-t', 'libnwp14_2.l.a', '-i', 'Inc14_2_linux', '-r', 'Base14_2',
+			'-m', 'nwpl_capi.h',
+			'-m', 'nwpl_timecnv.h',
+			'-m', 'nwpl_mapproj_df.h',
+			'-m', 'nwpl_elemsub.h',
+			'-m', 'nwpl_map_earth.h',
+			'-m', 'nwpl_retcode.h',
+			'-m', 'nwpl_felemsub.mod',
+			'-m', 'nwpl_map_earth.mod',
+			'-m', 'nwpl_mapproj_fort.mod',
+			'-m', 'nwpl_mapproj_if.mod',
+			'-m', 'nwpl_time.mod',
+			'-m', 'nwplib.h',
+			'-I', 'nwplib8',
+			'-A', '数値予報標準ライブラリ(業サ)',
+			'-C', 'gcc',
+			'-d', nwp_detail
+			]
+		args += depend_list('nwplib8/Makefile', 'echo-objs-nwp')
+		args.push 'PICK=#undef\s+[_0-9a-z]+_\b'
+#		args += depend_list('wrap/Makefile', 'echo-objs-nwp')
+		install_common args
+	end
+
+	def install_nwp_fx
+		args = [
+			'--incmk', 'nwpmake_CC_FX.mk',
+			'-t', 'libnwp14_2.a', '-i', 'Inc14_2', '-r', 'Base14_2',
+			'-m', 'nwpl_capi.h',
+			'-m', 'nwpl_timecnv.h',
+			'-m', 'nwpl_mapproj_df.h',
+			'-m', 'nwpl_elemsub.h',
+			'-m', 'nwpl_map_earth.h',
+			'-m', 'nwpl_retcode.h',
+			'-m', 'nwpl_felemsub.mod',
+			'-m', 'nwpl_map_earth.mod',
+			'-m', 'nwpl_mapproj_fort.mod',
+			'-m', 'nwpl_mapproj_if.mod',
+			'-m', 'nwpl_time.mod',
+			'-m', 'nwplib.h',
+			'-I', 'nwplib8',
+			'-A', '数値予報標準ライブラリ(FX版)',
+			'-d', nwp_detail
+			]
+		args += depend_list('nwplib8/Makefile', 'echo-objs-nwp')
+		args.push 'PICK=#undef\s+[_0-9a-z]+_\b'
+		install_common args
+	end
+
+	def install_nwp_fx_omp
+		args = [
+			'--incmk', 'nwpmake_CC_FX.mk',
+			'-t', 'libnwp14_2_omp.a', '-i', 'Inc14_2_omp', '-r', 'Base14_2_omp',
+			'-m', 'nwpl_capi.h',
+			'-m', 'nwpl_timecnv.h',
+			'-m', 'nwpl_mapproj_df.h',
+			'-m', 'nwpl_elemsub.h',
+			'-m', 'nwpl_map_earth.h',
+			'-m', 'nwpl_retcode.h',
+			'-m', 'nwpl_felemsub.mod',
+			'-m', 'nwpl_map_earth.mod',
+			'-m', 'nwpl_mapproj_fort.mod',
+			'-m', 'nwpl_mapproj_if.mod',
+			'-m', 'nwpl_time.mod',
+			'-m', 'nwplib.h',
+			'-I', 'nwplib8',
+			'-A', '数値予報標準ライブラリ(FX版)',
+			'-d', nwp_detail
+			]
+		args += depend_list('nwplib8/Makefile', 'echo-objs-nwp')
+		args.push 'PICK=#undef\s+[_0-9a-z]+_\b'
+		install_common args
+	end
+	
+	def srf_detail
+		str = [ '降水短時間ルーチンに関連するアメダスデータ',
+			'及びレーダーデータに特有な処理のための',
+			'サブルーチンをまとめたものです。'
+		].join(",")
+		"\"#{str}\""
+	end
+	
+	def install_srf
+		@CLASS = 'Vsrf'
+		@SRCCLASS = @LIBCLASS = 'Comm'
+		args = [ '-t', 'libsrf14.a', '-i', 'Inc14', '-r', 'Srf14',
+			'-m', 'srf_amedas.h',
+			'-m', 'srf_amedas_fort.h',
+			'-A', '降水短時間ライブラリ',
+			'-d', srf_detail,
+			'--plib',
+			'${USRDIR}/Comm/Pbf/Nwp/libnusdas14.pbf;${USRDIR}/Comm/Lib/Nwp/Inc14;nusdas.h',
+			'--plib',
+			'${USRDIR}/Comm/Pbf/Nwp/libnwp14.pbf;${USRDIR}/Comm/Lib/Nwp/Inc14;nwpl_timecnv.h,nwpl_capi.h',
+			'-I', 'libsrf']
+		args += depend_list('libsrf/Makefile', 'echo-objs-srf')
+		args.push 'PICK=#undef\s+[A-Z]+'
+		args += depend_list('wrap/Makefile', 'echo-objs-srf')
+		install_common args
+	end
+
+	def install_srf_intel
+		args = [ '-t', 'libsrf14.a', '-i', 'Inc14', '-r', 'Srf14',
+			'-m', 'srf_amedas.h',
+			'-m', 'srf_amedas_fort.h',
+			'-A', '降水短時間ライブラリ（intel版）',
+			'-d', srf_detail,
+			'--incmk', 'nwpmake_intel.mk',
+			'--plib',
+			'${USRDIR}/Comm/Pbf/Nwp/libnusdas14.pbf;${USRDIR}/Comm/Lib/Nwp/Inc14;nusdas.h',
+			'--plib',
+			'${USRDIR}/Comm/Pbf/Nwp/libnwp14.pbf;${USRDIR}/Comm/Lib/Nwp/Inc14;nwpl_timecnv.h,nwpl_capi.h',
+			'-I', 'libsrf']
+		args += depend_list('libsrf/Makefile', 'echo-objs-srf')
+		args.push 'PICK=#undef\s+[_0-9a-z]+_\b'
+		args += depend_list('wrap/Makefile', 'echo-objs-srf')
+		install_common args
+	end
+
+	def install_srf_naps10_linux
+		args = [ '-t', 'libsrf14_1.l.a', '-i', 'Inc14_1_linux', '-r', 'Srf14_1',
+			'-m', 'srf_amedas.h',
+			'-m', 'srf_amedas_fort.h',
+			'-A', '降水短時間ライブラリ(業サ)',
+			'-d', srf_detail,
+			'-C', 'gcc',
+			'--incmk', 'nwpmake_linux.mk',
+			'--plib',
+			';Nwp/Nusdas14_2_linux;nusdas.h',
+			'--plib',
+			';Nwp/Base14_1;nwpl_timecnv.h,nwpl_capi.h:nwplib.h,nwplib.h:nwpl_timecnv.h nwpl_mapproj_df.h,nwpl_timecnv.h,nwpl_mapproj_df.h',
+			'-I', 'libsrf']
+		args += depend_list('libsrf/Makefile', 'echo-objs-srf')
+		args.push 'PICK=#undef\s+[_0-9a-z]+_\b'
+		args += depend_list('wrap/Makefile', 'echo-objs-srf')
+		install_common args
+	end
+
+	def install_srf_naps10_intel
+		args = [ '-t', 'libsrf14_1.i.a', '-i', 'Inc14_1_intel', '-r', 'Srf14_1',
+			'-m', 'srf_amedas.h',
+			'-m', 'srf_amedas_fort.h',
+			'-A', '降水短時間ライブラリ(XC50)',
+			'-d', srf_detail,
+			'-L', 'module load PrgEnv-gnu craype-haswell',
+			'--incmk', 'nwpmake_gnu.mk',
+			'--plib',
+			';Nwp/Nusdas14_2;nusdas.h',
+			'--plib',
+			';Nwp/Base14_1;nwpl_timecnv.h,nwpl_capi.h:nwplib.h,nwplib.h:nwpl_timecnv.h nwpl_mapproj_df.h,nwpl_timecnv.h,nwpl_mapproj_df.h',
+			'-I', 'libsrf']
+		args += depend_list('libsrf/Makefile', 'echo-objs-srf')
+		args.push 'PICK=#undef\s+[_0-9a-z]+_\b'
+		args += depend_list('wrap/Makefile', 'echo-objs-srf')
+		install_common args
+	end
+
+	def install_srf_naps10_cray
+		args = [ '-t', 'libsrf14_1.c.a', '-i', 'Inc14_1_cray', '-r', 'Srf14_1',
+			'-m', 'srf_amedas.h',
+			'-m', 'srf_amedas_fort.h',
+			'-A', '降水短時間ライブラリ(XC50)',
+			'-d', srf_detail,
+			'-L', 'module load PrgEnv-gnu craype-haswell',
+			'--incmk', 'nwpmake_gnu.mk',
+			'--plib',
+			';Nwp/Nusdas14_2;nusdas.h',
+			'--plib',
+			';Nwp/Base14_1;nwpl_timecnv.h,nwpl_capi.h:nwplib.h,nwplib.h:nwpl_timecnv.h nwpl_mapproj_df.h,nwpl_timecnv.h,nwpl_mapproj_df.h',
+			'-I', 'libsrf']
+		args += depend_list('libsrf/Makefile', 'echo-objs-srf')
+		args.push 'PICK=#undef\s+[_0-9a-z]+_\b'
+		args += depend_list('wrap/Makefile', 'echo-objs-srf')
+		install_common args
+	end
+
+	def install_srf_fx
+		args = [ '-t', 'libsrf14_1.a', '-i', 'Inc14_1', '-r', 'Srf14_1',
+			'-m', 'srf_amedas.h',
+			'-m', 'srf_amedas_fort.h',
+			'-A', '降水短時間ライブラリ(FX版)',
+			'-d', srf_detail,
+			'--incmk', 'nwpmake_CC_FX.mk',
+			'--plib',
+			';Nwp/Nusdas14_2;nusdas.h',
+			'--plib',
+			';Nwp/Base14_1;nwpl_timecnv.h,nwpl_capi.h:nwplib.h,nwplib.h:nwpl_timecnv.h nwpl_mapproj_df.h,nwpl_timecnv.h,nwpl_mapproj_df.h',
+			'-I', 'libsrf']
+		args += depend_list('libsrf/Makefile', 'echo-objs-srf')
+		args.push 'PICK=#undef\s+[_0-9a-z]+_\b'
+		args += depend_list('wrap/Makefile', 'echo-objs-srf')
+		install_common args
+	end
+
+	def install_srf_linux
+		args = [
+			'-s', 'Linux', '-l', 'Linux',
+			'--incmk', 'nwpmake_linux_s2w.mk',
+			'-t', 'libsrf14.a', '-i', 'Inc14', '-r', 'Srf14',
+			'-m', 'srf_amedas.h',
+			'-m', 'srf_amedas_fort.h',
+			'-A', '降水短時間ライブラリ（Linux版）',
+			'-d', srf_detail,
+			'--plib',
+			'${USRDIR}/Comm/Pbf/Linux/libnusdas14.pbf;Linux/Nusdas14;nusdas.h',
+			'--plib',
+			'${USRDIR}/Comm/Pbf/Linux/libnwp14.pbf;Linux/Base14;nwpl_capi.h',
+			'-I', 'libsrf' ]
+		args += depend_list('libsrf/Makefile', 'echo-objs-srf')
+		args.push 'PICK=#undef\s+[_0-9a-z]+_\b'
+		args += depend_list('wrap/Makefile', 'echo-objs-srf')
+		install_common args
+	end
+
+	def install_srf_aix6
+		args = [
+			'-s', 'AIX_power6', '-l', 'AIX_power6',
+			'--incmk', 'nwpmake.mk',
+			'-t', 'libsrf14.a', '-i', 'Inc14', '-r', 'Srf14',
+			'-m', 'srf_amedas.h',
+			'-m', 'srf_amedas_fort.h',
+			'-A', '降水短時間ライブラリ（AIX6版）',
+			'-d', srf_detail,
+			'--plib',
+			'${USRDIR}/Comm/Pbf/AIX_power6/libnusdas14.pbf;Nwp/Nusdas14;nusdas.h',
+			'--plib',
+			'${USRDIR}/Comm/Pbf/AIX_power6/libnwp14.pbf;Nwp/Base14;nwpl_capi.h',
+			'-I', 'libsrf' ]
+		args += depend_list('libsrf/Makefile', 'echo-objs-srf')
+		args.push 'PICK=#undef\s+[A-Z]+'
+		args += depend_list('wrap/Makefile', 'echo-objs-srf')
+		install_common args
+	end
+
+	def install_rpack
+		args = [ '-t', 'libnwp_rpack.a', 
+			'-A', '複合差分圧縮ライブラリ（AIX版）',
+			'-d', '実数の複合差分圧縮処理のライブラリです',
+			'-r', 'Rpack' ]
+		args += depend_list('libnwprpack/Makefile', 'echo-objs-srf')
+		args.push 'PICK=#undef\s+[A-Z]+'
+		install_common args
+	end
+
+	def install_rpack_smp
+		args = [ '-t', 'libnwp_rpack_smp.a', 
+			'-A', '複合差分圧縮ライブラリ（AIX smp版）',
+			'-d', '実数の複合差分圧縮処理のライブラリです',
+			'--incmk', 'nwpmake_smp.mk', '-r', 'Rpack' ]
+		args += depend_list('libnwprpack/Makefile', 'echo-objs-srf')
+		args.push 'PICK=#undef\s+[A-Z]+'
+		install_common args
+	end
+
+	def install_rpack_linux
+		args = [
+			'-s', 'Linux', '-l', 'Linux',
+			'-A', '複合差分圧縮ライブラリ（Linux版）',
+			'-d', '実数の複合差分圧縮処理のライブラリです',
+			'--incmk', 'nwpmake_linux_s2w.mk',
+			'-t', 'libnwp_rpack.a', '-r', 'Rpack' ]
+		args += depend_list('libnwprpack/Makefile', 'echo-objs-srf')
+		args.push 'PICK=#undef\s+[A-Z]+'
+		install_common args
+	end
+	
+	def install_rpack_intel
+		args = [
+			'--incmk', 'nwpmake_intel.mk',
+			'-A', '複合差分圧縮ライブラリ（intel版）',
+			'-d', '実数の複合差分圧縮処理のライブラリです',
+			'-t', 'libnwp_rpack.a', '-r', 'Rpack' ]
+		args += depend_list('libnwprpack/Makefile', 'echo-objs-srf')
+		args.push 'PICK=#undef\s+[A-Z]+'
+		install_common args
+	end
+	
+	def install_rpack_intel_omp
+		args = [
+			'--incmk', 'nwpmake_intel.mk',
+			'-A', '複合差分圧縮ライブラリ（intel omp版）',
+			'-d', '実数の複合差分圧縮処理のライブラリです',
+			'-t', 'libnwp_rpack_omp.a', '-r', 'Rpack' ]
+		args += depend_list('libnwprpack/Makefile', 'echo-objs-srf')
+		args.push 'PICK=#undef\s+[A-Z]+'
+		install_common args
+	end
+	
+	def install_rpack_naps10_intel
+		args = [
+			'--incmk', 'nwpmake_gnu.mk',
+			'-A', '複合差分圧縮ライブラリ(XC50)',
+			'-d', '実数の複合差分圧縮処理のライブラリです',
+			'-L', 'module load PrgEnv-gnu craype-haswell',
+			'-t', 'libnwp_rpack14_1.i.a', '-r', 'Rpack14_1' ]
+		args += depend_list('libnwprpack/Makefile', 'echo-objs-srf')
+		args.push 'PICK=#undef\s+[A-Z]+'
+		install_common args
+	end
+	
+	def install_rpack_naps10_cray
+		args = [
+			'--incmk', 'nwpmake_gnu.mk',
+			'-A', '複合差分圧縮ライブラリ(XC50)',
+			'-d', '実数の複合差分圧縮処理のライブラリです',
+			'-L', 'module load PrgEnv-gnu craype-haswell',
+			'-t', 'libnwp_rpack14_1.c.a', '-r', 'Rpack14_1' ]
+		args += depend_list('libnwprpack/Makefile', 'echo-objs-srf')
+		args.push 'PICK=#undef\s+[A-Z]+'
+		install_common args
+	end
+	
+	def install_rpack_naps10_omp_intel
+		args = [
+			'--incmk', 'nwpmake_gnu.mk',
+			'-A', '複合差分圧縮ライブラリ(XC50/omp)',
+			'-d', '実数の複合差分圧縮処理のライブラリです',
+			'-L', 'module load PrgEnv-gnu craype-haswell',
+			'-t', 'libnwp_rpack14_1_omp.i.a', '-r', 'Rpack14_1' ]
+		args += depend_list('libnwprpack/Makefile', 'echo-objs-srf')
+		args.push 'PICK=#undef\s+[A-Z]+'
+		install_common args
+	end
+	
+	def install_rpack_naps10_omp_cray
+		args = [
+			'--incmk', 'nwpmake_gnu.mk',
+			'-A', '複合差分圧縮ライブラリ(XC50/omp)',
+			'-d', '実数の複合差分圧縮処理のライブラリです',
+			'-L', 'module load PrgEnv-gnu craype-haswell',
+			'-t', 'libnwp_rpack14_1_omp.c.a', '-r', 'Rpack14_1' ]
+		args += depend_list('libnwprpack/Makefile', 'echo-objs-srf')
+		args.push 'PICK=#undef\s+[A-Z]+'
+		install_common args
+	end
+	
+	def install_rpack_naps10_linux
+		args = [
+			'--incmk', 'nwpmake_linux.mk',
+			'-A', '複合差分圧縮ライブラリ(業サ)',
+			'-d', '実数の複合差分圧縮処理のライブラリです',
+			'-C', 'gcc', 
+			'-t', 'libnwp_rpack14_1.l.a', '-r', 'Rpack14_1' ]
+		args += depend_list('libnwprpack/Makefile', 'echo-objs-srf')
+		args.push 'PICK=#undef\s+[A-Z]+'
+		install_common args
+	end
+	
+	def install_rpack_fx
+		args = [
+			'--incmk', 'nwpmake_CC_FX.mk',
+			'-A', '複合差分圧縮ライブラリ（FX版）',
+			'-d', '実数の複合差分圧縮処理のライブラリです',
+			'-t', 'libnwp_rpack14_1.a', '-r', 'Rpack14_1' ]
+		args += depend_list('libnwprpack/Makefile', 'echo-objs-srf')
+		args.push 'PICK=#undef\s+[A-Z]+'
+		install_common args
+	end
+	
+	def install_rpack_fx_omp
+		args = [
+			'--incmk', 'nwpmake_CC_FX.mk',
+			'-A', '複合差分圧縮ライブラリ（FX omp版）',
+			'-d', '実数の複合差分圧縮処理のライブラリです',
+			'-t', 'libnwp_rpack14_1_omp.a', '-r', 'Rpack14_1' ]
+		args += depend_list('libnwprpack/Makefile', 'echo-objs-srf')
+		args.push 'PICK=#undef\s+[A-Z]+'
+		install_common args
+	end
+	
+
+	def run argv
+		opts = OptionParser.new(& method(:config))
+		opts.parse!(argv)
+		if (@USRDIR = argv.shift).nil?
+			puts "Error: USRDIR undefined"
+			puts opts
+			exit 1
+		end
+		for package in argv
+			send(('install_' + package).intern)
+		end
+	end
+
+end
+
+Installer.new.run(ARGV)

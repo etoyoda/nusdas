@@ -1,0 +1,28 @@
+\section{pandora driver 共通ライブラリ: pandora\_driver.rb}
+pandora driver を作成する場合には、必要なヘッダーを付けたり
+なにかと気にすべきことが多い。
+
+{\tt pandora\_driver.rb} は pandora driver が必要とすることをライブラリ
+化し、簡単にドライバーを作成できるようにしたものである。
+
+たとえば、{\tt nusdas\_read} の結果を単精度浮動小数点型で渡すドライバは
+以下のように書ける。
+\begin{verbatim}
+#!/usr/bin/env ruby
+
+load("libs/pandora_driver.rb")
+
+drv = NusdasDataDriver.new
+drv.do_nusview("#{drv.private}/nusdump")
+drv.send_response()
+\end{verbatim}
+ここで、{\tt nusdump} は \ref{nusview} で説明されているものであり、
+HTTP のレスポンスである条件を満たすように、ヘッダに Content-Type を出力
+する必要がある。この例では、{\tt nusdump} は
+
+\begin{verbatim}
+Content-Type: application/x-float32-stream
+
+(単精度浮動小数点数のバイナリ列)
+\end{verbatim}
+という出力をするようになっている。

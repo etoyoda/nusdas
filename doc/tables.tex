@@ -1,0 +1,477 @@
+\Chapter{数値・名前の表}
+
+\section{共通エラーコードの表}
+
+NuSDaS インターフェイスが返すエラーコードのうち、
+$-10$ 以下の値は関数によらず次のような共通の意味をもつ。
+
+\begin{description}
+ \item[-10]
+	    メモリが足りない。
+ \item[-13]
+ 	    種別1の後半4文字をスペースにした場合の補間機能が働かなかった。
+ \item[-18]
+	    データファイルに書かれたバージョン番号指定が不正。
+ \item[-21]
+	    指定された種別に対応するNuSDaS Root Directory が見つからなかっ
+	    た。
+ \item[-33] 
+	    定義ファイルの行の順序が不正である。
+ \item[-34]
+	    定義ファイルの elementmap の指定が不正である。
+ \item[-35] 
+	    定義ファイルの解読中に予期せぬEOFがあった。
+ \item[-36]
+	    定義ファイルの解読中にエラーが発生した(その他の定義ファイル
+	    関連のエラーに属しないもの)。
+ \item[-40] 
+	    定義ファイルで TYPE1 が未定義。
+ \item[-41] 
+	    定義ファイルで TYPE2 が未定義。
+ \item[-42] 
+	    定義ファイルで TYPE3 が未定義。
+ \item[-43] 
+	    定義ファイルで対象時刻の数が未定義。
+ \item[-44] 
+	    定義ファイルで対象時刻のリストが未定義。
+ \item[-45] 
+	    定義ファイルで層の数が未定義。
+ \item[-46] 
+	    定義ファイルで層のリストが未定義。
+ \item[-47] 
+	    定義ファイルで物理量の数が未定義。
+ \item[-48] 
+	    定義ファイルで物理量のリストが未定義。
+ \item[-49] 
+	    定義ファイルで格子の数が未定義。
+ \item[-50]
+	    要求された対象時刻が、定義ファイルで指定した validtime に含
+	    まれていない。または定義ファイルにmemberlistが未定義。
+ \item[-51] 
+	    type123, 基準時刻、メンバー、対象時刻から決まるNuSDaS データ
+	    ファイルが存在しない(open に失敗した)。
+ \item[-53]
+	    データファイルの書き込み時、新規作成に失敗。
+ \item[-54] 
+	    既存データファイルの識別部(NUSD)が不正または読み込み
+	    に失敗。
+ \item[-55] 
+	    既存データファイルの管理部(CNTL)が不正または読み込み
+	    に失敗。
+ \item[-56] 
+	    既存データファイルのアドレス部(INDX)が不正または読み込み
+	    に失敗。
+ \item[-57] 
+	    既存データファイルの終了部(END)が不正または読み込み
+	    に失敗。
+ \item[-58]
+	    基準時刻に -1 を指定したときに、指定された対象時刻を持つデー
+	    タが見つからなかった。
+ \item[-59] 
+	    既存データファイルのデータ部(DATA)が不正または読み込み
+	    に失敗。
+ \item[-63] 
+	    レコード長がレコード強制長(定義ファイルにおいて forced rlen
+	    で指定した値)を超えた。
+ \item[-64]
+	    定義ファイルに指定したINFOレコードの内容を記述したファイルの
+	    読み込みに失敗した。
+ \item[-65]
+	    ファイルのclose処理において、識別部(NUSD)の書き込みに失敗し
+	    た。
+ \item[-66]
+	    ファイルのclose処理において、管理部(CNTL)またはアドレス部
+	    (INDX)の書き込みに失敗した。
+ \item[-67]
+	    ファイルのclose処理において、終了部(END)の書き込みに失敗した。
+ \item[-68]
+	    読み込み限定でopenしているファイルに書き込みをしようとした。
+ \item[-69]
+	    ID が 50 以上の NuSDaS Root Directoryに、書き込みを行おうと
+	    した。
+ \item[-80]
+	    4GiB 以上の書き込みをサポートしていないNuSDaS1.1形式データに
+	    4GiB を超える書き込みをしようとした。
+ \item[-81]
+ 	    不正な投影法パラメタを持つデータファイルを作成しようとした、
+	    または、nusdas\_grid で不正な投影法パラメタを設定しようとした。
+ \item[-83]
+	    ファイルのclose処理において、書き込まれたファイルサイズが
+	    ライブラリが書き込んだサイズと異なっていた。
+ \item[-98]
+	    gz 圧縮に関する操作を行おうとしたが、Zlib がリンクされていな
+	    いため、できない。
+ \item[-99]
+	    ファイルI/Oエラーが発生。pandora サーバーとの通信におけるエ
+	    ラーも含む。
+\end{description}
+
+\noindent
+{\bf 互換性}
+\begin{description}
+ \item[-18]
+	   NuSDaS1.3 で新設。
+ \item[-20] 
+	   NuSDaS1.1 では「定義ファイルの同時オープン数がNuSDaSの最大値
+	   を超えた」としているが、NuSDaS1.3 ではメモリが許す限りこの
+	   上限がないので廃止する。ちなみに、NuSDaS1.1 にお
+	   けるこの最大値は99。
+ \item[-31]
+	    NuSDaS1.1 のドキュメントには「定義ファイルのある項目の数の指
+	    定がNuSDaS最大値を超えた」となっているが、
+	    NuSDaS1.3 ではメモリが許す限り上限がないので廃止する。
+	    ちなみに、NuSDaS 1.1 における上限値はメンバー数、層数、
+	    要素数がそれぞれ256、対象時刻の数が36500であった。
+ \item[-32]
+	    NuSDaS1.1 では定義ファイルを読み込むときのメモリ不足に用いて
+	    いたが、NuSDaS1.3 では $-10$ に統合して廃止する。
+ \item[-35, -36]
+	    NuSDaS1.3 で新設。
+ \item[-52]
+	   NuSDaS1.1 では「データファイルの同時オープン数がNuSDaS最大値
+	   を超えた」としているが、NuSDaS1.3 ではメモリおよびファイルハ
+	   ンドルの数が許される限りは上限がないので廃止する。
+	   ちなみに、NuSDaS1.1におけるこの最大値は99。
+ \item[-58] 
+	    NuSDaS1.1 のドキュメントでは説明されていなかったが、同意味。
+ \item[-59]
+	    NuSDaS1.3 で新設。
+ \item[-60, -61, -62]
+	    NuSDaS1.1 ではファイルの初期化(新規作成)におけるエラーとして
+	    これらのエラーが定義されていたが、
+	    NuSDaS1.1 と NuSDaS1.3 ではファイルの初期作成の方法が異なる
+	    ため、NuSDaS1.3 ではこのエラーに対応するエラーは発生しない
+	    (発生する可能性があるのは$-53$である)。よってNuSDaS1.3 では廃
+	    止する。
+ \item[-63]
+	    NuSDaS1.1 では初期化時に限定したエラーであったが、NuSDaS1.3
+	    では初期化時に限らず、レコード長がレコード強制長を超えた場合
+	    に用いる。
+ \item[-66]
+	    NuSDaS1.1 ではアドレス部(INDX)の書き込みに限定しているが、
+	    NuSDaS1.1 ではファイルのclose処理においては、管理部(CNTL)は
+	    書き込みをしてないためである。NuSDaS1.3 においては書き込み処
+	    理をしているため、ここに管理部の書き込みエラーを含めることに
+	    する。
+ \item[-70〜-79]
+	    NuSDaS1.3 では ES 利用をサポートしないので、廃止。
+ \item[-80]
+	    ドキュメントされていなかったが、NuSDaS1.1 で設定された。
+ \item[-81, -98]
+	    NuSDaS1.3 で新設された。
+ \item[-83]
+	    NuSDaS1.4 で新設された。
+\end{description}
+\newpage
+\section{種別名}
+\label{sec:nustype}
+
+現在はオンライン登録制となっている。最新登録状況は
+{\tt http://nusdas.npd.naps.kishou.go.jp/} 参照のこと（庁内限定）。
+
+\begin{table}[htp]
+\begin{center}
+\begin{tabular}{l|l}
+\hline
+名前 & 意味 \\
+\hline
+{\tt \_AVN} & 米国全球モデル \\
+{\tt \_CTM} & オゾン \\
+{\tt \_CWM} & 波浪モデル \\
+{\tt \_DCD} & 観測デコード \\
+{\tt \_FDV} & 4次元変分同化用定数 \\
+{\tt \_GSM} & 全球モデル \\
+{\tt \_LLM} & 低解像度モデル \\
+{\tt \_LRM} & 低解像度モデル \\
+{\tt \_MSG} & エエロゾル (MASINGER) \\
+{\tt \_MSM} & メソモデル \\
+{\tt \_\_QA} & 毎時解析 \\
+{\tt \_QMA} & 毎時解析 \\
+{\tt \_RSM} & 領域モデル \\
+{\tt \_SF1} & 1ヶ月予報 \\
+{\tt \_SF4} & 4ヶ月予報 \\
+{\tt \_SGM} & 高潮 \\
+{\tt \_SRF} & 降水短時間予報 \\
+{\tt \_SST} & SST解析 \\
+{\tt \_SWM} & 浅海波浪モデル \\
+{\tt \_TEM} & 台風アンサンブルモデル \\
+{\tt \_TYM} & 台風モデル \\
+{\tt \_VRF} & 検証 \\
+{\tt \_WFM} & 週間予報 \\
+{\tt \_XXX} & 不明 \\
+\hline
+\end{tabular}
+\caption{種別に用いるモデル名}
+\label{tab:model}
+\end{center}
+\end{table}
+
+\begin{table}[htp]
+\begin{center}
+\begin{tabular}{ll|l}
+\hline
+2字略号 & 3字略号 & 意味 \\
+\hline
+{\tt FG} & {\tt FG\SPC\SPC} & 自由格子 \\
+{\tt GS} & {\tt GS\SPC\SPC} & 矩形ガウス格子( SUBC RGAUを設定した場合
+を除く ) \\
+{\tt LL} & {\tt LL\SPC\SPC} & 経緯度座標 \\
+{\tt LM} & {\tt LMN\SPC} & ランベルト正角円錐図法 \\
+{\tt LM} & {\tt LMS\SPC} & 同 (南半球) \\
+{\tt MR} & {\tt MER\SPC} & メルカトル図法 \\
+{\tt OL} & {\tt OL\SPC\SPC} & 斜軸ランベルト \\
+{\tt PS} & {\tt PSN\SPC} & ポーラーステレオ図法 \\
+{\tt PS} & {\tt PSS\SPC} & 同 (南半球) \\
+{\tt RD} & {\tt RD\SPC\SPC} & レーダー単サイト \\
+{\tt RG} & {\tt RG\SPC\SPC} & 適合ガウス格子( SUBC RGAUを設定した矩形
+ガウス格子を含む ) \\
+{\tt RT} & {\tt RT\SPC\SPC} & 極座標レーダー \\
+{\tt SB} & {\tt SB\SPC\SPC} & 細分 \\
+{\tt ST} & {\tt ST\SPC\SPC} & 地点観測 \\
+{\tt XX} & {\tt XX\SPC\SPC} & 不明 \\
+{\tt YP} & {\tt YP\SPC\SPC} & 子午面断面 \\
+\hline
+\end{tabular}
+\caption{2次元座標の名称。種別1には2字略号を用い、
+	その他の場合、つまり CNTL レコードや NUSDAS\_GRID で
+	受け渡す値には3字略号を用いる。}
+\label{tab:2dname}
+\end{center}
+\end{table}
+
+\begin{table}[htp]
+\begin{center}
+\begin{tabular}{l|l}
+\hline
+名前 & 意味 \\
+\hline
+{\tt ET} & モデル面 ($\eta$ 座標) \\
+{\tt FL} & フライトレベル ({\tt F010} ... {\tt F450}) \\
+{\tt LO} & 経度 (用例は {\tt ZONAL} のみ) \\
+{\tt LY} & 高度面、エコートップ、大気全層など \\
+{\tt PP} & 気圧座標 \\
+{\tt SF} & 地表面 \\
+{\tt SG} & モデル面 ($\sigma$ 座標) \\
+{\tt TO} & 閾値 \\
+{\tt ZS} & モデル面 ($z^*$ 座標) \\
+{\tt XX} & 不明 \\
+\hline
+\end{tabular}
+\caption{種別に用いる3次元座標名}
+\label{tab:3dname}
+\end{center}
+\end{table}
+
+種別1の先頭4文字はモデル名と呼ばれ、
+表 \ref{tab:model} に従って
+データを作成した処理の名称をつける。
+種別1の続く2文字は2次元座標名と呼ばれ、
+表 \ref{tab:2dname} に従って
+データ記録の2次元配列がとられた座標系の名称をつける。
+種別1の続く2文字は3次元座標名と呼ばれ、
+表 \ref{tab:3dname} に従って
+面名がつけられた座標系の名称をつける。
+
+\begin{table}[htp]
+\begin{center}
+\begin{tabular}{l|l}
+\hline
+名前 & 意味 \\
+\hline
+{\tt AA} & 同化解析 \\
+{\tt AF} & 解析 (変分同化等) の中の予報 \\
+{\tt EF}* & アンサンブル予報 \\
+{\tt CC} & 定数 \\
+{\tt EA} & 速報解析 \\
+{\tt FC} & 予報値 \\
+{\tt GS} & 解析の推定値 (guess) \\
+{\tt IN} & 初期値 \\
+{\tt OB} & 観測値 \\
+{\tt PT} & アンサンブルの摂動 \\
+{\tt RA}* & 再解析 \\
+{\tt VR} & 検証値 \\
+{\tt XX} & 不明 \\
+\hline
+\end{tabular}
+\caption{種別に用いる属性名.}
+\label{tab:attribute}
+\end{center}
+\end{table}
+
+\begin{table}[htp]
+\begin{center}
+\begin{tabular}{l|l}
+\hline
+名前 & 意味 \\
+\hline
+{\tt AN} & 積算値の気候値 \\
+{\tt AV} & 積算値 \\
+{\tt DN} & 標準偏差の気候値 \\
+{\tt DV} & 標準偏差 \\
+{\tt MA} & 期間平均の気候値からの偏差 \\
+{\tt MN} & 期間平均の気候値 \\
+{\tt MV} & (気候に比べ短期間の) 平均値 \\
+{\tt PV} & 確率値 \\
+{\tt SN} & 瞬間値の気候値 \\
+{\tt SV} & 瞬間値 \\
+{\tt XX} & 不明 \\
+\hline
+\end{tabular}
+\caption{種別に用いる時間種類名}
+\label{tab:time}
+\end{center}
+\end{table}
+
+種別2の最初の2文字は属性名と呼ばれ、
+表 \ref{tab:attribute} に従って
+予報値、解析値、観測値などの区別を表わす。
+種別2の末尾2文字は時間種類名と呼ばれ、
+表 \ref{tab:time} に従って
+瞬間値、時間平均値などの区別を表わす。
+ただし実運用においては時間平均値や積算値を瞬間値とまとめて
+{\tt SV} のデータセットに格納することがある。
+
+種別3は任意に付けられるデータセット名である。
+名前 {\tt STD1} はデータ作成処理にとって
+最も標準的な出力 (標準ファイル) に付けられる名前である。
+\newpage
+\section{面名の表}
+
+\begin{table}[htp]
+\begin{center}
+\begin{tabular}{l|l}
+\hline
+名前 & 意味 \\
+\hline
+{\tt ATMTOP} & 大気上端 \\
+{\tt CBTOP} & 積乱雲の雲頂 \\
+{\tt COLUMN} & 大気全層 \\
+{\tt ECTOP} & レーダーのエコー頂 \\
+{\tt MXWIND} & 風速最大の高度 \\
+{\tt SURF} & 地表面 (ただし転用多し) \\
+{\tt TOTAL} & 土壌全層 \\
+{\tt TROPO} & 対流圏界面 \\
+{\tt ZONAL} & 大気全体 ({\tt YP} 座標系での東西平均) \\
+\hline
+\end{tabular}
+\caption{面名}
+\label{tab:plane}
+\end{center}
+\end{table}
+
+面名はこの表に示したものの他に、種別1の3次元座標名（表 \ref{tab:3dname}）に応じて
+気圧座標(PP)であれば 850, 500 といった気圧の値、
+フライトレベル(FL)であれば F450 といった値を利用可能。
+
+\section{その他の表}
+
+\begin{table}[htp]
+\begin{center}
+\begin{tabular}{l|l}
+\hline
+名前 & 意味 \\
+\hline
+{\tt I1} & 1バイト符号なし整数型 \\
+{\tt I2} & 2バイト符号付き整数型 \\
+{\tt I4} & 4バイト符号付き整数型 \\
+{\tt R4} & 4バイト単精度浮動小数点型 \\
+{\tt R8} & 8バイト倍精度浮動小数点型 \\
+{\tt NC} & パッキングをしたままのバイト列 \\
+{\tt ND} & 生のバイナリデータ(1.4-1以降) \\ 
+\hline
+\end{tabular}
+\caption{ユーザ配列の型の名称}
+\label{tab:typename}
+\end{center}
+\end{table}
+
+NC は パッキング方式 \ref{tab:packing} が 2UPC,2UPP,2UPP で base, amp を展開しないデータを扱う。
+2UPP,2UPJの場合はそれぞれ複合差分圧縮,JPEG2000圧縮が展開された状態のデータとなる。
+また、エンディアンも変換された状態のデータを扱う。
+扱うデータ範囲は \ref{table.fmt.data} の項番13のデータ。
+サイズ指定ではbaseやampを考慮する必要はなく、純粋に格子数$(x*y)$で指定する。
+なお、欠損値表現方式 \ref{tab:missing} が MASK のデータでは利用できない。
+
+ND はファイルに書き込んだものと同じ生のバイナリデータを扱う。エンディアン変換も行われない。
+任意のパッキング方式で利用できるが、\APIRef{nusdas.write}{nusdas\_write} 以外のサブルーチンでは利用できない。
+扱うデータ範囲は \ref{table.fmt.data} の項番10から13のデータで、
+\APIRef{nusdas.inq.data}{nusdas\_inq\_data} に N\_DATA\_CONTENT を指定して取得したデータをそのまま利用できる。
+サイズは格子数ではなくバイナリデータのサイズを指定する必要があり、
+\APIRef{nusdas.inq.data}{nusdas\_inq\_data} に N\_DATA\_NBYTES を指定して取得した値を利用すべきである。
+
+\begin{table}[htp]
+\begin{center}
+\begin{tabular}{l|l}
+\hline
+名前 & 意味 \\
+\hline
+{\tt 1PAC} & 符号なし1バイト整数によるバイトパック \\
+{\tt 2PAC} & 符号付き2バイト整数によるバイトパック \\
+{\tt 2UPC} & 符号なし2バイト整数によるバイトパック\\
+{\tt 2UPJ} & 符号なし2バイト整数によるバイトパック、 JPEG2000圧縮\\
+{\tt 2UPP} & 符号なし2バイト整数によるバイトパック、 複合差分圧縮\\
+{\tt 4PAC} & 符号つき4バイト整数によるバイトパック \\
+{\tt N1I2} & 10倍値の2バイト符号付き整数による格納 \\
+{\tt RLEN} & 8ビットランレングス圧縮 \\
+{\tt I1  } & 1バイト符号なし整数による格納 \\
+{\tt I2  } & 2バイト符号つき整数による格納 \\
+{\tt I4  } & 4バイト符号つき整数による格納 \\
+{\tt R4  } & 単精度浮動小数点型による格納 \\
+{\tt R8  } & 倍精度浮動小数点型による格納 \\
+\hline
+\end{tabular}
+\caption{パッキング方式名称。
+それぞれの形式については\ChapRef{chap:packing}参照}
+\label{tab:packing}
+\end{center}
+\end{table}
+
+\begin{table}[htp]
+\begin{center}
+\begin{tabular}{l|l}
+\hline
+名前 & 意味 \\
+\hline
+{\tt NONE} & 欠損値なし。あらゆる数値が意味を持つデータである(デフォルト) \\
+{\tt UDFV} & データレコード毎に定めるある値が欠損値である。 \\
+ & 欠損値は\APIRef{nusdas.parameter.change}{nusdas\_parameter\_change}で設定する \\
+{\tt MASK} & マスクビットによってデータの存在格子を指定する。 \\
+ & \APIRef{nusdas.make.mask}{nusdas\_make\_mask}でマスクビットを生成し、\\
+ & \APIRef{nusdas.parameter.change}{nusdas\_parameter\_change} または \\
+ & \APIRef{nusdas.set.mask}{nusdas\_set\_mask} で欠損格子を設定する。\\
+\hline
+\end{tabular}
+\caption{欠損値表現方式}
+\label{tab:missing}
+\end{center}
+\end{table}
+
+\begin{table}[htp]
+\begin{center}
+\begin{tabular}{l|l}
+\hline
+名前 & 意味 \\
+\hline
+{\tt PVAL} & データは格子点における値である(デフォルト) \\
+{\tt MEAN} & データは格子点近傍の場の平均値である\\
+{\tt REPR} & データは格子点近傍の場を何らかの意味で代表する値である\\
+\hline
+\end{tabular}
+\caption{格子点の空間代表性}
+\label{tab:value}
+\end{center}
+\end{table}
+
+\clearpage
+\section{要素名の表}
+
+SUBC TDIF レコードとともに期間内の平均、積算、最大、最小値
+を格納する場合、要素名の先頭に、
+期間平均値の場合「 \_ 」、期間積算値の場合「 . 」、
+期間最大値の場合「 A\_ 」、期間最小値の場合「 I\_ 」を付加する。
+
+現在はオンライン登録制となっている。最新登録状況は
+{\tt http://nusdas.npd.naps.kishou.go.jp/} 参照のこと（庁内限定）。
+
+\input{nuselems}
+\label{tab:element}

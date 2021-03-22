@@ -1,0 +1,161 @@
+\Chapter{ガイドライン}
+
+\section{データ作成時のチェックリスト}
+\label{sec:writers}
+
+本節では
+新しいデータを作成する際に考慮すべき事項を一覧する。
+
+
+\subsection{種別名の決定}
+
+\begin{itemize}
+\item
+	\TabRef{tab:model} によってモデル名 (種別1の先頭4文字) を決める。
+	適切なものがなければ数値予報課プログラム班に連絡して割当を受ける。
+\item
+    \TabRef{tab:2dname}
+    によって 2 次元座標名 (種別1の続く2文字) を決める。
+    \begin{itemize}
+    \item データが子午面断面 (鉛直は気圧座標) の場合
+	2次元座標名は {\tt YP} となる。
+    \item データが東西断面 の場合
+	2次元座標名は {\tt XP} となる。
+    \item データが極座標上の格子の場合
+	2次元座標名は {\tt RT} となる。
+    \item データが河川に沿った格子の場合
+	2次元座標名は {\tt FG} となる。
+    \item データが不規則に分布した地点データの場合
+	2次元座標名は {\tt ST} となる。
+    \item データが細分番号の場合
+	2次元座標名は {\tt SB} となる。
+    \item データが水平方向に2次元で等間隔に並んだ格子で
+	できている場合
+	\begin{itemize}
+	\item 2次元座標名は
+	    {\tt LL}, {\tt GS}, {\tt RG}, {\tt MR}, {\tt PS}, {\tt LM},
+	    {\tt OL}, {\tt RD} のいずれかである。
+	    よくわからなければ \ChapRef{chap:proj} を見て判定されたい。
+	\item 上記のいずれかが動的に選択され、定義ファイル作成時には
+	    あらかじめ決めがたい場合
+	    [台風モデルなど。\SectionRef{sec:proj:XX} を参照]
+	    は 2次元座標名を {\tt XX} とする。
+	\end{itemize}
+    \item それ以外の場合、
+	数値予報課プログラム班に連絡されたい。
+	おそらくこのマニュアルを拡充する必要がある。
+    \end{itemize}
+\item
+	\TabRef{tab:3dname} によって
+	3 次元座標名 (種別1の最後の2文字) を決める。
+	適切なものがなければ数値予報課プログラム班に連絡して割当を受ける。
+\item
+	\TabRef{tab:attribute} によって
+	属性名 (種別2の先頭2文字) を決める。
+	適切なものがなければ数値予報課プログラム班に連絡して割当を受ける。
+\item
+	\TabRef{tab:time} によって
+	時間種類名 (種別2の末尾2文字) を決める。
+	適切なものがなければ数値予報課プログラム班に連絡して割当を受ける。
+\item
+	種別3を決める。
+	英大文字と数字を4文字にすることを推奨する。
+	いいかえると、小文字、下線、末尾のスペースは規則上禁止されていないが
+	非公認ツール等で問題を起こすかもしれず、やめておいたほうがいい。
+	また、開発用に作る臨時的データセットに無闇に
+	{\tt STD1} を用いるのはデータセットの混同を引き起こすため
+	避けるべきである。
+\end{itemize}
+
+\subsection{空間表現に関する考慮事項}
+
+\begin{itemize}
+\item
+	2次元座標が {\tt LL}, {\tt LM}, {\tt PS}, {\tt GS}, {\tt RG},
+	{\tt MR}, {\tt OL}, {\tt RD}, {\tt RT}, {\tt XX}
+	であれば、\ChapRef{chap:proj} に従って
+	投影法パラメタ
+	[\DefRef{SIZE}, \DefRef{BASEPOINT},
+	\DefRef{STANDARD}, \DefRef{OTHERS}] を決める。
+\item
+	2次元座標が {\tt RG} ならば
+	SUBC RGAU レコードを作る。
+	定義ファイルには \DefRef{SUBCNTL} を書いておく。
+	データ作成プログラムは
+	\APIRef{nusdas.subc.rgau.preset1}{nusdas\_subc\_rgau\_preset1}
+	を呼ぶことが推奨される。
+\item
+	3次元座標が {\tt ET} ならば、
+	SUBC ETA レコードを作る。
+	定義ファイルには \DefRef{SUBCNTL} を書いておく。
+	データ作成プログラムは
+	\APIRef{nusdas.subc.preset1}{nusdas\_subc\_preset1}
+	を呼ぶことが推奨される。
+\item
+	3次元座標が {\tt SG} ならば、
+	SUBC SIGM レコードを作る。
+	定義ファイルには \DefRef{SUBCNTL} を書いておく。
+	データ作成プログラムは
+	\APIRef{nusdas.subc.preset1}{nusdas\_subc\_preset1}
+	を呼ぶことが推奨される。
+\item
+	3次元座標が {\tt ZS} ならば、
+	SUBC ZHYB レコードを作る。
+	定義ファイルには \DefRef{SUBCNTL} を書いておく。
+	データ作成プログラムは
+	\APIRef{nusdas.subc.zhyb.preset1}{nusdas\_subc\_zhyb\_preset1}
+	を呼ぶことが推奨される。
+\end{itemize}
+
+鉛直座標に関する SUBC レコードを作成するときの
+鉛直層数については
+\ChapRef{chap:3dcoord} を参照されたい。
+
+\subsection{時間軸に関する考慮事項}
+\label{sec:timeaxis}
+
+\begin{itemize}
+\item
+積算値 (降水量など) や平均値は一定の時間範囲に対して定義される
+ものですから、対象時刻の通算分ひとつで表現するのには向いていません。
+そのため、対象時刻を2つの通算分の対で指定するAPI
+{}[\ChapRef{api2}、廃止予定]
+が設計されましたが、実際にはこれらの関数は使われません。
+積算・平均に使った時間範囲の始点または終点を分単位に丸めたものが
+対象時刻1として使われて、
+時間範囲は SUBC TDIF レコード {}[\TabRef{table.fmt.subc.tdif}] に格納されます。
+データ作成プログラムは、すべての対象時刻に
+\begin{eqnarray*}
+ \hbox{\it diff\_time} &=&
+   \left[ \hbox{(時間範囲起点)} - \hbox{(対象時刻1)} \right] / {\rm s} \\
+ \hbox{\it total\_sec} &=&
+   \left[ \hbox{(時間範囲終点)} - \hbox{(時間範囲起点)} \right] / {\rm s}
+\end{eqnarray*}
+を引数にして
+\APIRef{nusdas.subc.tdif}{nusdas\_subc\_tdif}
+を呼びます。
+
+\item
+上記 SUBC TDIF レコードを用いて期間内の平均、積算、最大、最小値
+を格納する場合、要素名の先頭に、
+期間平均値の場合「 \_ 」、期間積算値の場合「 . 」、
+期間最大値の場合「 A\_ 」、期間最小値の場合「 I\_ 」を付加することで、
+瞬間値と区別します。
+
+\item
+データを読むアプリケーションが
+時間積分のタイムステップを知る必要がある場合は、
+SUBC DELT レコード [\TabRef{table.fmt.subc.delt}] を作成します。
+そのためには各データファイルについて1回
+(自信がなければメンバー・対象時刻が変わるたびに呼べば、重複して書かれた
+としても同じところを上書きするだけです)
+\APIRef{nusdas.subc.delt}{nusdas\_subc\_delt} を呼びます。
+\end{itemize}
+
+\subsection{その他のメタデータに関する考慮事項}
+
+\begin{itemize}
+\item
+	レーダーデータの場合 SUBC RADR/RADS/ISPC/DPRD レコードが
+	作成されることがある。
+\end{itemize}

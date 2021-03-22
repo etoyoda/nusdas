@@ -1,0 +1,28 @@
+\subsection{NUSDAS\_WRITE2: データ記録の書出}
+\APILabel{nusdas.write2}
+
+\Prototype
+\begin{quote}
+CALL {\bf NUSDAS\_WRITE2}({\it utype1}, {\it utype2}, {\it utype3}, {\it basetime}, {\it member}, {\it validtime1}, {\it validtime2}, {\it plane1}, {\it plane2}, {\it element}, {\it data}, {\it fmt}, {\it nelems}, {\it result})
+\end{quote}
+
+\begin{tabular}{l|rllp{16em}}
+\hline
+\ArgName & \ArgType & \ArrayDim & I/O & \ArgRole \\
+\hline
+{\it utype1} & CHARACTER(8) &  & IN &  種別1  \\
+{\it utype2} & CHARACTER(4) &  & IN &  種別2  \\
+{\it utype3} & CHARACTER(4) &  & IN &  種別3  \\
+{\it basetime} & INTEGER(4) &  & IN &  基準時刻(通算分)  \\
+{\it member} & CHARACTER(4) &  & IN &  メンバー名  \\
+{\it validtime1} & INTEGER(4) &  & IN &  対象時刻1(通算分)  \\
+{\it validtime2} & INTEGER(4) &  & IN &  対象時刻2(通算分)  \\
+{\it plane1} & CHARACTER(6) &  & IN &  面の名前1  \\
+{\it plane2} & CHARACTER(6) &  & IN &  面の名前2  \\
+{\it element} & CHARACTER(6) &  & IN &  要素名  \\
+{\it data} & \AnyType & \AnySize & IN &  データを与える配列  \\
+{\it fmt} & CHARACTER(2) &  & IN &  data の型  \\
+{\it nelems} & INTEGER(4) &  & IN &  data の要素数  \\
+{\it result} & INTEGER(4) &  & OUT & \ResultCode \\
+\hline
+\end{tabular}

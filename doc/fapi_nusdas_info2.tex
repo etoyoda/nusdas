@@ -1,0 +1,26 @@
+\subsection{NUSDAS\_INFO2: INFO 記録へのアクセス }
+\APILabel{nusdas.info2}
+
+\Prototype
+\begin{quote}
+CALL {\bf NUSDAS\_INFO2}({\it type1}, {\it type2}, {\it type3}, {\it basetime}, {\it member}, {\it validtime1}, {\it validtime2}, {\it group}, {\it info}, {\it bytesize}, {\it getput}, {\it result})
+\end{quote}
+
+\begin{tabular}{l|rllp{16em}}
+\hline
+\ArgName & \ArgType & \ArrayDim & I/O & \ArgRole \\
+\hline
+{\it type1} & CHARACTER(8) &  & IN &  種別1  \\
+{\it type2} & CHARACTER(4) &  & IN &  種別2  \\
+{\it type3} & CHARACTER(4) &  & IN &  種別3  \\
+{\it basetime} & INTEGER(4) &  & IN &  基準時刻(通算分)  \\
+{\it member} & CHARACTER(4) &  & IN &  メンバー名  \\
+{\it validtime1} & INTEGER(4) &  & IN &  対象時刻1(通算分)  \\
+{\it validtime2} & INTEGER(4) &  & IN &  対象時刻2(通算分)  \\
+{\it group} & CHARACTER(4) &  & IN &  群名  \\
+{\it info} & CHARACTER & \AnySize & I/O &  INFO 記録内容  \\
+{\it bytesize} & INTEGER(4) &  & IN &  INFO 記録のバイト数  \\
+{\it getput} & CHARACTER(3) &  & IN &  入出力指示 ({\it "GET}" または {\it "PUT}")  \\
+{\it result} & INTEGER(4) &  & OUT & \ResultCode \\
+\hline
+\end{tabular}

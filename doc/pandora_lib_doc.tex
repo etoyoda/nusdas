@@ -1,0 +1,297 @@
+{\large\verb|pandora_data* pdr_new()|}
+\begin{verbatim}
+   あたらしい pandora_data オブジェクトを作成して初期化する．
+
+   成功すれば，そのポインタを，失敗すればNULLを返す．
+\end{verbatim}
+{\large\verb|int pdr_delete(pandora_data *pdr)|}
+\begin{verbatim}
+   pandora_dataオブジェクトを削除する．
+   引数:
+   * pdr: 処理対象の pandora_data オブジェクトのポインタ
+
+   返却値:
+   * 0: 正常
+   * -11 : pdr がallocateされていない
+\end{verbatim}
+{\large\verb|int pdr_data_free(pandora_data *pdr)|}
+\begin{verbatim}
+   データ(http status, header, body)の領域を解放する．
+   pandora_data オブジェクト自体は削除されず，set_***関数で設定した属性
+   についてはそのまま残る．
+   引数:
+   * pdr: 処理対象の pandora_data オブジェクトのポインタ
+
+   返却値
+   * 0: 正常
+   * -11: pdrがallocateされていない
+\end{verbatim}
+{\large\verb|int pdr_set_server(pandora_data *pdr, char *server)|}
+\begin{verbatim}
+   pdrオブジェクトに対して，リクエストを出すサーバー名(port番号も含む)を
+   設定する．指定の仕方は
+
+    server:port
+
+   であり，serverで示される文字列は\0で終了していなければならない．
+
+   ポート番号が指定されていない場合は，8080に設定される．
+
+   この関数を呼び出した結果，サーバーが変更されるようであれば，接続中の
+   コネクションは切断される．(この関数を呼び出しても変更がなければ切断
+   されない)
+
+   引数
+   * pdr : 処理対象 pandora_data オブジェクトのポインタ
+   * server : 設定するサーバー名の文字列の先頭ポインタ(\0終端)
+
+   返却値
+   * 0: 正常
+   * 1: 正常(設定が解除された)
+   * -10: メモリーの確保に失敗
+   * -11: 対象のpdrがallocateされていない
+\end{verbatim}
+{\large\verb|int pdr_set_path(pandora_data *pdr. char *path)|}
+\begin{verbatim}
+   資源を指定するpathを指定する．pathで示される文字列は\0で
+   終了していなければならない．
+
+   引数
+   * pdr : 処理対象 pandora_data オブジェクトのポインタ
+   * path : 設定する資源のpathの文字列の先頭ポインタ(\0終端)
+
+   返却値:
+   * 0: 正常
+   * 1: 正常(設定が解除された)
+   * -10: メモリーの確保に失敗
+\end{verbatim}
+{\large\verb|int pdr_set_root(pandora_data *pdr, char *root)|}
+\begin{verbatim}
+   振り分け先(資源を示すパスの前につく)を指定する．
+   rootで示される文字列は\0で終了していなければならない．
+
+   引数
+   * pdr : 処理対象 pandora_data オブジェクトのポインタ
+   * root : 設定する振り分け先の文字列の先頭ポインタ(\0終端)
+
+   返却値
+   * 0: 正常
+   * 1: 正常(設定が解除された)
+   * -10: メモリーの確保に失敗
+   * -11: 対象のpdrがallocateされていない
+\end{verbatim}
+{\large\verb|int pdr_set_resource_type(pandora_data *pdr, char *resource_type)|}
+\begin{verbatim}
+   取得するデータの種別を指定する．たとえば，data.f32, meta.htmlなど．
+   resource_typeで示される文字列は\0で終了していなければならない．
+
+   引数
+   * pdr : 処理対象 pandora_data オブジェクトのポインタ
+   * resource_type : 設定するデータ種別の文字列の先頭ポインタ(\0終端)
+
+   返却値
+   * 0: 正常
+   * 1: 正常(設定が解除された)
+   * -10: メモリーの確保に失敗
+   * -11: 対象のpdrがallocateされていない
+\end{verbatim}
+{\large\verb|int pdr_req_hdr_init(pandora_data *pdr)|}
+\begin{verbatim}
+   レスポンスのヘッダを格納するテーブルを初期化する
+
+   引数
+   * pdr : 処理対象 pandora_data オブジェクトのポインタ
+
+   返却値
+   * 0: 正常
+
+\end{verbatim}
+{\large\verb|int pdr_set_host_header(pandora_data *pdr, char *host_header)|}
+\begin{verbatim}
+   Host ヘッダーの文字列を指定する．
+   host_headerで示される文字列は\0で終了していなければならない．
+
+   引数
+   * pdr : 処理対象 pandora_data オブジェクトのポインタ
+   * host_header : 設定するHostヘッダーの文字列の先頭ポインタ(\0終端)
+
+   返却値
+   * 0: 正常
+   * 1: 正常(設定が解除された)
+   * -10: メモリーの確保に失敗
+   * -11: 対象のpdrがallocateされていない
+\end{verbatim}
+{\large\verb|int pdr_set_accept_header(pandora_data *pdr, char *accept_header)|}
+\begin{verbatim}
+   Accept ヘッダーの文字列を指定する．
+   accept_headerで示される文字列は\0で終了していなければならない．
+
+   引数
+   * pdr : 処理対象 pandora_data オブジェクトのポインタ
+   * accept_header : 設定するAcceptヘッダーの文字列の先頭ポインタ(\0終端)
+
+   返却値
+   * 0: 正常
+   * 1: 正常(設定が解除された)
+   * -10: メモリーの確保に失敗
+   * -11: 対象のpdrがallocateされていない
+\end{verbatim}
+{\large\verb|int pdr_set_accept_encoding_header(pandora_data *pdr, char *header)|}
+\begin{verbatim}
+   Accept-Encoding ヘッダーの文字列を指定する．
+   headerで示される文字列は\0で終了していなければならない．
+
+   引数
+   * pdr : 処理対象 pandora_data オブジェクトのポインタ
+   * header : 設定する Accept-Encoding ヘッダーの文字列の先頭ポインタ(\0終端)
+
+   返却値
+   * 0: 正常
+   * 1: 正常(設定が解除された)
+   * -10: メモリーの確保に失敗
+   * -11: 対象のpdrがallocateされていない
+\end{verbatim}
+{\large\verb|int pdr_set_proxy(pandora_data *pdr, char *proxy)|}
+\begin{verbatim}
+   proxy サーバを使用する際に指定する．
+   指定の方法は pdr_set_serverと同じである．
+
+   proxy サーバーの指定を解除するためには，
+
+    pdr_set_proxy(pdr, "");
+    または
+    pdr_set_proxt(pdr, NULL);
+
+   とする．
+
+   pdr_set_server と同様，この関数の呼び出しの結果，proxy サーバーが変更
+   された場合は接続中のコネクションは切断される．
+
+   引数
+   * pdr : 処理対象 pandora_data オブジェクトのポインタ
+   * proxy : 設定する proxy サーバーの文字列の先頭ポインタ(\0終端)
+
+   返却値
+   * 0: 正常(proxy_serverがセットされた)
+   * 1: 正常(proxy_serverの設定が解除された)
+   * -10: メモリーの確保に失敗
+   * -11: 対象のpdrがallocateされていない
+\end{verbatim}
+{\large\verb|int pdr_set_timeout(pandora_data *pdr, int timeout)|}
+\begin{verbatim}
+   タイムアウトを指定する．このタイムアウトはread
+   に適用される．
+
+   引数
+   * pdr : 処理対象 pandora_data オブジェクトのポインタ
+   * timeout : 設定する timeout の時間(単位は秒)
+
+   返却値
+   * 0: 正常
+   * -11: 対象のpdrがallocateされていない
+\end{verbatim}
+{\large\verb|int pdr_set_connect_timeout(pandora_data *pdr, int timeout)|}
+\begin{verbatim}
+   タイムアウトを指定する．このタイムアウトはconnection
+   に適用される．
+
+   引数
+   * pdr : 処理対象 pandora_data オブジェクトのポインタ
+   * timeout : 設定する timeout の時間(単位は秒)
+
+   返却値
+   * 0: 正常
+   * -11: 対象のpdrがallocateされていない
+\end{verbatim}
+{\large\verb|int pdr_process(pandora_data *pdr)|}
+\begin{verbatim}
+   Pandora Serverにリクエストを出して，データの取得が行なわれる．
+
+   連続してこの関数を呼び出すと，その前に取得したデータを解放して
+   (pdr_data_freeが呼び出される)からデータ取得をすることに注意．
+
+   引数
+   * pdr : 処理対象 pandora_data オブジェクトのポインタ
+
+   返却値
+    * ステータスコードが，200の場合には，取得したデータのサイズを返す．
+    * それ以外の場合には，ステータスコードに-1をかけた値を返す．
+    * その他のエラーは-99以上0未満の値を返す．
+\end{verbatim}
+{\large\verb|void* pdr_get_data(pandora_data *pdr)|}
+\begin{verbatim}
+   取得したデータの先頭のポインターを返す．
+   データがない場合はNULLを返す．
+
+   引数
+   * pdr : 処理対象 pandora_data オブジェクトのポインタ
+\end{verbatim}
+{\large\verb|int pdr_get_data_len(pandora_data *pdr)|}
+\begin{verbatim}
+   取得したデータのサイズを返す．
+
+   引数
+   * pdr : 処理対象 pandora_data オブジェクトのポインタ
+\end{verbatim}
+{\large\verb|int pdr_get_status_code(pandora_data *pdr)|}
+\begin{verbatim}
+   HTTP ステータスコードを返す
+
+   引数
+   * pdr : 処理対象 pandora_data オブジェクトのポインタ
+\end{verbatim}
+{\large\verb|int pdr_sock_close(pandora_data *pdr)|}
+\begin{verbatim}
+   コネクションを強制的に切断する．
+
+   引数
+   * pdr : 処理対象 pandora_data オブジェクトのポインタ
+
+   返却値
+   * 0 : 正常終了
+   * <0 : エラー
+\end{verbatim}
+{\large\verb|char* pdr_header_find(pandora_data *pdr, char *header)|}
+\begin{verbatim}
+   headerで示されるヘッダーを検索して，その値の文字列(\0終端)の先頭ポインタを返す．
+   検索の際には大文字/小文字の区別はしない．
+
+   該当するものがない場合はNULLを返す．
+
+   引数
+   * pdr : 処理対象 pandora_data オブジェクトのポインタ
+   * header : 探索する header の文字列の先頭ポインタ(\0終端)
+\end{verbatim}
+{\large\verb|int pdr_print_all_headers(pandora_data *pdr, FILE *fp)|}
+\begin{verbatim}
+   受けとったヘッダーをすべて，fpに出力する．
+
+   引数
+   * pdr : 処理対象 pandora_data オブジェクトのポインタ
+   * fp : 出力先 FILE ポインタ
+   
+   返却値
+   * 0: 正常
+   * -99: I/Oエラー
+\end{verbatim}
+{\large\verb|char* pdr_get_request_path(pandora_data *pdr)|}
+\begin{verbatim}
+   リクエストとして出すパス文字列(\0終端)の先頭ポインタを返す
+
+   引数
+   * pdr : 処理対象 pandora_data オブジェクトのポインタ
+\end{verbatim}
+{\large\verb|char* pdr_get_host(pandora_data *pdr)|}
+\begin{verbatim}
+   pdr にセットされたhost名文字列(\0終端)の先頭ポインタを返す
+
+   引数
+   * pdr : 処理対象 pandora_data オブジェクトのポインタ
+\end{verbatim}
+{\large\verb|int pdr_get_port(pandora_data *pdr)|}
+\begin{verbatim}
+   pdr にセットされたport番号を返す
+
+   引数
+   * pdr : 処理対象 pandora_data オブジェクトのポインタ
+\end{verbatim}

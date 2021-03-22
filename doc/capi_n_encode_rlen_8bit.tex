@@ -1,0 +1,23 @@
+\subsection{n\_encode\_rlen\_8bit: 4バイト整数を RLE 圧縮する}
+\APILabel{n.encode.rlen.8bit}
+
+\Prototype
+\begin{quote}
+N\_SI4 {\bf n\_encode\_rlen\_8bit}(const N\_SI4 {\it udata}[\,], unsigned char {\it compressed\_data}[\,], N\_SI4 {\it udata\_nelems}, N\_SI4 {\it max\_compress\_nbytes}, N\_SI4 $\ast${\it maxvalue});
+\end{quote}
+
+\begin{tabular}{l|rp{20em}}
+\hline
+\ArgName & \ArgType & \ArgRole \\
+\hline
+{\it udata} & const N\_SI4 [\,] &  元データ配列  \\
+{\it compressed\_data} & unsigned char [\,] &  結果格納配列  \\
+{\it udata\_nelems} & N\_SI4 &  元データの要素数  \\
+{\it max\_compress\_nbytes} & N\_SI4 &  結果配列のバイト数  \\
+{\it maxvalue} & N\_SI4 $\ast$ &  元データの最大値  \\
+\hline
+\end{tabular}
+\paragraph{\FuncDesc}\paragraph{履歴}
+この関数は NuSDaS 1.0 から存在するが、ドキュメントされていなかった。
+NuSDaS 1.3 から Fortran API を伴う
+サービスサブルーチンとして採録された。

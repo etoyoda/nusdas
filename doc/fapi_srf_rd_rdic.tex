@@ -1,0 +1,47 @@
+\subsection{SRF\_RD\_RDIC: レーダーサイト情報の問い合わせ}
+\APILabel{srf.rd.rdic}
+
+\Prototype
+\begin{quote}
+CALL {\bf SRF\_RD\_RDIC}({\it stnum}, {\it iseq}, {\it lat}, {\it lon}, {\it hh}, {\it offx}, {\it offy}, {\it type1}, {\it type2}, {\it result})
+\end{quote}
+
+\begin{tabular}{l|rllp{16em}}
+\hline
+\ArgName & \ArgType & \ArrayDim & I/O & \ArgRole \\
+\hline
+{\it stnum} & INTEGER(4) &  & IN &  地点番号  \\
+{\it iseq} & INTEGER(4) &  & IN &  日時(通算時)  \\
+{\it lat} & REAL(4) &  & OUT &  緯度  \\
+{\it lon} & REAL(4) &  & OUT &  経度  \\
+{\it hh} & REAL(4) &  & OUT &  高度  \\
+{\it offx} & INTEGER(4) &  & OUT &  中心のオフセット  \\
+{\it offy} & INTEGER(4) &  & OUT &  中心のオフセット  \\
+{\it type1} & INTEGER(4) &  & OUT &  デジタル化タイプ  \\
+{\it type2} & INTEGER(4) &  & OUT &  デジタル化タイプ  \\
+{\it result} & INTEGER(4) &  & OUT & \ResultCode \\
+\hline
+\end{tabular}
+\paragraph{\FuncDesc}
+ファイル名 RADAR\_DIC のレーダー地点辞書から
+日時 {\it iseq} (通算時であって通算分でないことに注意)
+における地点番号 {\it stnum} のレーダーサイトの情報を読出す。
+
+\paragraph{\ResultCode}
+\begin{quote}
+\begin{description}
+\item[{\bf 1}] 正常終了
+\item[{\bf 0}] 指定されたレーダーサイトがみつからなかった
+\item[{\bf -1}] レーダー地点辞書が開けなかった
+\end{description}\end{quote}
+
+\paragraph{注}
+\begin{itemize}
+\item レーダー地点辞書は NAPS8 では
+/grpK/nwp/Open/Const/Vsrf/Dcd/rdrdic.txt に置かれている。
+\item NAPS8 初期版 libsrf.a には経度のかわりに誤って緯度を返すバグがある。
+\end{itemize}
+\paragraph{履歴}
+この関数は NAPS7 時代からルーチン環境には存在したが、
+pnusdas から NuSDaS 1.1 に至る CVS 版ソースには含まれていなかった。
+NuSDaS 1.3 で両者が統合された。

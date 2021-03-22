@@ -1,0 +1,28 @@
+\subsection{bfsetpos: ファイル位置設定}
+\APILabel{bfsetpos}
+
+\Prototype
+\begin{quote}
+int {\bf bfsetpos}(N\_BIGFILE $\ast${\it bf}, N\_SI8 {\it pos});
+\end{quote}
+
+\begin{tabular}{l|rp{20em}}
+\hline
+\ArgName & \ArgType & \ArgRole \\
+\hline
+{\it bf} & N\_BIGFILE $\ast$ &  ファイル  \\
+{\it pos} & N\_SI8 &  位置  \\
+\hline
+\end{tabular}
+\paragraph{\FuncDesc}
+あらかじめ \APILink{bfopen}{bfopen} で開かれた
+ファイル {\it bf} の現在位置を
+あらかじめ \APILink{bfgetpos}{bfgetpos} で得られた位置 {\it pos} に設定する。
+\paragraph{\ResultCode}
+\begin{quote}
+\begin{description}
+\item[{\bf 0}] 正常終了
+\item[{\bf -1}] エラー
+\end{description}\end{quote}
+\paragraph{履歴}
+この関数は NuSDaS 1.3 で追加された。

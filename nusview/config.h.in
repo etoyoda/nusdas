@@ -1,0 +1,4 @@
+#ifndef DBDIR
+# undef DBDIR
+#endif /* DBDIR */
+#undef USE_ZLIB

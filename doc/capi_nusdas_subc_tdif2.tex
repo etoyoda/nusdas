@@ -1,0 +1,24 @@
+\subsection{nusdas\_subc\_tdif2: SUBC TDIF へのアクセス }
+\APILabel{nusdas.subc.tdif2}
+
+\Prototype
+\begin{quote}
+N\_SI4 {\bf nusdas\_subc\_tdif2}(const char {\it type1}[8], const char {\it type2}[4], const char {\it type3}[4], const N\_SI4 $\ast${\it basetime}, const char {\it member}[4], const N\_SI4 $\ast${\it validtime1}, const N\_SI4 $\ast${\it validtime2}, N\_SI4 $\ast${\it diff\_time}, N\_SI4 $\ast${\it total\_sec}, const char {\it getput}[3]);
+\end{quote}
+
+\begin{tabular}{l|rp{20em}}
+\hline
+\ArgName & \ArgType & \ArgRole \\
+\hline
+{\it type1} & const char [8] &  種別1  \\
+{\it type2} & const char [4] &  種別2  \\
+{\it type3} & const char [4] &  種別3  \\
+{\it basetime} & const N\_SI4 $\ast$ &  基準時刻(通算分)  \\
+{\it member} & const char [4] &  メンバー名  \\
+{\it validtime1} & const N\_SI4 $\ast$ &  対象時刻1(通算分)  \\
+{\it validtime2} & const N\_SI4 $\ast$ &  対象時刻2(通算分)  \\
+{\it diff\_time} & N\_SI4 $\ast$ &  対象時刻からのずれ(秒)  \\
+{\it total\_sec} & N\_SI4 $\ast$ &  総予報時間(秒)  \\
+{\it getput} & const char [3] &  入出力指示 ({\it "GET}" または {\it "PUT}")  \\
+\hline
+\end{tabular}

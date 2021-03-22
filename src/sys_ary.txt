@@ -1,0 +1,245 @@
+/** @file
+ * @brief #{c.ctype} 用「賢い配列」
+ */
+#include "config.h"
+#include "nusdas.h"
+#include <stddef.h>
+#include <stdlib.h>
+#include "sys_mem.h"
+% if c.ctype == "N_UI8"
+# define NEED_UI8_MOD_UI2
+# define NEED_SI8_CMP
+#include "sys_int.h"
+% end
+#include "sys_container.h"
+
+% if c.use_hash
+/** @brief ハッシュ検索表の大きさを決定する */
+INLINE unsigned
+nus_hashsize(unsigned arysize)
+{
+	if (arysize < 11u) { return 11u;
+	} else if (arysize < 19u) { return 19u;
+	} else if (arysize < 37u) { return 37u;
+	} else if (arysize < 67u) { return 67u;
+	} else if (arysize < 131u) { return 131u;
+	} else { return 283u;
+	}
+}
+% end
+
+/** @brief 指定要素数の配列を作る。 */
+% if c.flexible
+ /**
+ * @note この配列は #{c.atype}_push() で拡大することができる。
+ * 初期には配列サイズは空である。
+ */
+% else
+ /**
+ * @note この配列は後で拡大することができない。
+ * 初期には配列には不定値が入っている。
+ */
+% end
+#{c.atype}_t *
+% if c.use_sort
+#{c.atype}_ini(
+	unsigned tsize, /**< 配列長 */
+	/** ソート用比較関数 */
+	int (*cmpfunc)(const void *a, const void *b))
+% else
+#{c.atype}_ini(unsigned tsize /**< 配列長 */)
+% end
+{
+	#{c.atype}_t	*array;
+	size_t		size;
+% if c.use_hash
+	unsigned	hsize, i;
+% end
+	char		*buf;
+% if c.use_hash
+%  raise "use_hash and flexible unsupported" if c.flexible
+	hsize = nus_hashsize(tsize);
+	size = sizeof(#{c.atype}_t) + tsize * sizeof(#{c.ctype}) + hsize * sizeof(unsigned);
+% elsif c.flexible
+	size = sizeof(#{c.atype}_t);
+% else
+	size = sizeof(#{c.atype}_t) + tsize * sizeof(#{c.ctype});
+% end
+	buf = nus_malloc(size);
+	if (buf == NULL)
+		return NULL;
+	array = (#{c.atype}_t *)buf;
+% if c.use_sort
+	array->cmpfunc = cmpfunc;
+% end
+% if c.flexible
+	/* 伸長可能のときは後で nus_realloc できるように別 nus_malloc */
+	array->num_entries = 0;
+	array->num_allocated = tsize;
+	buf = nus_malloc(tsize * sizeof(#{c.ctype}));
+	if (buf == NULL) {
+		nus_free(array);
+		return NULL;
+	}
+	array->list = (#{c.ctype} *)buf;
+% else
+	/* 伸長不可のときは array と一体的に nus_malloc */
+	array->num_entries = tsize;
+	buf += sizeof(#{c.atype}_t);
+	array->list = (#{c.ctype} *)buf;
+% end
+% if c.use_hash
+	/* ハッシュ利用時は常に伸長不可 */
+	array->num_hashtab = hsize;
+	buf += (tsize * sizeof(#{c.ctype}));
+	array->hash = (unsigned *)buf;
+	for (i = 0u; i < array->num_hashtab; i++) {
+		array->hash[i] = ~0u;
+	}
+% end
+	return array;
+}
+
+% if c.flexible
+/** @brief 配列の破棄、資源開放
+ * @param ary 破棄しようとする配列
+ */
+void
+#{c.atype}_delete(#{c.atype}_t *ary)
+{
+	nus_free(ary->list);
+	nus_free(ary);
+}
+% end
+
+/** @brief 配列の単要素を設定
+ * @param ary 配列
+ * @param idx 要素の位置 (ゼロ始まり)
+ * @param val 値
+ * @retval 0 設定成功
+ * @retval -1 配列長を超えた添字が指定された (未実装)
+ */
+int
+#{c.atype}_set(#{c.atype}_t *ary, unsigned idx, #{c.ctype} val)
+{
+% if c.use_hash
+	unsigned ihash;
+% end
+% listsize = (c.flexible ? 'ary->num_allocated' : 'ary->num_entries')
+#if 0
+	if (idx >= #{listsize}) {
+		return -1;
+	}
+#endif
+	ary->list[idx] = val;
+% if c.use_hash
+	ihash = (#{operator('val', c.modfunc, 'ary->num_hashtab')});
+	if (ary->hash[ihash] > idx) {
+		ary->hash[ihash] = idx;
+	}
+% end
+	return 0;
+}
+
+% if c.flexible
+/** @brief 配列末尾に単要素を追加
+ * @note 配列長が不足ならば2倍に拡張される。
+ * @param ary 配列
+ * @param val 値
+ * @retval 0 正常終了
+ * @retval -1 配列拡張失敗
+ */
+int
+#{c.atype}_push(#{c.atype}_t *ary, #{c.ctype} val)
+{
+	if (ary->num_entries >= ary->num_allocated) {
+		char *ptr;
+		ptr = nus_realloc(ary->list,
+			2 * ary->num_allocated * sizeof(#{c.ctype} *));
+		if (ptr == NULL) {
+			return -1;
+		}
+		ary->list = (#{c.ctype} *)ptr;
+		ary->num_allocated *= 2;
+	}
+	ary->list[ary->num_entries] = val;
+	ary->num_entries++;
+	return 0;
+}
+% end
+
+/** @brief 配列の指定番号要素を得る
+ * @param ary 配列
+ * @param idx 添字 (ゼロ始まり)
+ * @return 指定番号の要素
+ */
+#{c.ctype}
+#{c.atype}_get_value(#{c.atype}_t *ary, unsigned idx)
+{
+	return ary->list[idx];
+}
+
+/** @brief 配列中に値が存在する場所の添字を得る
+ * @param ary 配列
+ * @param val 値
+ * @retval 0以上 みつかった。
+ * @retval 負 みつからなかった。
+ */
+int
+#{c.atype}_get_index(#{c.atype}_t *ary, #{c.ctype} val)
+{
+	unsigned idx;
+% if c.use_hash
+	idx = ary->hash[#{operator('val', c.modfunc, 'ary->num_hashtab')}];
+% else
+	idx = 0;
+% end
+	while (idx < ary->num_entries) {
+		if (#{operator('ary->list[idx]', c.eqfunc, 'val')})
+			return idx;
+		idx++;
+	}
+	return -1;
+}
+
+%if c.use_sort
+
+/** @brief 配列をソートする
+ * @param ary 配列
+ * @return qsort と同様に値を返さない
+ */
+void
+#{c.atype}_sort(#{c.atype}_t *ary)
+{
+	qsort(ary->list, ary->num_entries, sizeof(#{c.ctype}), ary->cmpfunc);
+}
+
+%end
+
+%if c.use_movehead
+
+/** @brief 指定した要素を先頭に移動する。
+ * @param ary 配列
+ * @param target 先頭に移動するポインタ
+ * @return 0: 正常
+ * @return -1: 指定した要素が配列に含まれていなかった
+ */
+int
+#{c.atype}_movehead(#{c.atype}_t *ary, void *target)
+{
+	unsigned idx, i;
+	int r;
+	
+	r = #{c.atype}_get_index(ary, target);
+	if (r < 0) {
+		return r;
+	}
+	idx = r;
+	for (i = idx; i > 0; i--) {
+		ary->list[i] = ary->list[i - 1];
+	}
+	ary->list[0] = target;
+	return 0;
+}
+
+%end

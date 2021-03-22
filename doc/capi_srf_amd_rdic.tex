@@ -1,0 +1,49 @@
+\subsection{srf\_amd\_rdic: アメダス地点辞書の読み込み}
+\APILabel{srf.amd.rdic}
+
+\Prototype
+\begin{quote}
+int {\bf srf\_amd\_rdic}(SRF\_AMD\_SINFO $\ast${\it amd}, int {\it amdnum}, int {\it btime}, int {\it amd\_type});
+\end{quote}
+
+\begin{tabular}{l|rp{20em}}
+\hline
+\ArgName & \ArgType & \ArgRole \\
+\hline
+{\it amd} & SRF\_AMD\_SINFO $\ast$ &  地点辞書格納配列  \\
+{\it amdnum} & int &  地点辞書配列長  \\
+{\it btime} & int &  探索日時 (通算分)  \\
+{\it amd\_type} & int &  地点種別  \\
+\hline
+\end{tabular}
+\paragraph{\FuncDesc}
+環境変数 NWP\_AMDDCD\_STDICT が指す地点辞書ファイル
+(環境変数未定義時は amddic.txt となる) から
+SRF\_AMD\_SINFO 構造型の配列 {\it amd} にアメダス地点情報を読出す。
+読出される地点は時刻 {\it btime} に存在するものが選ばれ、
+さらに引数 {\it amd\_type} によって次のように限定される。
+配列長 {\it amdnum} を越えて書き出すことはない。
+
+\begin{quote}\begin{description}
+\item[{\bf SRF\_KANS}] 官署
+\item[{\bf SRF\_ELM4}] 4要素を観測している地点
+\item[{\bf SRF\_AMEL}] ロボット雨量計
+\item[{\bf SRF\_AIRP}] 航空官署
+\item[{\bf SRF\_YUKI}] 積雪観測地点
+\item[{\bf SRF\_ALL}] 全地点
+\end{description}\end{quote}
+
+\paragraph{\ResultCode}
+\begin{quote}
+\begin{description}
+\item[{\bf 非負}] 地点数
+\item[{\bf -1}] 地点種別が不正
+\item[{\bf -2}] 結果格納配列の長さ不足
+\item[{\bf -3}] 地点辞書ファイルが開けない
+\end{description}\end{quote}
+
+\paragraph{参考}
+NAPS8 においては地点辞書は
+/grpK/nwp/Open/Const/Pre/Dcd/amddic.txt に置かれている。
+\paragraph{履歴}
+この関数は NAPS7 時代から存在した。

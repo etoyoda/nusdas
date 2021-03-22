@@ -1,0 +1,78 @@
+\Chapter{範囲指定型 API (廃止予定)}
+\label{api2}
+
+\section{概要}
+
+NuSDaS 内部では、対象時刻および面は点ではなく
+範囲として表現できるようになっています
+(GRIB から変換ができるように配慮したのでしょう)。
+対象時刻は整数 2 つで期間の始点と終点を表わし、
+面は 6 文字の名前 2 つで上端と下端の高度を表わすことができます。
+これらはそれぞれ「対象時刻1」「対象時刻2」「面1」「面2」と呼ばれます。
+
+対象時刻2や面2が指定されない「範囲でないデータ」は、
+対象時刻2が値 $1$%
+\footnote{通算分 1 は欠損をあらわします。
+1801 年 1 月 1 日 00:01Z と区別つきませんが、おそらく問題にはならないでしょう}
+で面2と面1が同じものとして表現されています。
+
+対象時刻または面名に範囲を用いるデータセットを読み書きするために、
+本章で説明する API が用意されています。
+これらは関数名の末尾に `2' がつくので区別されます。
+しかし、実際には積算・平均の時間範囲は範囲指定ではなく、
+SUBC TDIF レコード {}[\TabRef{table.fmt.subc.tdif}] によって表現されます。
+
+対象時刻2や面2を用いた範囲指定は Pandora では利用できなくなりました。
+本章で説明される関数・サブルーチンも、
+将来のライブラリ再設計時には削除される予定ですので、
+開発環境のアプリケーションに用例があった場合は
+速やかに `2なし' API に移行するように努めてください。
+
+\section{Fortran API}
+\label{fapi2}
+
+\renewcommand{\APILabel}[1]{\label{fapi:#1}}
+
+\input{fapi_nusdas_cut2}
+\input{fapi_nusdas_cut2_raw}
+\input{fapi_nusdas_grid2}
+\input{fapi_nusdas_info2}
+\input{fapi_nusdas_inq_cntl2}
+\input{fapi_nusdas_inq_data2}
+\input{fapi_nusdas_onefile_close2}
+\input{fapi_nusdas_read2}
+\input{fapi_nusdas_subc_delt2}
+\input{fapi_nusdas_subc_eta2}
+\input{fapi_nusdas_subc_eta_inq_nz2}
+\input{fapi_nusdas_subc_rgau2}
+\input{fapi_nusdas_subc_rgau_inq_jn2}
+\input{fapi_nusdas_subc_sigm2}
+\input{fapi_nusdas_subc_srf2}
+\input{fapi_nusdas_subc_tdif2}
+\input{fapi_nusdas_subc_zhyb2}
+\input{fapi_nusdas_write2}
+
+\section{C API}
+\label{capi2}
+
+\renewcommand{\APILabel}[1]{\label{capi:#1}}
+
+\input{capi_nusdas_cut2}
+\input{capi_nusdas_cut2_raw}
+\input{capi_nusdas_grid2}
+\input{capi_nusdas_info2}
+\input{capi_nusdas_inq_cntl2}
+\input{capi_nusdas_inq_data2}
+\input{capi_nusdas_onefile_close2}
+\input{capi_nusdas_read2}
+\input{capi_nusdas_subc_delt2}
+\input{capi_nusdas_subc_eta2}
+\input{capi_nusdas_subc_eta_inq_nz2}
+\input{capi_nusdas_subc_rgau2}
+\input{capi_nusdas_subc_rgau_inq_jn2}
+\input{capi_nusdas_subc_sigm2}
+\input{capi_nusdas_subc_srf2}
+\input{capi_nusdas_subc_srf_ship2}
+\input{capi_nusdas_subc_tdif2}
+\input{capi_nusdas_subc_zhyb2}
+\input{capi_nusdas_write2}

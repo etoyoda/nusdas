@@ -1,0 +1,49 @@
+CC =		@CC@ $(CCFlags)
+CFLAGS = 	-I../src -I../nwplib8 @CFLAGS@ $(CFlags)
+LDFLAGS = 	-L../src -lnusdas -L../nwplib8 -lnwp \
+		@LDFLAGS@ $(LDFlags) -lm @LIBS@
+
+all: bins
+
+.PHONY: bins
+
+DEPEND=../src/libnusdas.a ../nwplib8/libnwp.a
+BINARIES=nusdas_dump_rec nuscmp nusconv nsd_xcmp nsd_list nsd_copy
+
+bins: $(BINARIES)
+
+nusdas_dump_rec: hdump_rec.o $(DEPEND)
+	$(CC) $(CFLAGS) -o nusdas_dump_rec hdump_rec.o $(LDFLAGS)
+
+nuscmp: nuscmp.o $(DEPEND)
+	$(CC) $(CFLAGS) -o nuscmp nuscmp.o $(LDFLAGS)
+
+nusconv: nusconv.o $(DEPEND)
+	$(CC) $(CFLAGS) -o nusconv nusconv.o $(LDFLAGS)
+
+OBJ_LIST = nsd_list.o nsd_subc.o nsd_param.o
+OBJ_COPY = nsd_copy.o nsd_subc.o nsd_param.o obstation.o
+OBJ_XCMP = nsd_xcmp.o nsd_subc.o nsd_param.o
+nsd_list.o  : nsd_param.h nsd_subc.h
+nsd_copy.o  : nsd_param.h nsd_subc.h obstation.h
+nsd_param.o : nsd_param.h
+nsd_subc.o  : nsd_subc.h
+obstation.o : obstation.h
+
+nsd_list: $(OBJ_LIST) $(DEPEND)
+	$(CC) $(CFLAGS) -o $@ $(OBJ_LIST) $(LDFLAGS)
+
+nsd_copy: $(OBJ_COPY) $(DEPEND)
+	$(CC) $(CFLAGS) -o $@ $(OBJ_COPY) $(LDFLAGS)
+
+nsd_xcmp: $(OBJ_XCMP) $(DEPEND)
+	$(CC) $(CFLAGS) -o $@ $(OBJ_XCMP) $(LDFLAGS)
+
+.c.o:
+	$(CC) -c $(CFLAGS) $<
+
+clean: 
+	-rm -f *.o *.exe *~ $(BINARIES)
+
+distclean: clean
+	-rm -f Makefile

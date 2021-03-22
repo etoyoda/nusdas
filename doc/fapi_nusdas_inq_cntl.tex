@@ -1,0 +1,136 @@
+\subsection{NUSDAS\_INQ\_CNTL: データファイルの諸元問合せ }
+\APILabel{nusdas.inq.cntl}
+
+\Prototype
+\begin{quote}
+CALL {\bf NUSDAS\_INQ\_CNTL}({\it type1}, {\it type2}, {\it type3}, {\it basetime}, {\it member}, {\it validtime}, {\it param}, {\it data}, {\it datasize}, {\it result})
+\end{quote}
+
+\begin{tabular}{l|rllp{16em}}
+\hline
+\ArgName & \ArgType & \ArrayDim & I/O & \ArgRole \\
+\hline
+{\it type1} & CHARACTER(8) &  & IN &  種別1  \\
+{\it type2} & CHARACTER(4) &  & IN &  種別2  \\
+{\it type3} & CHARACTER(4) &  & IN &  種別3  \\
+{\it basetime} & INTEGER(4) &  & IN &  基準時刻(通算分)  \\
+{\it member} & CHARACTER(4) &  & IN &  メンバー名  \\
+{\it validtime} & INTEGER(4) &  & IN &  対象時刻(通算分)  \\
+{\it param} & INTEGER(4) &  & IN &  問合せ項目コード  \\
+{\it data} & \AnyType & \AnySize & OUT &  問合せ結果配列  \\
+{\it datasize} & INTEGER(4) &  & IN &  問合せ結果配列の要素数  \\
+{\it result} & INTEGER(4) &  & OUT & \ResultCode \\
+\hline
+\end{tabular}
+\paragraph{\FuncDesc}引数 {\it type1} から {\it validtime} で指定されるデータファイルに書かれた
+CNTL 記録について、
+引数 {\it param} で指定される問合せを行う。
+\begin{quote}\begin{description}
+\item[{\bf N\_MEMBER\_NUM}] 
+メンバーの個数が4バイト整数型変数 {\it data} に書かれる。
+\item[{\bf N\_MEMBER\_LIST}] 
+データファイルに定義されたメンバー名が配列 {\it data} に書かれる。
+配列 {\it data} は長さ 4 文字の文字型で
+{\it N\_MEMBER\_NUM} 要素存在しなければならない。
+\item[{\bf N\_VALIDTIME\_NUM}] 
+validtimeの個数が4バイト整数型変数 {\it data} に書かれる。
+\item[{\bf N\_VALIDTIME\_LIST}] 
+データファイルに定義されたvalidtimeが配列 {\it data} に書かれる。
+配列 {\it data} は長さ 4 byte整数型で
+{\it N\_VALIDTIME\_NUM} 要素存在しなければならない。
+\item[{\bf N\_VALIDTIME\_LIST2}] 
+データファイルに定義されたvalidtime2が配列 {\it data} に書かれる。
+配列 {\it data} は長さ 4 byte整数型で
+{\it N\_VALIDTIME\_NUM} 要素存在しなければならない。
+\item[{\bf N\_PLANE\_NUM}] 
+面の個数が4バイト整数型変数 {\it data} に書かれる。
+\item[{\bf N\_PLANE\_LIST}] 
+データファイルに定義された面の名前が配列 {\it data} に書かれる。
+配列 {\it data} は長さ 6 文字の文字型で
+{\it N\_PLANE\_NUM} 要素存在しなければならない。
+\item[{\bf N\_PLANE\_LIST2}] 
+N\_PLANE\_LIST と全く同じ動作である。
+\item[{\bf N\_ELEMENT\_NUM}] 
+要素の個数が4バイト整数型変数 {\it data} に書かれる。
+\item[{\bf N\_ELEMENT\_LIST}] 
+データファイルに定義された要素の名前が配列 {\it data} に書かれる。
+配列 {\it data} は長さ 6 文字の文字型で
+{\it N\_ELEMENT\_NUM} 要素存在しなければならない。
+\item[{\bf  N\_NUSD\_NBYTES }] 
+NUSD レコードのサイズ(単位バイト)が4バイト整数型変数 {\it data} に書か
+れる。(先頭・末尾に付加されるレコード長の大きさ(4$\ast$2バイト)を含む)
+\item[{\bf  N\_NUSD\_CONTENT }] 
+NUSD レコードの内容を配列 {\it data} に格納する。配列 {\it data} は
+\newline N\_NUSD\_NBYTES バイト存在しなくてはならない。
+(先頭・末尾に付加されるレコード長を含む)
+\item[{\bf  N\_CNTL\_NBYTES }] 
+CNTL レコードのサイズ(単位バイト)が4バイト整数型変数 {\it data} に書か
+れる。(先頭・末尾に付加されるレコード長の大きさ(4$\ast$2バイト)を含む)
+\item[{\bf  N\_CNTL\_CONTENT }] 
+CNTL レコードの内容を配列 {\it data} に格納する。配列 {\it data} は
+\newline N\_CNTL\_NBYTES バイト存在しなくてはならない。
+(先頭・末尾に付加されるレコード長を含む)
+\item[{\bf  N\_PROJECTION }] 
+地図投影法の情報を4文字の文字型 {\it data} に格納する
+(記号の意味は巻末の表参照)。
+\item[{\bf  N\_GRID\_SIZE }] 
+X方向、Y方向の格子数がこの順序で4バイト整数型の配列 {\it data} に
+書かれる。配列 {\it data} は 2 要素存在しなくてはならない。
+(この問い合わせは NuSDaS 1.3 で追加)
+\item[{\bf  N\_GRID\_BASEPOINT }] 
+基準点のx座標、y座標、緯度、経度がこの順序で4バイト単精度浮動小数点型の配
+列 {\it data} に書かれる。配列 {\it data} は 4 要素存在しなくてはならない。
+(この問い合わせは NuSDaS 1.3 で追加)
+\item[{\bf  N\_GRID\_DISTANCE }] 
+X方向、Y方向の格子間隔がこの順序で4バイト単精度浮動小数点型の配列
+{\it data} に書かれる。配列 {\it data} は 2 要素存在しなくてはならない。
+(この問い合わせは NuSDaS 1.3 で追加)
+\item[{\bf  N\_STAND\_LATLON }] 
+標準緯度、標準経度、第2標準緯度、第2標準経度がこの順序で
+4バイト単精度浮動小数点型の配列 {\it data} に書かれる。
+配列 {\it data} は 4 要素存在しなくてはならない。
+(この問い合わせは NuSDaS 1.3 で追加)
+\item[{\bf  N\_SPARE\_LATLON }] 
+緯度1、経度1、緯度2、経度2がこの順序で
+4バイト単精度浮動小数点型の配列 {\it data} に書かれる。
+配列 {\it data} は 4 要素存在しなくてはならない。
+(この問い合わせは NuSDaS 1.3 で追加)
+\item[{\bf  N\_INDX\_SIZE }] 
+INDX の個数が 4バイト整数型の変数 {\it data} に書かれる。
+(この問い合わせは NuSDaS 1.3 で追加)
+\item[{\bf  N\_ELEMENT\_MAP }] 
+データの格納が許容されているか否かが1 or 0 によって、1バイト整数型
+の配列 {\it data} に書かれる。配列 {\it data} は {\it N\_INDX\_SIZE} 要素存在
+しなくてはならない。{\it dataはメンバー、validtime}, 面、要素をインデック
+スにした配列で、それぞれの順序は {\it N\_MEMBER\_LIST}, 
+{\it N\_VALIDTIME\_LIST}, {\it N\_PLANE\_LIST}, {\it N\_ELEMENT\_LIST}の問い合わせ
+結果と一致する。
+(この問い合わせは NuSDaS 1.3 で追加)
+\item[{\bf  N\_DATA\_MAP }] 
+データが書き込まれているか否かが1 or 0 によって、1バイト整数型
+の配列 {\it data} に書かれる。配列 {\it data} は {\it N\_INDX\_SIZE} 要素存在
+しなくてはならない。{\it dataはメンバー、validtime}, 面、要素をインデック
+スにした配列で、それぞれの順序は {\it N\_MEMBER\_LIST}, 
+{\it N\_VALIDTIME\_LIST}, {\it N\_PLANE\_LIST}, {\it N\_ELEMENT\_LIST}の問い合わせ
+結果と一致する。
+(この問い合わせは NuSDaS 1.3 で追加)
+\end{description}\end{quote}
+
+\paragraph{\ResultCode}
+\begin{quote}
+\begin{description}
+\item[{\bf 正}] 格納要素数
+\item[{\bf -1}] データの配列数が不足している。
+\item[{\bf -2}] データの配列が確保されていない。
+\item[{\bf -3}] 問い合わせ項目が不正
+\end{description}\end{quote}
+\paragraph{ 注意 }
+NuSDaS1.1以前では、同じ構造のデータセットでも
+N\_VALIDTIME\_NUM, N\_VALIDTIME\_LIST の問い合わせ結果が
+1つの basetime に複数の validtime を格納するか否かによって異なっていた。
+これは、validtime でファイルを分ける
+(異なる validtime のファイルが異なる) 設定ならば
+データファイルには 1 つの validtime だけが書かれていたからである。
+しかし NuSDaS 1.3 からは定義ファイルに指定されたすべての validtime が
+各データファイルの validtime に格納されているので、問い合わせ結果は
+格納形態を問わず一定である。

@@ -1,0 +1,262 @@
+\section{pandora client のためのTCP/IP通信ライブラリ: pandora\_lib}
+\label{pandora_lib}
+pandora サーバーとのTCP/IP通信を支援することを念頭に構成されたライブラリ
+である。pandora サーバーとの通信は HTTP プロトコルで行われるが、このライ
+ブラリは対pandora サーバーと意識しているものの、汎用のHTTPプロトコルによ
+る通信のためのライブラリとしても利用できる。
+
+C言語で記述されており、C言語での利用が前提になっている。
+
+\subsection{ソースファイルの構成}
+{\tt pandora\_lib.c} およびヘッダファイル {\tt pandora\_lib.h} 
+から構成されている。
+
+pandora\_lib の関数を使用するソースファイルには、
+{\tt pandora\_lib.h}をincludeする。
+
+\subsection{関数リファレンス}
+\input pandora_lib_doc.tex
+
+\subsection{使用例}
+\subsubsection{pandora server からNuSDaSデータを取得するクライアントの例}
+pandora server({\tt localhost:8080}) から引数で指定した日時の
+全球速報解析 \\*
+(NuSDaS TYPE名: {\tt \_GSMLLPP.EASV.STD1})の地表面データを取得する
+サンプルである。
+
+使用例:
+\begin{verbatim}
+$ ./panlib_samlple1 2017/08/01/00:00
+\end{verbatim}
+
+\begin{verbatim}
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "pandora_lib.h"
+
+#define TYPE1 "_GSMLLPP"
+#define TYPE2 "EASV"
+#define TYPE3 "STD1"
+#define MEMBER "none"
+#define LAYER "SURF"
+#define SERVER "localhost:8080"
+#define ROOT "/NAPS/db2/eternal/Ea/Anl/anl_p.nus"
+
+int main(int argc, char* argv[])
+{
+    pandora_data *pdr;
+    char elem[3][7]={"T","U","V"};
+    int i;
+    int code, len;
+    FILE *fp;
+    char filename[256];
+    char nus_path[256];
+    int year, month, day, hour, min;
+    int data_num;
+    char *data_num_str;
+    
+    if(argc <2){
+        fprintf(stderr,"usage: %s yyyy/mm/dd/hh:mm\n",argv[0]);
+        return -1;
+    }
+    if(sscanf(argv[1],"%d/%d/%d/%d:%d",&year, &month, &day, &hour, &min)!=5){
+        fprintf(stderr,"Time Format Error\n");
+        return -2;
+    }
+    
+    pdr = pdr_new();
+    /* オブジェクトを作成 */
+    
+    pdr_set_server(pdr,SERVER);
+    /* アクセスするサーバー名をセット*/
+    
+    pdr_set_root(pdr, ROOT);
+    /* 振り分け先をセット */
+    
+    pdr_set_resource_type(pdr,"data.txt");
+    /* 資源の種類と形式をセット */
+    
+    for(i=0;i<3;i++){
+        sprintf(nus_path,
+            "%s.%s.%s/%04d-%02d-%02dt%02d%02d/%s/%04d-%02d-%02dt%02d%02d//%s//%s",
+            TYPE1, TYPE2, TYPE3,
+            year, month, day, hour, min, MEMBER,
+            year, month, day, hour, min, LAYER, elem[i]
+        );
+        /* アクセスパスを作成する validtime2, plane2の値は不要だがスラッシュは必要 */
+        pdr_set_path(pdr, nus_path);
+        if(pdr_process(pdr) < 0){ 
+            /* リクエストの送信，レスポンスの受信*/
+            code = pdr_get_status_code(pdr); /*エラーコードの取得*/
+            fprintf(stderr, "%d: Request failed. code=%d\n",i, code);
+        }
+        len = pdr_get_data_len(pdr); /* レスポンスの長さの取得 */
+        if((data_num_str = pdr_header_find(pdr,"X-Data-Num"))!=NULL){
+            data_num = atoi(data_num_str);
+        }
+        else{
+            data_num = 0;
+        }
+        fprintf(stderr,"%d: Data received: %d byte\n",i, len);
+        fprintf(stderr,"Data-Num: %d\n", data_num);
+        sprintf(filename, "data-%04d%02d%02d%02d%02d-%d.txt", 
+                year, month, day, hour, min, i);
+        fp = fopen(filename,"w");
+        fwrite(pdr_get_data(pdr),len,1,fp);
+        /* pdr_get_data(pdr)から始まるメモリー上のデータを長さlen
+           (つまり全部)出力 */
+        
+        fclose(fp);
+        
+    }
+    pdr_delete(pdr);
+    
+    return 0;
+}
+\end{verbatim}
+
+\subsubsection{汎用HTTPクライアントの例}
+引数に与えたURLの内容をHTTPによって取得する。
+
+\begin{verbatim}
+panlib_sample2 http://<server>:<port>/<path>
+\end{verbatim}
+
+\begin{verbatim}
+/* -------------------------------------------------------------------------*/
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#include "pandora_lib.h"
+#define DEFAULT_TIMEOUT 60
+
+/*-------------------------------------------------------------------------*/
+void usage(char *argv[]){
+    fprintf(stderr,"usage: %s [option] http://<server>:<port>/<path>\n",argv[0]);
+    fprintf(stderr, "        option: -h   print all headers to stderr\n");
+}
+/*------------------------------------------------------------------------*/
+int main(int argc, char *argv[])
+{
+    char *server_path, *server, *path, *host_header;
+    pandora_data *pdr;
+    char *p;
+    int code;
+    int i, len;
+    int print_header_flag;
+    int timeout;
+    int rt;
+
+    if(argc < 2){
+        usage(argv);
+        return -1;
+    }
+
+    print_header_flag = 0;
+    server_path = NULL;
+    timeout = DEFAULT_TIMEOUT;
+    for(i=1;argv[i]!=NULL;i++){
+        if(argv[i][0]=='-'){
+            switch(argv[i][1]){
+            case 'h':
+                print_header_flag = 1;
+                break;
+            case 't':
+                timeout = atoi(argv[++i]);
+                if(timeout == 0){
+                    fprintf(stderr,"Invalid Timeout Parameter:%s\n",
+                            argv[i]);
+                }
+                break;
+            case 'j':
+                host_header = argv[++i];
+                break;
+            default:
+                break;
+            }
+            continue;
+        }
+        
+        if(server_path == NULL){
+            server_path = argv[i];
+        }
+    }
+
+    if(server_path == NULL){
+        usage(argv);
+        return -2;
+    }
+
+    /* serverとpathの分解 */
+    if((p=strstr(server_path, "http://"))==NULL){
+        usage(argv);
+        return -3;
+    }
+    server = p + strlen("http://");
+    for(p = server; *p!='\0'; p++){
+        if(*p=='/'){
+            *p = '\0';
+            path = p+1;
+            break;
+        }
+    }
+
+    /*
+      pandora_lib では，root,, path, resource_typeを設定するのが原則で
+      あるが，今回のようにパスが完全にわかっている場合には，以下のよう
+      にpdr_set_resource_typeに完全なパスをセットすることも可能である．
+      (rootとpathは設定しなくてよい)
+
+      なお，このように3つにわかれているのでは，
+      1) pathに nusdims_to_path の出力をそのままセットできる．
+         (関数pdr_set_path_nus はNuSDaSの要素をpandora pathに変換して,
+         pdr_set_pathを実行する)
+      2) pathだけが違う(たとえば時刻がちがうなど)とか，同じ資源のdataとmeta
+        をとりたい場合など，変更のある部分だけを変更できる
+
+      という利点があると考えている．
+     */
+
+    pdr = pdr_new();
+    if(pdr == NULL){
+        fprintf(stderr, "malloc error:%s,%d\n",__FILE__,__LINE__);
+        return -10;
+    }
+    
+    if((rt = pdr_set_timeout(pdr, 60))<0){
+        fprintf(stderr, "pdr_set_timeout error:%d\n", rt);
+        return rt;
+    }
+    else if((rt = pdr_set_server(pdr,server))<0){
+        fprintf(stderr, "pdr_set_server error:%d\n", rt);
+        return rt;
+    }
+    else if((rt = pdr_set_resource_type(pdr, path))<0){
+        fprintf(stderr, "pdr_set_resource error:%d\n", rt);
+        return rt;
+    }
+
+    if(host_header != NULL){
+        if((rt = pdr_set_host_header(pdr, host_header)) < 0){
+            fprintf(stderr, "pdr_set_host_header error:%d\n", rt);
+            return rt;
+        }
+    }
+
+    if(pdr_process(pdr)<0){
+        code = pdr_get_status_code(pdr);
+        fprintf(stderr, "Error! status code=%d\n", code);
+
+    }
+    fprintf(stderr,"Data Length: %d\n", pdr_get_data_len(pdr));
+    if(print_header_flag == 1){
+        pdr_print_all_headers(pdr,stderr);
+    }
+    fwrite(pdr_get_data(pdr), pdr_get_data_len(pdr),1,stdout);    
+
+    pdr_delete(pdr);
+    return 0;
+}
+\end{verbatim}

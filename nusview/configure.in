@@ -1,0 +1,21 @@
+AC_INIT(nusdir.c)
+
+NUSAPP_CHECK_NUSDAS
+
+if test -f ../src/nusdas-config
+then
+	ZLIB_AVAILABLE="`sh ../src/nusdas-config --with-zlib`"
+else
+  AC_ARG_WITH(zlib, [
+  --with-zlib                      use zlib dnl
+  ], [ZLIB_AVAILABLE=$withval], [ZLIB_AVAILABLE=no])
+fi
+if test X"$ZLIB_AVAILABLE" = X"yes"
+then
+	AC_DEFINE(USE_ZLIB)
+fi
+
+AC_SUBST(ZLIB_AVAILABLE)
+AC_SUBST(LIBS)
+AC_CONFIG_HEADER(config.h)
+AC_OUTPUT(Makefile)

@@ -1,0 +1,53 @@
+\subsection{NUSDAS\_INQ\_PARAMETER: オプション取得}
+\APILabel{nusdas.inq.parameter}
+
+\Prototype
+\begin{quote}
+CALL {\bf NUSDAS\_INQ\_PARAMETER}({\it param}, {\it value}, {\it result})
+\end{quote}
+
+\begin{tabular}{l|rllp{16em}}
+\hline
+\ArgName & \ArgType & \ArrayDim & I/O & \ArgRole \\
+\hline
+{\it param} & INTEGER(4) &  & IN &  設定項目コード  \\
+{\it value} & \AnyType & \AnySize & OUT &  設定値  \\
+{\it result} & INTEGER(4) &  & OUT & \ResultCode \\
+\hline
+\end{tabular}
+\paragraph{\FuncDesc}
+\APILink{nusdas.parameter.change}{nusdas\_parameter\_change} の項目 {\it param} で設定される
+パラメータの値を {\it value} の指す領域 (型は以下を参照) に書き込む。
+\begin{quote}\begin{description}
+\item[{\bf N\_PC\_MISSING\_UI1}] 1バイト整数の欠損値
+\item[{\bf N\_PC\_MISSING\_SI2}] 2バイト整数の欠損値
+\item[{\bf N\_PC\_MISSING\_SI4}] 4バイト整数の欠損値
+\item[{\bf N\_PC\_MISSING\_R4}] 4バイト実数の欠損値
+\item[{\bf N\_PC\_MISSING\_R8}] 8バイト実数の欠損値
+\item[{\bf N\_PC\_SIZEX}] 4バイト整数に x 方向強制格子サイズを与える
+\item[{\bf N\_PC\_SIZEY}] 4バイト整数に y 方向強制格子サイズを与える
+\item[{\bf N\_PC\_MASK\_BIT}] 
+マスクビット配列を返す。
+この問合せは設定値が \APILink{nusdas.make.mask}{nusdas\_make\_mask} で作られた場合にしか機能しない。
+\item[{\bf N\_PC\_PACKING}] 
+4バイトの文字列に強制パック方式名を与える。
+設定されていない場合は 4 文字のスペースが書き込まれる。
+\item[{\bf N\_PC\_ID\_SET}] 
+NRD 番号制約がかかっている場合その値、かかっていない場合 -1 を与える。
+\item[{\bf N\_PC\_WBUFFER}] 
+4バイト整数に書き込みバッファサイズ (実行時オプション FWBF) を与える。
+\item[{\bf N\_PC\_RBUFFER}] 
+4バイト整数に読み取りバッファサイズ (実行時オプション FRBF) を与える。
+\end{description}\end{quote}
+
+\paragraph{\ResultCode}
+\begin{quote}
+\begin{description}
+\item[{\bf 0}] 正常終了
+\item[{\bf -1}] サポートされていないパラメタである
+\item[{\bf -2}] マスクビット配列は設定されていない
+\item[{\bf -3}] マスクビット配列は設定されているが長さがわからない
+\end{description}\end{quote}
+
+\paragraph{履歴}
+NuSDaS 1.3 で導入された。

@@ -1,0 +1,61 @@
+\subsection{nusdas\_inq\_nrdvtime: データセットの対象時刻リスト取得}
+\APILabel{nusdas.inq.nrdvtime}
+
+\Prototype
+\begin{quote}
+N\_SI4 {\bf nusdas\_inq\_nrdvtime}(const char {\it type1}[8], const char {\it type2}[4], const char {\it type3}[4], N\_SI4 $\ast${\it vtlist}, const N\_SI4 $\ast${\it vtlistsize}, const N\_SI4 $\ast${\it basetime}, N\_SI4 {\it pflag});
+\end{quote}
+
+\begin{tabular}{l|rp{20em}}
+\hline
+\ArgName & \ArgType & \ArgRole \\
+\hline
+{\it type1} & const char [8] &  種別1  \\
+{\it type2} & const char [4] &  種別2  \\
+{\it type3} & const char [4] &  種別3  \\
+{\it vtlist} & N\_SI4 $\ast$ &  対象時刻が書かれる配列  \\
+{\it vtlistsize} & const N\_SI4 $\ast$ &  配列の要素数  \\
+{\it basetime} & const N\_SI4 $\ast$ &  基準時刻(通算分)  \\
+{\it pflag} & N\_SI4 &  動作詳細印字フラグ  \\
+\hline
+\end{tabular}
+\paragraph{\FuncDesc}
+種別1〜種別3で指示されるデータセットに基準時刻 {\it basetime} のもとで
+存在する対象時刻を配列 {\it vtlist} に書き込む。
+引数 {\it pflag} に非零値を設定すると動作過程の情報を警告メッセージとして
+印字するようになる。
+\paragraph{\ResultCode}
+\begin{quote}
+\begin{description}
+\item[{\bf 非負}] 対象時刻の個数
+\end{description}\end{quote}
+\paragraph{履歴}
+本関数は NuSDaS 1.0 から存在したがドキュメントされていなかった。
+\paragraph{注意}
+\begin{itemize}
+\item 配列長 {\it vtlistsize} より多くの対象時刻が存在する場合は、
+配列長を越えて書き込むことはない。リターンコードと配列長を比較して、
+リターンコードが大きかったらその数だけ配列を確保し直して
+本関数を呼び直すことにより、すべてのリストを得ることができる。
+\item 対象時刻の探索はファイルの有無または CNTL レコードによる。
+リスト中の対象時刻についてデータレコードが書かれていない場合もありうる。
+\item 基準時刻 {\it basetime} に -1 を指定すると、
+基準時刻を問わない検索になる。
+\item 検索にあたってメンバー名は問わない。
+\item 
+NuSDaS 1.1 までは見付かったデータセットがネットワークでなければ、
+それについてだけ探索が行われた。
+NuSDaS 1.3 からは、
+指定した種別にマッチするすべてのデータセットについて探索が行われる。
+\item 
+種別に対応するデータセットが見つからない場合
+(たとえば種別名を間違えた場合)、
+返却値はゼロとなる。
+データセットが存在して空の場合と異なり、
+このとき ``Can not find NUSDAS root directory for selected type1-3''
+``type1$<$...$>$ type2$<$...$>$ type3$<$...$>$ NRD=...''
+というメッセージが標準エラー出力に表示される。
+NRD= の後の数値が -1 でなければ、
+NRD 番号を指定したために存在しているデータセットが見つからなくなっている
+可能性がある。
+\end{itemize}

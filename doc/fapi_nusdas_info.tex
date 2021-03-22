@@ -1,0 +1,38 @@
+\subsection{NUSDAS\_INFO: INFO 記録へのアクセス }
+\APILabel{nusdas.info}
+
+\Prototype
+\begin{quote}
+CALL {\bf NUSDAS\_INFO}({\it type1}, {\it type2}, {\it type3}, {\it basetime}, {\it member}, {\it validtime}, {\it group}, {\it info}, {\it bytesize}, {\it getput}, {\it result})
+\end{quote}
+
+\begin{tabular}{l|rllp{16em}}
+\hline
+\ArgName & \ArgType & \ArrayDim & I/O & \ArgRole \\
+\hline
+{\it type1} & CHARACTER(8) &  & IN &  種別1  \\
+{\it type2} & CHARACTER(4) &  & IN &  種別2  \\
+{\it type3} & CHARACTER(4) &  & IN &  種別3  \\
+{\it basetime} & INTEGER(4) &  & IN &  基準時刻(通算分)  \\
+{\it member} & CHARACTER(4) &  & IN &  メンバー名  \\
+{\it validtime} & INTEGER(4) &  & IN &  対象時刻(通算分)  \\
+{\it group} & CHARACTER(4) &  & IN &  群名  \\
+{\it info} & CHARACTER & \AnySize & I/O &  INFO 記録内容  \\
+{\it bytesize} & INTEGER(4) &  & IN &  INFO 記録のバイト数  \\
+{\it getput} & CHARACTER(3) &  & IN &  入出力指示 ({\it "GET}" または {\it "PUT}")  \\
+{\it result} & INTEGER(4) &  & OUT & \ResultCode \\
+\hline
+\end{tabular}
+\paragraph{\FuncDesc}\paragraph{\ResultCode}
+\begin{quote}
+\begin{description}
+\item[{\bf 非負}] 書き出したINFOのバイト数
+\item[{\bf -3}] バッファが不足している
+\item[{\bf -5}] 入出力指示が不正
+\end{description}\end{quote}
+
+\paragraph{ 注意 }
+NuSDaS1.1では、バッファが不足している場合でもバッファの大きさの分だけを
+書き込み、そのサイズを返していたが、 NuSDaS 1.3 からはこのような場合は-3が返る。
+また、INFO のサイズは NuSDaS 1.3 で新設された nusdas\_inq\_subcinfo で
+問い合わせ項目を N\_INFO\_NUM にすれば得ることができる。

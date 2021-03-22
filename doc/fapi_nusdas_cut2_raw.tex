@@ -1,0 +1,32 @@
+\subsection{NUSDAS\_CUT2\_RAW: 領域限定の DATA 記録直接読取 }
+\APILabel{nusdas.cut2.raw}
+
+\Prototype
+\begin{quote}
+CALL {\bf NUSDAS\_CUT2\_RAW}({\it type1}, {\it type2}, {\it type3}, {\it basetime}, {\it member}, {\it validtime1}, {\it validtime2}, {\it plane1}, {\it plane2}, {\it element}, {\it udata}, {\it usize}, {\it ixstart}, {\it ixfinal}, {\it iystart}, {\it iyfinal}, {\it result})
+\end{quote}
+
+\begin{tabular}{l|rllp{16em}}
+\hline
+\ArgName & \ArgType & \ArrayDim & I/O & \ArgRole \\
+\hline
+{\it type1} & CHARACTER(8) &  & IN &  種別1  \\
+{\it type2} & CHARACTER(4) &  & IN &  種別2  \\
+{\it type3} & CHARACTER(4) &  & IN &  種別3  \\
+{\it basetime} & INTEGER(4) &  & IN &  基準時刻(通算分)  \\
+{\it member} & CHARACTER(4) &  & IN &  メンバー名  \\
+{\it validtime1} & INTEGER(4) &  & IN &  対象時刻1(通算分)  \\
+{\it validtime2} & INTEGER(4) &  & IN &  対象時刻2(通算分)  \\
+{\it plane1} & CHARACTER(6) &  & IN &  面1  \\
+{\it plane2} & CHARACTER(6) &  & IN &  面2  \\
+{\it element} & CHARACTER(6) &  & IN &  要素名  \\
+{\it udata} & \AnyType & \AnySize & OUT &  データ格納先配列  \\
+{\it usize} & INTEGER(4) &  & IN &  データ格納先配列のバイト数  \\
+{\it ixstart} & INTEGER(4) &  & IN &  $x$ 方向格子番号下限  \\
+{\it ixfinal} & INTEGER(4) &  & IN &  $x$ 方向格子番号上限  \\
+{\it iystart} & INTEGER(4) &  & IN &  $y$ 方向格子番号下限  \\
+{\it iyfinal} & INTEGER(4) &  & IN &  $y$ 方向格子番号上限  \\
+{\it result} & INTEGER(4) &  & OUT & \ResultCode \\
+\hline
+\end{tabular}
+\paragraph{\FuncDesc}nusdas\_cut\_raw の範囲指定版。nusdas\_cut を参照。

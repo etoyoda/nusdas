@@ -1,0 +1,51 @@
+\subsection{nusdas\_subc\_zhyb: SUBC ZHYB へのアクセス }
+\APILabel{nusdas.subc.zhyb}
+
+\Prototype
+\begin{quote}
+N\_SI4 {\bf nusdas\_subc\_zhyb}(const char {\it type1}[8], const char {\it type2}[4], const char {\it type3}[4], const N\_SI4 $\ast${\it basetime}, const char {\it member}[4], const N\_SI4 $\ast${\it validtime}, N\_SI4 $\ast${\it nz}, float $\ast${\it ptrf}, float $\ast${\it presrf}, float {\it zrp}[\,], float {\it zrw}[\,], float {\it vctrans\_p}[\,], float {\it vctrans\_w}[\,], float {\it dvtrans\_p}[\,], float {\it dvtrans\_w}[\,], const char {\it getput}[3]);
+\end{quote}
+
+\begin{tabular}{l|rp{20em}}
+\hline
+\ArgName & \ArgType & \ArgRole \\
+\hline
+{\it type1} & const char [8] &  種別1  \\
+{\it type2} & const char [4] &  種別2  \\
+{\it type3} & const char [4] &  種別3  \\
+{\it basetime} & const N\_SI4 $\ast$ &  基準時刻(通算分)  \\
+{\it member} & const char [4] &  メンバー名  \\
+{\it validtime} & const N\_SI4 $\ast$ &  対象時刻(通算分)  \\
+{\it nz} & N\_SI4 $\ast$ &  鉛直層数  \\
+{\it ptrf} & float $\ast$ &  温位の参照値  \\
+{\it presrf} & float $\ast$ &  気圧の参照値  \\
+{\it zrp} & float [\,] &  モデル面高度 (フルレベル)  \\
+{\it zrw} & float [\,] &  モデル面高度 (ハーフレベル)  \\
+{\it vctrans\_p} & float [\,] &  座標変換関数 (フルレベル)  \\
+{\it vctrans\_w} & float [\,] &  座標変換関数 (ハーフレベル)  \\
+{\it dvtrans\_p} & float [\,] &  座標変換関数の鉛直微分 (フルレベル)  \\
+{\it dvtrans\_w} & float [\,] &  座標変換関数の鉛直微分 (ハーフレベル)  \\
+{\it getput} & const char [3] &  入出力指示 ({\it "GET}" または {\it "PUT}")  \\
+\hline
+\end{tabular}
+\paragraph{\FuncDesc}鉛直座標に鉛直ハイブリッド座標をを使う場合の補助管理情報ZHYB
+へのアクセスを提供する。
+入出力指示が {\it GET} の場合においても、nz の値をセットする。
+特に const で宣言された変数を nz に指定してはならない。この nz の値は
+nusdas\_subc\_eta\_inq\_nz を使って問い合わせできる。
+zrp, zrw, vctrans\_p, vctrans\_w, dvtrans\_p, dvtrans\_w は 
+nz 要素をもった配列を用意する。
+\paragraph{\ResultCode}
+\begin{quote}
+\begin{description}
+\item[{\bf 0}] 正常終了
+\item[{\bf -2}] レコードが存在しない、または書き込まれていない。
+\item[{\bf -3}] サイズの情報が引数と定義ファイルで不一致
+\item[{\bf -4}] 指定した入力値(ptrf, presrf)が不正(PUTのときのみ)
+\item[{\bf -5}] 入出力指示が不正
+\item[{\bf -6}] 指定した入力値(nz)が不正(GETのときのみ)
+\end{description}\end{quote}
+\paragraph{ 注意 }
+SUBC のサイズは 24 $\ast$ nz + 12 を計算した値を定義ファイルに書く。
+\paragraph{ 履歴 }
+この関数はNuSDaS1.2で実装された

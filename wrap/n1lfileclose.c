@@ -1,0 +1,9 @@
+#include <nusdas.h>
+
+#undef nusdas_allfile_close_
+	void
+nusdas_allfile_close_(const N_SI4 *param,
+	N_SI4 *result)
+{
+	*result = NuSDaS_allfile_close(*param);
+}

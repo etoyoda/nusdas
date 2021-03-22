@@ -1,0 +1,31 @@
+\subsection{nusdas\_cut2: 領域限定のデータ読取 }
+\APILabel{nusdas.cut2}
+
+\Prototype
+\begin{quote}
+N\_SI4 {\bf nusdas\_cut2}(const char {\it type1}[8], const char {\it type2}[4], const char {\it type3}[4], const N\_SI4 $\ast${\it basetime}, const char {\it member}[4], const N\_SI4 $\ast${\it validtime1}, const N\_SI4 $\ast${\it validtime2}, const char {\it plane1}[6], const char {\it plane2}[6], const char {\it element}[6], void $\ast${\it udata}, const char {\it utype}[2], const N\_SI4 $\ast${\it usize}, const N\_SI4 $\ast${\it ixstart}, const N\_SI4 $\ast${\it ixfinal}, const N\_SI4 $\ast${\it iystart}, const N\_SI4 $\ast${\it iyfinal});
+\end{quote}
+
+\begin{tabular}{l|rp{20em}}
+\hline
+\ArgName & \ArgType & \ArgRole \\
+\hline
+{\it type1} & const char [8] &  種別1  \\
+{\it type2} & const char [4] &  種別2  \\
+{\it type3} & const char [4] &  種別3  \\
+{\it basetime} & const N\_SI4 $\ast$ &  基準時刻(通算分)  \\
+{\it member} & const char [4] &  メンバー名  \\
+{\it validtime1} & const N\_SI4 $\ast$ &  対象時刻1  \\
+{\it validtime2} & const N\_SI4 $\ast$ &  対象時刻2  \\
+{\it plane1} & const char [6] &  面1  \\
+{\it plane2} & const char [6] &  面2  \\
+{\it element} & const char [6] &  要素名  \\
+{\it udata} & void $\ast$ &  データ格納配列  \\
+{\it utype} & const char [2] &  データ格納配列の型  \\
+{\it usize} & const N\_SI4 $\ast$ &  データ格納配列の要素数  \\
+{\it ixstart} & const N\_SI4 $\ast$ &  $x$ 方向格子番号下限  \\
+{\it ixfinal} & const N\_SI4 $\ast$ &  $x$ 方向格子番号上限  \\
+{\it iystart} & const N\_SI4 $\ast$ &  $y$ 方向格子番号下限  \\
+{\it iyfinal} & const N\_SI4 $\ast$ &  $y$ 方向格子番号上限  \\
+\hline
+\end{tabular}

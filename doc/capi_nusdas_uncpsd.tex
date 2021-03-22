@@ -1,0 +1,33 @@
+\subsection{nusdas\_uncpsd: 2UPPを2UPCに展開する}
+\APILabel{nusdas.uncpsd}
+
+\Prototype
+\begin{quote}
+N\_SI4 {\bf nusdas\_uncpsd}(const void $\ast${\it pdata}, void $\ast${\it cdata}, N\_SI4 {\it csize});
+\end{quote}
+
+\begin{tabular}{l|rp{20em}}
+\hline
+\ArgName & \ArgType & \ArgRole \\
+\hline
+{\it pdata} & const void $\ast$ &  入力する2UPPデータ  \\
+{\it udata} & void $\ast$ &  展開先配列  \\
+{\it usize} & N\_SI4 &  展開先配列のバイト数  \\
+\hline
+\end{tabular}
+\paragraph{\FuncDesc}
+\APILink{nusdas.inq.data}{nusdas\_inq\_data} の問い合わせ N\_DATA\_CONTENT で得られる 2UPP のバイト列を
+展開して 2UPC のバイト列として得ます。結果として返るバイト列は 2UPC 形式のデータに対して
+\APILink{nusdas.inq.data}{nusdas\_inq\_data} の問い合わせ N\_DATA\_CONTENT で得られるデータと同じ形式です。
+
+\paragraph{\ResultCode}
+\begin{quote}
+\begin{description}
+\item[{\bf 正}] 正常終了、値は展開後のバイト数
+\item[{\bf -4}] 展開先配列の大きさ {\it csize} が必要バイト数より少ない
+\item[{\bf -5}] 入力データが2UPPではない
+\item[{\bf -6}] 2UPPから2UPCへの展開時にエラーが発生
+\end{description}\end{quote}
+
+\paragraph{履歴}
+本関数は NuSDaS 1.4 で追加された。

@@ -1,0 +1,40 @@
+\subsection{nusdas\_read2\_raw: DATA記録内容の直接読取}
+\APILabel{nusdas.read2.raw}
+
+\Prototype
+\begin{quote}
+N\_SI4 {\bf nusdas\_read2\_raw}(const char {\it type1}[8], const char {\it type2}[4], const char {\it type3}[4], const N\_SI4 $\ast${\it basetime}, const char {\it member}[4], const N\_SI4 $\ast${\it validtime1}, const N\_SI4 $\ast${\it validtime2}, const char {\it plane1}[6], const char {\it plane2}[6], const char {\it element}[6], void $\ast${\it buf}, const N\_SI4 $\ast${\it buf\_nbytes});
+\end{quote}
+
+\begin{tabular}{l|rp{20em}}
+\hline
+\ArgName & \ArgType & \ArgRole \\
+\hline
+{\it type1} & const char [8] &  種別1  \\
+{\it type2} & const char [4] &  種別2  \\
+{\it type3} & const char [4] &  種別3  \\
+{\it basetime} & const N\_SI4 $\ast$ &  基準時刻(通算分)  \\
+{\it member} & const char [4] &  メンバー名  \\
+{\it validtime1} & const N\_SI4 $\ast$ &  対象時刻1  \\
+{\it validtime2} & const N\_SI4 $\ast$ &  対象時刻2  \\
+{\it plane1} & const char [6] &  面1  \\
+{\it plane2} & const char [6] &  面2  \\
+{\it element} & const char [6] &  要素名  \\
+{\it buf} & void $\ast$ &  データ格納配列  \\
+{\it buf\_nbytes} & const N\_SI4 $\ast$ &  データ格納配列のバイト数  \\
+\hline
+\end{tabular}
+\paragraph{\FuncDesc}引数で指定したTYPE, 基準時刻、メンバー、対象時刻、面、要素のデータを
+ファイルに格納されたままの形式で読み出す。
+データは、DATA レコードのフォーマット表\ref{table.fmt.data}の項番10〜13までのデータが
+格納される。
+\paragraph{\ResultCode}
+\begin{quote}
+\begin{description}
+\item[{\bf 正}] 読み出して格納したバイト数。
+\item[{\bf 0}] 指定したデータは未記録(定義ファイルの elementmap によって書き込まれることは許容されているが、まだデータが書き込まれていない)
+\item[{\bf -2}] 指定したデータは記録することが許容されていない(elementmap によって禁止されている場合と指定した面名、要素名が登録されていない場合の両方を含む)。
+\item[{\bf -4}] 格納配列が不足
+\end{description}\end{quote}
+\paragraph{ 履歴 }
+この関数は NuSDaS1.1 で導入された。

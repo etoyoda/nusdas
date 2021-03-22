@@ -1,0 +1,29 @@
+\subsection{bfwrite: ファイル出力}
+\APILabel{bfwrite}
+
+\Prototype
+\begin{quote}
+unsigned long {\bf bfwrite}(void $\ast${\it ptr}, unsigned long {\it nbytes}, N\_BIGFILE $\ast${\it bf});
+\end{quote}
+
+\begin{tabular}{l|rp{20em}}
+\hline
+\ArgName & \ArgType & \ArgRole \\
+\hline
+{\it ptr} & void $\ast$ &  書き込み元バッファ  \\
+{\it nbytes} & unsigned long &  バイト数  \\
+{\it bf} & N\_BIGFILE $\ast$ &  ファイル  \\
+\hline
+\end{tabular}
+\paragraph{\FuncDesc}
+あらかじめ \APILink{bfopen}{bfopen} で開かれた
+ファイル {\it bf} に対して {\it ptr} が指すバッファから {\it nbytes} バイト
+書き出す。
+\paragraph{\ResultCode}
+\begin{quote}
+\begin{description}
+\item[{\bf 正}] 書き込まれたバイト数 (エラー時に {\it nbytes} より少ないことがある)
+\item[{\bf 0}] ちょうど書き込み開始時にエラーが起こった
+\end{description}\end{quote}
+\paragraph{履歴}
+この関数は NuSDaS 1.3 で追加された。

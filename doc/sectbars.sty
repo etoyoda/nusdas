@@ -1,0 +1,63 @@
+\usepackage{sectsty}
+ \sectionfont{\sectionrule{2.5ex}{2pt}{-1.3ex}{2pt}}
+ \subsectionfont{\sectionrule{3ex}{0.5pt}{-1.3ex}{0.5pt}}
+
+\renewcommand\chaptername{}
+\renewcommand\chapter{%
+  \if@openright
+    \cleardoublepage
+  \else
+    \clearpage
+  \fi
+  \thispagestyle{myheadings}%
+  \if@twocolumn
+    \onecolumn
+    \@tempswatrue
+  \else
+    \@tempswafalse
+  \fi
+  \null\vfil
+  \secdef\@chapter\@schapter}
+
+\def\@chapter[#1]#2{%
+    \ifnum \c@secnumdepth >-2\relax
+      \refstepcounter{chapter}%
+      \addcontentsline{toc}{chapter}{\thechapter\hspace{1em}#1}%
+    \else
+      \addcontentsline{toc}{chapter}{#1}%
+    \fi
+    \markboth{}{}%
+    {%\centering
+     \begin{flushright}
+     \interlinepenalty \@M
+     \normalfont
+     \ifnum \c@secnumdepth >-2\relax
+       \Huge\bfseries
+       \chaptername\nobreakspace\thechapter
+%      \par
+%       \vskip 20\p@
+     \fi
+     \Huge\bfseries%
+     ~#2\par
+     \end{flushright}
+     \vskip 30pt
+     \hrule
+     }%
+    \@endchapter}
+\def\@schapter#1{%
+    {%\centering
+     \interlinepenalty \@M
+     \normalfont
+     \Huge \bfseries #1\par}%
+    \@endchapter}
+\def\@endchapter{\vfil\newpage
+              \if@twoside
+               \if@openright
+                \null
+                \thispagestyle{myheadings}%
+                \newpage
+               \fi
+              \fi
+              \if@tempswa
+                \twocolumn
+              \fi}

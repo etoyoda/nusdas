@@ -1,0 +1,77 @@
+#!/bin/sh
+
+help() {
+   echo "Usage: $0 [options]" 1>&2
+   echo "Option:" 1>&2
+   echo " --cc        C compiler" 1>&2
+   echo " --f90       Fortran 90 compiler" 1>&2
+   echo " --cflags    options to be passed to C compiler" 1>&2
+   echo " --fflags    options to be passed to Fortran compiler" 1>&2
+   echo " --cppflags  options to be passed C compiler AND preprocessor" 1>&2
+   echo " --ldflags   options to be passed linker" 1>&2
+   echo " --libs      libraries to be linked" 1>&2
+}
+
+if test 0 -eq $#; then
+   help
+   echo "Exmple: @CC@ \`$0 --cflags --cppflags\` source.c \`$0 --ldflags --libs\`" 1>&2
+   exit 1
+fi
+
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+
+while test $# -gt 0; do
+	case $1 in
+		--cc)
+		echo @CC@
+		;;
+		--includedir)
+		echo @includedir@
+		;;
+		--cflags)
+		echo @CFLAGS@
+		;;
+		--cppflags)
+		echo -I@includedir@ @CPPFLAGS@
+		;;
+		--cppflags-at-srcdir)
+		echo @CPPFLAGS@
+		;;
+		--f90)
+		echo @F90@
+		;;
+		--fflags)
+		echo -I@includedir@ @FFLAGS@
+		;;
+		--fflags-at-srcdir)
+		echo @FFLAGS@
+		;;
+		--version)
+		echo 1.3
+		;;
+		--ldflags)
+		echo @LDFLAGS@
+		;;
+		--libdir)
+		echo @libdir@
+		;;
+		--libs)
+		echo -L@libdir@ -lnusdas -lnwp @LIBS@
+		;;
+		--libs-at-srcdir)
+		echo -lnusdas -lnwp @LIBS@
+		;;
+		--libs-pure)
+		echo @LIBS@
+		;;
+		--with-zlib)
+		echo @ZLIB_AVAILABLE@
+		;;
+		*)
+		help
+		exit 1
+		;;
+	esac
+	shift
+done

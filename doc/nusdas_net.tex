@@ -1,0 +1,95 @@
+\Chapter{ネットワーク NuSDaS}
+
+\section{はじめに}
+ネットワーク NuSDaS は、
+pandora サーバーによって提供されている NuSDaS データを、ローカルにある
+ファイルに対する APIと同じもので取得しようとするためのものである。
+
+防災情報影響センター向けの気象庁・河川局統合レーダープロダクトの開発段階
+で生まれたものであり、当初はC言語での使用だけを前提にし、レーダーデータ
+を取り扱うのに必要なAPIだけが対応していた。
+
+その後、Fortran インターフェースへの対応、ほぼすべてのAPIへの対応を経て、
+NAPS8 では各課業務サーバーからデータバンクのデータの取得には、ネットワー
+ク NuSDaS の利用が前提になっている。
+
+NuSDaS1.3 では多くのAPIが追加されたが、データ取得に関するものはほとんど
+対応している。
+
+\section{ネットワーク NuSDaS の仕組み}
+pandora は、要求するデータをURLで指定して、HTTPプロトコルによってデータの
+要求および取得を行う。ネットワーク NuSDaS は API で指定された要求データ
+をURLに翻訳し、それを用いてHTTPプロトコルで pandora サーバーと通信をして
+いる。
+
+HTTPプロトコルによる通信は、ネットワーク NuSDaS と同時に開発された
+{\tt pandora\_lib}(\ref{pandora_lib}参照) を用いている。
+\subsection{データとサーバーの対応テーブル: PANDORA\_SERVER\_LIST}
+NuSDaS は、TYPE123 によってデータセットを特定することができる。同様にネッ
+トワーク NuSDaSにおいても TYPE123 とサーバーおよびパスを対応させるテーブ
+ルを以下のフォーマットでテキストファイルで作成して、そのファイル名を
+環境変数 {\tt PANDORA\_SERVER\_LIST} に指定する。
+
+\paragraph{フォーマット}
+\begin{verbatim}
+_MSMLMLY.FCSV.STD1 192.168.0.1:8080 /NAPS8_NUSDAS/data/Mf/Fcst/fcst_sfc.nus
+_MSMLMPP.FCSV.STD1 192.168.0.1:8080 /NAPS8_NUSDAS/data/Mf/Fcst/fcst_p.nus
+_MSMLMPP.FCSV.STD1 192.168.0.2:8080 /NAPS8_NUSDAS/data/Mf/Fcst/fcst_p.nus
+_MSMLMLY.FCSV.2D_1 192.168.0.1:8080 /NAPS8_NUSDAS/data/Mf/Fcst/fcst_phy2m.nus 70
+_MSMLMLY.FCSV.2D_1 192.168.0.2:8080 /NAPS8_NUSDAS/data/Mf/Fcst/fcst_phy2m.nus 80
+\end{verbatim}
+\begin{description}
+\item[第1カラム] 取得しようとするデータ種別をtype1.type2.type3という形で
+	   指定する。
+\item[第2カラム] 第1カラムで指定したデータを提供しているサーバーを
+	   server:portで指定する。
+\item[第3カラム] 振り分け先のパスを指定する。必ず / で始める。なお、
+	   NAPS8のデータバンク管理サーバーでは、振り分け名は
+	   {\tt NAPS8\_NUSDAS}で、その後が NuSDaS Root Directory になっ
+	   ている。
+\item[第4カラム] NRD番号を指定する。省略可(省略するとNRD番号=99として扱
+	   う)。
+\end{description}
+注意事項
+\begin{itemize}
+\item 上の例のように一つの種別の資源に対して複数の異なるサーバーを指定すること
+      ができる。複数のサーバーを指定した場合には、上にあるサーバーから順
+      にデータ取得が試みられる。データ取得に成功したサーバーの指定は、次
+      の接続では優先的にデータ取得が試みられる。
+\item 接続(TCP の connect)に失敗したエントリーには「接続不能」の
+      フラグが付加され、同一プロセスではそのサーバーへの接続は試みない。
+\end{itemize}
+
+\subsection{ ``データセット'' の概念}
+NuSDaS1.1 における実装は、ファイルに対するAPIと pandora データに対する
+APIを wrap したものになっており、ファイルに対するAPIを呼んで失敗した場合
+には pandora データに対する APIを呼ぶようになっていた。
+
+NuSDaS1.3 においては、ファイルもpandora データも対等の ``データセット''
+という位置づけになっており、データセットの下の層での挙動をデータの種類に
+応じて変えている。先に述べた「データ取得に成功したサーバーの指定は、次
+の接続では優先的にデータ取得が試みられる」という動作は、データセットのリ
+ストの順序を入れ替えることによって実現されている。
+
+
+\subsection{URLの規則}
+各APIは、それぞれの機能に応じたURLを作成し、それを用いて pandora server に対し
+て HTTP プロトコルによってデータの要求、および取得を行っている。URI規則
+については\ref{pandora_url} を参照のこと。
+
+{\tt nusdas\_inq\_nrdbtime}, {\tt nusdas\_inq\_nrdvtime} については、
+それぞれ basetime 一覧、validtime 一覧の index 資源を要求するので、
+TYPE123の指定まで、memberの指定の指定までであるが、そのほかのAPIにおいて
+は、指定をしない場合でも最後の element まで指定する。ただし、指定されな
+い要素については ``none'' を埋めるようにしている。また、{\tt INFO} の場
+合は、グループ名を便宜的に element のところに格納してURLを構成している。
+
+\begin{verbatim}
+例) _MSMLMZS.FCSV.STD1/2004-01-01t0000/none/2004-01-01t0000/none/GRID
+\end{verbatim}
+
+\section{制限事項}
+\begin{itemize}
+\item ネットワークNuSDaSでサポートしているのはデータの取得のみで、書き込
+      みには対応していない。
+\end{itemize}

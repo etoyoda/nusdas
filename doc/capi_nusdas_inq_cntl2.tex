@@ -1,0 +1,24 @@
+\subsection{nusdas\_inq\_cntl2: データファイルの諸元問合せ }
+\APILabel{nusdas.inq.cntl2}
+
+\Prototype
+\begin{quote}
+N\_SI4 {\bf nusdas\_inq\_cntl2}(const char {\it type1}[8], const char {\it type2}[4], const char {\it type3}[4], const N\_SI4 $\ast${\it basetime}, const char {\it member}[4], const N\_SI4 $\ast${\it validtime1}, const N\_SI4 $\ast${\it validtime2}, N\_SI4 {\it param}, void $\ast${\it data}, const N\_SI4 $\ast${\it datasize});
+\end{quote}
+
+\begin{tabular}{l|rp{20em}}
+\hline
+\ArgName & \ArgType & \ArgRole \\
+\hline
+{\it type1} & const char [8] &  種別1  \\
+{\it type2} & const char [4] &  種別2  \\
+{\it type3} & const char [4] &  種別3  \\
+{\it basetime} & const N\_SI4 $\ast$ &  基準時刻(通算分)  \\
+{\it member} & const char [4] &  メンバー名  \\
+{\it validtime1} & const N\_SI4 $\ast$ &  対象時刻1(通算分)  \\
+{\it validtime2} & const N\_SI4 $\ast$ &  対象時刻2(通算分)  \\
+{\it param} & N\_SI4 &  問合せ項目コード  \\
+{\it data} & void $\ast$ &  問合せ結果配列  \\
+{\it datasize} & const N\_SI4 $\ast$ &  問合せ結果配列の要素数  \\
+\hline
+\end{tabular}

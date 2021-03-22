@@ -1,0 +1,28 @@
+\subsection{nusdas\_uncpsd\_nbytes: 2UPC展開後の長さを得る}
+\APILabel{nusdas.uncpsd.nbytes}
+
+\Prototype
+\begin{quote}
+N\_SI4 {\bf nusdas\_uncpsd\_nbytes}(const void $\ast${\it pdata});
+\end{quote}
+
+\begin{tabular}{l|rp{20em}}
+\hline
+\ArgName & \ArgType & \ArgRole \\
+\hline
+{\it pdata} & const void $\ast$ &  入力する2UPPデータ  \\
+\hline
+\end{tabular}
+\paragraph{\FuncDesc}
+入力データ {\it pdata} を \APILink{nusdas.uncpsd}{nusdas\_uncpsd} で展開した後の
+展開後バイト数を得る。
+
+\paragraph{\ResultCode}
+\begin{quote}
+\begin{description}
+\item[{\bf 正}] 正常終了、値は展開後のバイト数
+\item[{\bf -5}] 入力データが2UPPではない
+\end{description}\end{quote}
+
+\paragraph{履歴}
+本関数は NuSDaS 1.4 で追加された。

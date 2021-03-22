@@ -1,0 +1,116 @@
+#common
+
+#include "nusdas.h"
+# ifdef USE_NWPLIB8
+# include "nwpl_capi.h"
+# else
+# include "nwpl_timecnv.h"
+# endif
+# define CHAR char
+# define INTEGER N_SI4
+# define REAL float
+# define DOUBLE double
+# define SHORT short
+
+#output wrap_srf_amd_aqc.c
+# include "srf_amedas.h"
+
+     void
+fortran:SRF_AMD_AQC
+(SHORT *aqc_in, 
+ INTEGER *num, 
+ SHORT *aqc_out, 
+ CHAR *param)
+{
+    srf_amd_aqc((unsigned short *) aqc_in, *num, aqc_out, param);
+}
+
+#output wrap_srf_amd_rdic.c
+# include "srf_amedas.h"
+
+     void 
+fortran:SRF_AMD_RDIC
+(SRF_AMD_SINFO * amd, 
+ const INTEGER *amdnum,
+ const INTEGER *btime, 
+ const INTEGER *amd_type, 
+ INTEGER *irtn)
+{
+    *irtn = srf_amd_rdic(amd, *amdnum, *btime, *amd_type);
+}
+
+#output wrap_srf_search_amdstn.c
+# include "srf_amedas.h"
+
+    void
+fortran:SRF_SEARCH_AMDSTN
+(SRF_AMD_SINFO * amd,
+ const INTEGER *ac,
+ const INTEGER *stn,
+ const INTEGER *amd_type,
+ INTEGER *irtn)
+{
+    *irtn = srf_search_amdstn(amd, *ac, *stn, *amd_type);
+}
+
+#output wrap_srf_amd_slct.c
+# include "srf_amedas.h"
+
+    void 
+fortran:SRF_AMD_SLCT
+(INTEGER *st_r,
+ INTEGER *n_st_r,
+ void *d_r,
+ const CHAR *t_r,
+ INTEGER *st_n,
+ INTEGER *n_st_n,
+ void *d_n,
+ const CHAR *t_n,
+ INTEGER *sort_f, INTEGER *irtn)
+{
+
+    *irtn =
+	srf_amd_slct(st_r, *n_st_r, d_r, t_r, st_n, *n_st_n, d_n, t_n,
+		     *sort_f);
+}
+
+#output wrap_srf_lv_set.c
+
+    void
+fortran:SRF_LV_SET
+(INTEGER *idat, 
+ REAL *fdat,
+ INTEGER *dnum,
+ INTEGER *ispec,
+ CHAR *param,
+ INTEGER *rt)
+{
+    *rt = srf_lv_set(idat, fdat, *dnum, ispec, param);
+}
+
+#output wrap_srf_lv_trans.c
+
+    void
+fortran:SRF_LV_TRANS
+(INTEGER *idat,
+ REAL *fdat,
+ INTEGER *dnum,
+ INTEGER *ispec,
+ INTEGER *rt)
+{
+    *rt = srf_lv_trans(idat, fdat, *dnum, ispec);
+}
+
+#output wrap_rdr_lv_trans.c
+
+    void
+fortran:RDR_LV_TRANS
+(INTEGER *idat,
+ REAL *fdat,
+ INTEGER *dnum,
+ CHAR *param,
+ INTEGER *rt)
+{
+    *rt = rdr_lv_trans(idat, fdat, *dnum, param);
+}
+

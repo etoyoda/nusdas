@@ -1,0 +1,24 @@
+\subsection{NUSDAS\_PARAMETER\_RESET: オプションを既定値に戻す}
+\APILabel{nusdas.parameter.reset}
+
+\Prototype
+\begin{quote}
+CALL {\bf NUSDAS\_PARAMETER\_RESET}({\it param}, {\it result})
+\end{quote}
+
+\begin{tabular}{l|rllp{16em}}
+\hline
+\ArgName & \ArgType & \ArrayDim & I/O & \ArgRole \\
+\hline
+{\it param} & INTEGER(4) &  & IN &  設定項目コード  \\
+{\it result} & INTEGER(4) &  & OUT & \ResultCode \\
+\hline
+\end{tabular}
+\paragraph{\FuncDesc}
+\APILink{nusdas.parameter.change}{nusdas\_parameter\_change}
+で設定されたパラメタを既定値に戻します。
+
+\paragraph{履歴}
+この関数 は NuSDaS 1.3 で導入されました。
+それ以前のバージョンでは \APILink{nusdas.parameter.change}{nusdas\_parameter\_change} に既定値
+または定数 NULL を与える方法が使われていました。

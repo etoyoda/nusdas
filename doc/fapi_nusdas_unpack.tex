@@ -1,0 +1,36 @@
+\subsection{NUSDAS\_UNPACK: 生DATAレコードの解読}
+\APILabel{nusdas.unpack}
+
+\Prototype
+\begin{quote}
+CALL {\bf NUSDAS\_UNPACK}({\it pdata}, {\it udata}, {\it utype}, {\it usize}, {\it result})
+\end{quote}
+
+\begin{tabular}{l|rllp{16em}}
+\hline
+\ArgName & \ArgType & \ArrayDim & I/O & \ArgRole \\
+\hline
+{\it pdata} & \AnyType & \AnySize & IN &  パックされたバイト列  \\
+{\it udata} & \AnyType & \AnySize & I/O &  展開先配列  \\
+{\it utype} & CHARACTER(2) &  & IN &  展開する型  \\
+{\it usize} & INTEGER(4) &  & IN &  展開先配列の要素数  \\
+{\it result} & INTEGER(4) &  & OUT & \ResultCode \\
+\hline
+\end{tabular}
+\paragraph{\FuncDesc}
+\APILink{nusdas.inq.data}{nusdas\_inq\_data} の問い合わせ N\_DATA\_CONTENT で得られるバイト列を
+解読して数値配列を得る。パッキング型2UPJでは利用できない(2UPPは利用可)。
+
+\paragraph{\ResultCode}
+\begin{quote}
+\begin{description}
+\item[{\bf 正}] 正常終了、値は要素数
+\item[{\bf -4}] 展開先の大きさ {\it usize} がデータレコードの要素数より少ない
+\item[{\bf -5}] パッキング型・欠損値型・展開型の組合せが不適
+\item[{\bf -6}] 利用できないパッキング型が与えられた
+\end{description}\end{quote}
+
+\paragraph{履歴}
+本関数は NuSDaS 1.3 で追加された。
+エラーコード -6 は NuSDaS 1.4 で新設されたもので、 
+それ以前はエラーチェックがなされていなかった。

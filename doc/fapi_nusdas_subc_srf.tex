@@ -1,0 +1,56 @@
+\subsection{NUSDAS\_SUBC\_SRF: 降短系 SUBC へのアクセス}
+\APILabel{nusdas.subc.srf}
+
+\Prototype
+\begin{quote}
+CALL {\bf NUSDAS\_SUBC\_SRF}({\it type1}, {\it type2}, {\it type3}, {\it basetime}, {\it member}, {\it validtime}, {\it plane}, {\it element}, {\it group}, {\it data}, {\it getput}, {\it result})
+\end{quote}
+
+\begin{tabular}{l|rllp{16em}}
+\hline
+\ArgName & \ArgType & \ArrayDim & I/O & \ArgRole \\
+\hline
+{\it type1} & CHARACTER(8) &  & IN &  種別1  \\
+{\it type2} & CHARACTER(4) &  & IN &  種別2  \\
+{\it type3} & CHARACTER(4) &  & IN &  種別3  \\
+{\it basetime} & INTEGER(4) &  & IN &  基準時刻(通算分)  \\
+{\it member} & CHARACTER(4) &  & IN &  メンバー名  \\
+{\it validtime} & INTEGER(4) &  & IN &  対象時刻(通算分)  \\
+{\it plane} & CHARACTER(6) &  & IN &  面  \\
+{\it element} & CHARACTER(6) &  & IN &  要素名  \\
+{\it group} & CHARACTER(4) &  & IN &  群名  \\
+{\it data} & INTEGER(4) &  & I/O &  データ配列  \\
+{\it getput} & CHARACTER(3) &  & IN &  入出力指示 ({\it "GET}" または {\it "PUT}")  \\
+{\it result} & INTEGER(4) &  & OUT & \ResultCode \\
+\hline
+\end{tabular}
+\paragraph{\FuncDesc}降水短時間予報系のデータの補助管理部へのアクセスを提供する。
+群名には次のもののいずれかを指定する。
+\begin{quote}\begin{description}
+\item[{\bf ISPC}] 
+レーダーや雨量計の運用情報、レベル値変換テーブルが格納される。
+data には 128要素の4バイト整数型配列を用意する。内部のフォーマットは
+4バイト整数型であることは関係ないが、バイトオーダーの変換はされるので
+注意が必要。
+\item[{\bf THUN}] 
+詳細未詳。
+data には 4バイト整数型変数を用意する。
+\item[{\bf RADR}] 
+レーダー観測に関する情報。data には 4バイト整数型変数を用意する。
+\item[{\bf RADS}] 
+レーダー観測に関する情報。data には 6要素の4バイト整数型配列を用意する。
+\item[{\bf DPRD}] 
+ドップラーレーダー観測に関する情報。
+data には 8要素の4バイト整数型配列を用意する。
+\end{description}\end{quote}
+\paragraph{\ResultCode}
+\begin{quote}
+\begin{description}
+\item[{\bf 0}] 正常終了
+\item[{\bf -2}] 要求されたレコードが存在しない、または書かれていない。
+\item[{\bf -3}] レコードサイズが不正
+\item[{\bf -4}] 群名が不正
+\item[{\bf -5}] 入出力指示が不正
+\end{description}\end{quote}
+\paragraph{ 履歴 }
+この関数は NuSDaS1.0 から存在した。

@@ -1,0 +1,260 @@
+% addrof = (c.kptr == '*' ? '' : '&')
+% ptrof = (c.kptr == '*' ? '' : '*')
+/** @file
+ * @brief #{c.ktype} から #{c.vtype} を与えるハッシュテーブル
+ */
+#include "config.h" /* for INLINE */
+#include "nusdas.h"
+#include <stddef.h>
+#include <stdlib.h>
+# define NEED_UI8_MOD_UI2
+# define NEED_SI8_CMP
+#include "sys_int.h" /* for ui8_mod_ui2 */
+#include "internal_types.h" /* for #{c.ktype} */
+#include "sys_mem.h"
+# define NEED_STRING_DUP
+% for hdr in c.hdrs
+#include "#{hdr}"
+% end
+
+% if c.ktype_eq == '=='
+#define EqualKeys(a, b) ((a) == (b))
+%  c.ktype_eq = 'EqualKeys'
+% end
+
+/** @brief ハッシュテーブルのエントリ
+ */
+struct #{c.htype}_entry {
+	/** 次のエントリへのポインタ */
+	struct #{c.htype}_entry *next;
+% if c.kptr.empty?
+	/** キー */
+% else
+	/** キー. #{c.htype}_put() で複製、 #{c.htype}_delete() で破棄 */
+% end
+	#{c.ktype} #{c.kptr}key;
+% if c.vtype
+	/** 値. メモリ管理はしない */
+	#{c.vtype} *val;
+% end
+};
+
+/** @brief ハッシュ
+ */
+typedef struct #{c.htype}_t {
+	/** 要素数 */
+	unsigned num_entries;
+	/** 仕訳箱の数 */
+	unsigned num_bins;
+	/** num_bins 個のポインタの配列が #{c.htype}_entry
+	 * の片方向リンクリストを指している.
+         * 構造体と一体的に #{c.htype}_ini() で割り付けされる.
+	 */
+	struct #{c.htype}_entry **bins;
+} #{c.htype}_t;
+
+/** @brief ハッシュを構成する
+ */
+#{c.htype}_t *
+#{c.htype}_ini(unsigned nbins /** 仕訳箱の数 */)
+{
+	#{c.htype}_t	*hp;
+	unsigned	i;
+	hp = (#{c.htype}_t *)nus_malloc(sizeof(#{c.htype}_t));
+	if (hp == NULL) {
+		return NULL;
+	}
+	hp->bins = (struct #{c.htype}_entry **)nus_malloc(nbins *
+		sizeof(struct #{c.htype}_entry *));
+	hp->num_entries = 0;
+	hp->num_bins = nbins;
+	for (i = 0; i < nbins; i++) {
+		hp->bins[i] = NULL;
+	}
+	return hp;
+}
+
+/** @brief ハッシュを破棄する
+ */
+void
+#{c.htype}_delete(#{c.htype}_t *hp)
+{
+	unsigned	i;
+	for (i = 0; i < hp->num_bins; i++) {
+		struct #{c.htype}_entry *p;
+		struct #{c.htype}_entry *p_next;
+		for (p = hp->bins[i]; p; p = p_next) {
+% unless c.kptr.empty?
+			nus_free(p->key);
+% end
+			p_next = p->next;
+			nus_free(p);
+		}
+	}
+	nus_free(hp->bins);
+	nus_free(hp);
+}
+
+/** @brief キーからハッシュ値を計算する
+ */
+INLINE unsigned
+#{c.htype}_hashval(const #{c.ktype} *key, unsigned nbins)
+{
+%   if c.ktype == 'nustype_t' then
+	return (ui8_mod_ui2(key->type1, nbins) + key->type2 + key->type3)
+		% nbins;
+%   elsif c.ktype == 'nusdims_t' then
+	return ((key->basetime % nbins)
+		+ (key->member % nbins)
+		+ (key->validtime1 % nbins)
+		+ (key->validtime2 % nbins)) % nbins;
+%   elsif c.ktype == 'char' then
+	unsigned char *p;
+	unsigned sum = 0;
+	for (p = (unsigned char *)key; *p; p++) {
+		sum += (*p ^ ' ');
+	}
+	return (sum % nbins);
+%   elsif /^(sym4_t|N_SI4)$/ =~ c.ktype then
+        return *key % nbins;
+%   else
+%       raise "unknown key type"
+%   end
+}
+
+/** @brief ハッシュに値を投入する.
+ *
+ * @warning 衝突が起こると旧値が破棄される。
+ */
+int
+% if c.vtype
+#{c.htype}_put(#{c.htype}_t *hp, #{c.ktype} *key, #{c.vtype} *val)
+% else
+#{c.htype}_put(#{c.htype}_t *hp, #{c.ktype} *key)
+% end
+{
+	unsigned hashval;
+	struct #{c.htype}_entry	**entp;
+	struct #{c.htype}_entry	*ent;
+	hashval = #{c.htype}_hashval(key, hp->num_bins);
+	for (entp = hp->bins + hashval; *entp; entp = &((*entp)->next)) {
+		if (#{c.ktype_eq}(#{addrof}((*entp)->key), key)) {
+			goto Found;
+		}
+	}
+	/* 見付からなければ新規割当 */
+	/** @note 重要: ent を完成させてから表に載せないと
+	 * malloc が GC を呼んで中途半端な表を見る危険がある
+	 */
+	ent = nus_malloc(sizeof(struct #{c.htype}_entry));
+	if (ent == NULL) {
+		return -1;
+	}
+	ent->val = val;
+	ent->next = NULL;
+	ent->key = #{c.ktype_dup}(key);
+	hp->num_entries++;
+	*entp = ent;
+	return 0;
+
+Found:
+% if c.vtype
+	(*entp)->val = val;
+% end
+	return 0;
+}
+
+/** @brief ハッシュから値を得る
+ */
+% if c.vtype
+	#{c.vtype} *
+% else
+	int
+% end
+#{c.htype}_get(#{c.htype}_t *hp, const #{c.ktype} *key)
+{
+	unsigned hashval;
+	struct #{c.htype}_entry	**entp;
+	hashval = #{c.htype}_hashval(key, hp->num_bins);
+	if (hp->bins[hashval] == NULL) {
+% if c.vtype
+		return NULL;
+% else
+		return 0;
+% end
+	}
+	for (entp = hp->bins + hashval; *entp; entp = &((*entp)->next)) {
+		if (#{c.ktype_eq}(#{addrof}((*entp)->key), key)) {
+% if c.vtype
+			return (*entp)->val;
+% else
+			return 1;
+% end
+		}
+	}
+% if c.vtype
+	return NULL;
+% else
+	return 0;
+% end
+}
+
+% if c.use_each
+/** @brief ハッシュに投入された (キー, 値) の組を順にコールバックする
+ */
+int
+#{c.htype}_each(#{c.htype}_t *hp,
+	int (*callback)(#{c.ktype} #{c.kptr}key, #{c.vtype} *val, void *arg),
+	void *arg)
+{
+	unsigned hashval;
+	struct #{c.htype}_entry **entp;
+	int r;
+	for (hashval = 0; hashval < hp->num_bins; hashval++) {
+		for (entp = hp->bins + hashval; *entp;
+			entp = &((*entp)->next)) {
+			r = callback((*entp)->key, (*entp)->val, arg);
+			if (r)
+				return r;
+		}
+	}
+	return 0;
+}
+% end
+
+% if c.use_reject
+/** @brief ハッシュの値をチェックして一部だけ除去する
+ *
+ * ハッシュの値を次々に引数として @p callback を呼出し、
+ * 非零が返ったときだけハッシュから除去する。
+ */
+void
+#{c.htype}_reject(#{c.htype}_t *hp, int (*callback)(#{c.vtype} *val))
+{
+	unsigned	i;
+	for (i = 0; i < hp->num_bins; i++) {
+		struct #{c.htype}_entry *p;
+		struct #{c.htype}_entry *p_next;
+		struct #{c.htype}_entry *prev = NULL;
+		for (p = hp->bins[i]; p; p = p_next) {
+			if (callback(p->val) == 0) {
+				prev = p;
+				p_next = p->next;
+				continue;
+			}
+			hp->num_entries--;
+% unless c.kptr.empty?
+			nus_free(p->key);
+% end
+			if (prev) {
+				prev->next = p->next;
+			} else {
+				hp->bins[i] = p->next;
+			}
+			p->val = 0;
+			p_next = p->next;
+			nus_free(p);
+		}
+	}
+}
+% end

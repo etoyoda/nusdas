@@ -1,0 +1,721 @@
+#pragma casplit common
+# define N_AVOID_RENAMING
+#include "nusdas.h"
+#include "nwplib.h"
+
+#define CHAR char
+#define INTEGER N_SI4
+#define REAL float
+#define DOUBLE double
+
+#pragma casplit part yaclos.c
+
+void Fortran_NUSDAS_ALLFILE_CLOSE(INTEGER *param, INTEGER *rt)
+{
+    *rt = NuSDaS_allfile_close(*param);
+}
+
+#pragma casplit part ycut.c
+
+void Fortran_NUSDAS_CUT
+    (const CHAR *utype1,
+     const CHAR *utype2,
+     const CHAR *utype3,
+     INTEGER *basetime,
+     const CHAR *udescriptor,
+     INTEGER *validtime1,
+     const CHAR *ulevel1,
+     const CHAR *uelement,
+     void *data,
+     const CHAR *dtype,
+     const INTEGER *dnum,
+     INTEGER *ixst,
+     INTEGER *ixen, INTEGER *jyst, INTEGER *jyen, INTEGER *rt) {
+    *rt =
+	NuSDaS_cut(utype1, utype2, utype3, (N_SI4 *) basetime, udescriptor,
+		   (N_SI4 *) validtime1, ulevel1, uelement, data, dtype,
+		   (N_SI4 *) dnum, (N_SI4 *) ixst, (N_SI4 *) ixen,
+		   (N_SI4 *) jyst, (N_SI4 *) jyen);
+}
+
+#pragma casplit part ycut2.c
+
+void Fortran_NUSDAS_CUT2
+    (const CHAR *utype1,
+     const CHAR *utype2,
+     const CHAR *utype3,
+     INTEGER *basetime,
+     const CHAR *udescriptor,
+     INTEGER *validtime1,
+     INTEGER *validtime2,
+     const CHAR *ulevel1,
+     const CHAR *ulevel2,
+     const CHAR *uelement,
+     void *data,
+     const CHAR *dtype,
+     const INTEGER *dnum,
+     INTEGER *ixst,
+     INTEGER *ixen, INTEGER *jyst, INTEGER *jyen, INTEGER *rt) {
+    *rt =
+	NuSDaS_cut2(utype1, utype2, utype3, (N_SI4 *) basetime,
+		    udescriptor, (N_SI4 *) validtime1,
+		    (N_SI4 *) validtime2, ulevel1, ulevel2, uelement, data,
+		    dtype, (N_SI4 *) dnum, (N_SI4 *) ixst, (N_SI4 *) ixen,
+		    (N_SI4 *) jyst, (N_SI4 *) jyen);
+}
+
+#pragma casplit part yswab4.c
+
+void Fortran_ENDIAN_SWAB4
+    (INTEGER *ary, const INTEGER *count) {
+    NuSDaS_swab4(ary, *count);
+}
+
+#pragma casplit part yesflu.c
+
+void Fortran_NUSDAS_ESF_FLUSH
+    (const CHAR *utype1,
+     const CHAR *utype2,
+     const CHAR *utype3,
+     INTEGER *basetime,
+     const CHAR *udescriptor, INTEGER *validtime1, INTEGER *rt) {
+    *rt = NuSDaS_esf_flush(utype1, utype2, utype3, (N_SI4 *) basetime,
+			   udescriptor, (N_SI4 *) validtime1);
+}
+
+#pragma casplit part ygrid.c
+
+void Fortran_NUSDAS_GRID
+    (const CHAR *utype1,
+     const CHAR *utype2,
+     const CHAR *utype3,
+     INTEGER *basetime,
+     const CHAR *udescriptor,
+     INTEGER *validtime1,
+     CHAR *projection,
+     INTEGER *g_size,
+     REAL * g_info, CHAR *g_mean, const CHAR *action, INTEGER *rt) {
+    *rt =
+	NuSDaS_grid(utype1, utype2, utype3, (N_SI4 *) basetime,
+		    udescriptor, (N_SI4 *) validtime1, projection,
+		    (N_SI4 *) g_size, g_info, g_mean, action);
+}
+
+#pragma casplit part ygrid2.c
+
+void Fortran_NUSDAS_GRID2
+    (const CHAR *utype1,
+     const CHAR *utype2,
+     const CHAR *utype3,
+     INTEGER *basetime,
+     const CHAR *udescriptor,
+     INTEGER *validtime1,
+     INTEGER *validtime2,
+     CHAR *projection,
+     INTEGER *g_size,
+     REAL * g_info, CHAR *g_mean, const CHAR *action, INTEGER *rt) {
+    *rt =
+	NuSDaS_grid2(utype1, utype2, utype3, (N_SI4 *) basetime,
+		     udescriptor, (N_SI4 *) validtime1,
+		     (N_SI4 *) validtime2, projection, (N_SI4 *) g_size,
+		     g_info, g_mean, action);
+}
+
+#pragma casplit part yinfo.c
+
+void Fortran_NUSDAS_INFO
+    (const CHAR *utype1,
+     const CHAR *utype2,
+     const CHAR *utype3,
+     INTEGER *basetime,
+     const CHAR *udescriptor,
+     INTEGER *validtime1,
+     CHAR *igname,
+     CHAR *info, INTEGER *ibyte, const CHAR *action, INTEGER *rt) {
+    *rt =
+	NuSDaS_info(utype1, utype2, utype3, (N_SI4 *) basetime,
+		    udescriptor, (N_SI4 *) validtime1, igname, info,
+		    (N_SI4 *) ibyte, action);
+}
+
+#pragma casplit part yinfo2.c
+
+void Fortran_NUSDAS_INFO2
+    (const CHAR *utype1, const CHAR *utype2, const CHAR *utype3,
+     INTEGER *basetime,
+     const CHAR *udescriptor,
+     INTEGER *validtime1,
+     INTEGER *validtime2,
+     CHAR *igname,
+     CHAR *info, INTEGER *ibyte, const CHAR *action, INTEGER *rt) {
+    *rt =
+	NuSDaS_info2(utype1, utype2, utype3, (N_SI4 *) basetime,
+		     udescriptor, (N_SI4 *) validtime1,
+		     (N_SI4 *) validtime2, igname, info, (N_SI4 *) ibyte,
+		     action);
+}
+
+#pragma casplit part yqcntl.c
+
+void Fortran_NUSDAS_INQ_CNTL
+    (const CHAR *utype1, const CHAR *utype2, const CHAR *utype3,
+     INTEGER *basetime, const CHAR *udescriptor,
+     INTEGER *validtime1, INTEGER *param, void *data,
+     INTEGER *dnum, INTEGER *rt) {
+    *rt = NuSDaS_inq_cntl(utype1, utype2, utype3,
+			  (N_SI4 *) basetime, udescriptor,
+			  (N_SI4 *) validtime1, *param, data,
+			  (N_SI4 *) dnum);
+}
+
+#pragma casplit part yqcntl2.c
+
+void Fortran_NUSDAS_INQ_CNTL2
+    (const CHAR *utype1, const CHAR *utype2,
+     const CHAR *utype3, INTEGER *basetime,
+     const CHAR *udescriptor, INTEGER *validtime1,
+     INTEGER *validtime2, INTEGER *param, void *data,
+     INTEGER *dnum, INTEGER *rt) {
+    *rt = NuSDaS_inq_cntl2(utype1, utype2, utype3,
+			   (N_SI4 *) basetime, udescriptor,
+			   (N_SI4 *) validtime1, (N_SI4 *) validtime2,
+			   *param, data, (N_SI4 *) dnum);
+}
+
+#pragma casplit part yqdata.c
+
+void Fortran_NUSDAS_INQ_DATA
+    (const CHAR *utype1,
+     const CHAR *utype2,
+     const CHAR *utype3,
+     INTEGER *basetime,
+     const CHAR *udescriptor,
+     INTEGER *validtime1,
+     const CHAR *ulevel1,
+     const CHAR *uelement,
+     const INTEGER *param, void *data, const INTEGER *dnum, INTEGER *rt) {
+    *rt =
+	NuSDaS_inq_data(utype1, utype2, utype3, (N_SI4 *) basetime,
+			udescriptor, (N_SI4 *) validtime1, ulevel1,
+			uelement, *param, data, (N_SI4 *) dnum);
+}
+
+#pragma casplit part yqdata2.c
+
+void Fortran_NUSDAS_INQ_DATA2
+    (const CHAR *utype1,
+     const CHAR *utype2,
+     const CHAR *utype3,
+     INTEGER *basetime,
+     const CHAR *udescriptor,
+     INTEGER *validtime1,
+     INTEGER *validtime2,
+     const CHAR *ulevel1,
+     const CHAR *ulevel2,
+     const CHAR *uelement,
+     const INTEGER *param, void *data, const INTEGER *dnum, INTEGER *rt) {
+    *rt =
+	NuSDaS_inq_data2(utype1, utype2, utype3, (N_SI4 *) basetime,
+			 udescriptor, (N_SI4 *) validtime1,
+			 (N_SI4 *) validtime2, ulevel1, ulevel2, uelement,
+			 *param, data, (N_SI4 *) dnum);
+}
+
+#pragma casplit part yqdef.c
+
+void Fortran_NUSDAS_INQ_DEF
+    (const CHAR *utype1,
+     const CHAR *utype2,
+     const CHAR *utype3,
+     INTEGER *param, void *data, INTEGER *dnum, INTEGER *rt) {
+    *rt =
+	NuSDaS_inq_def(utype1, utype2, utype3, *param, data,
+		       (N_SI4 *) dnum);
+}
+
+#pragma casplit part yqbt.c
+
+void Fortran_NUSDAS_INQ_NRDBTIME
+    (const CHAR *utype1, const CHAR *utype2, const CHAR *utype3,
+     INTEGER *btlist, INTEGER *btmax, INTEGER *pflag, INTEGER *rt) {
+    *rt = NuSDaS_inq_nrdbtime(utype1, utype2, utype3, (N_SI4 *) btlist,
+			      (const N_SI4 *) btmax, *pflag);
+}
+
+#pragma casplit part yqvt.c
+
+void Fortran_NUSDAS_INQ_NRDVTIME
+    (const CHAR *utype1, const CHAR *utype2, const CHAR *utype3,
+     INTEGER *btlist, INTEGER *btmax, INTEGER *basetime,
+     INTEGER *pflag, INTEGER *rt) {
+    *rt = NuSDaS_inq_nrdvtime(utype1, utype2, utype3, (N_SI4 *) btlist,
+			      (N_SI4 *) btmax, (N_SI4 *) basetime, *pflag);
+}
+
+#pragma casplit part yioc.c
+
+void Fortran_NUSDAS_IOCNTL(INTEGER *param, INTEGER *flag, INTEGER *rt)
+{
+    *rt = NuSDaS_iocntl(*param, *flag);
+}
+
+#pragma casplit part ymask.c
+
+void Fortran_NUSDAS_MAKE_MASK
+    (N_UI1 * d,
+     const CHAR *dtype, INTEGER *ds, N_UI1 * m, INTEGER *ms, INTEGER *rt) {
+    *rt = NuSDaS_make_mask(d, dtype, (N_SI4 *) ds, m, (N_SI4 *) ms);
+}
+
+#pragma casplit part yoclos.c
+
+void Fortran_NUSDAS_ONEFILE_CLOSE
+    (const CHAR *utype1,
+     const CHAR *utype2,
+     const CHAR *utype3,
+     INTEGER *basetime,
+     const CHAR *udescriptor, INTEGER *validtime1, INTEGER *rt) {
+    *rt = NuSDaS_onefile_close(utype1, utype2, utype3, (N_SI4 *) basetime,
+			       udescriptor, (N_SI4 *) validtime1);
+}
+
+#pragma casplit part yoclos2.c
+
+void Fortran_NUSDAS_ONEFILE_CLOSE2
+    (const CHAR *utype1,
+     const CHAR *utype2,
+     const CHAR *utype3,
+     INTEGER *basetime,
+     const CHAR *udescriptor,
+     INTEGER *validtime1, INTEGER *validtime2, INTEGER *rt) {
+    *rt = NuSDaS_onefile_close2(utype1, utype2, utype3, (N_SI4 *) basetime,
+				udescriptor, (N_SI4 *) validtime1,
+				(N_SI4 *) validtime2);
+}
+
+#pragma casplit part yparam.c
+
+void Fortran_NUSDAS_PARAMETER_CHANGE
+    (INTEGER *n_switch, void *param, INTEGER *rt) {
+    *rt = NuSDaS_parameter_change(*n_switch, param);
+}
+
+#pragma casplit part yread.c
+
+void Fortran_NUSDAS_READ
+    (const CHAR *utype1,
+     const CHAR *utype2,
+     const CHAR *utype3,
+     INTEGER *basetime,
+     const CHAR *udescriptor,
+     INTEGER *validtime1,
+     const CHAR *ulevel1,
+     const CHAR *uelement,
+     void *data, const CHAR *dtype, const INTEGER *dnum, INTEGER *rt) {
+    *rt =
+	NuSDaS_read(utype1, utype2, utype3, (N_SI4 *) basetime,
+		    udescriptor, (N_SI4 *) validtime1, ulevel1, uelement,
+		    data, dtype, (N_SI4 *) dnum);
+}
+
+#pragma casplit part yread2.c
+
+void Fortran_NUSDAS_READ2
+    (const CHAR *utype1,
+     const CHAR *utype2,
+     const CHAR *utype3,
+     INTEGER *basetime,
+     const CHAR *udescriptor,
+     INTEGER *validtime1,
+     INTEGER *validtime2,
+     const CHAR *ulevel1,
+     const CHAR *ulevel2,
+     const CHAR *uelement,
+     void *data, const CHAR *dtype, const INTEGER *dnum, INTEGER *rt) {
+    *rt =
+	NuSDaS_read2(utype1, utype2, utype3, (N_SI4 *) basetime,
+		     udescriptor, (N_SI4 *) validtime1,
+		     (N_SI4 *) validtime2, ulevel1, ulevel2, uelement,
+		     data, dtype, (N_SI4 *) dnum);
+}
+
+#pragma casplit part yseta.c
+
+void Fortran_NUSDAS_SUBC_ETA
+    (const CHAR *utype1,
+     const CHAR *utype2,
+     const CHAR *utype3,
+     INTEGER *basetime,
+     const CHAR *udescriptor,
+     INTEGER *validtime1,
+     INTEGER *s_lv,
+     REAL * a, REAL * b, REAL * c, CHAR *action, INTEGER *rt) {
+    *rt = NuSDaS_subc_eta(utype1, utype2, utype3, (N_SI4 *) basetime,
+			  udescriptor,
+			  (N_SI4 *) validtime1, (N_SI4 *) s_lv, a, b, c,
+			  action);
+}
+
+#pragma casplit part yseta2.c
+
+void Fortran_NUSDAS_SUBC_ETA2
+    (const CHAR *utype1, const CHAR *utype2, const CHAR *utype3,
+     INTEGER *basetime, const CHAR *udescriptor, INTEGER *validtime1,
+     INTEGER *validtime2, INTEGER *s_lv, REAL * a, REAL * b, REAL * c,
+     CHAR *action, INTEGER *rt) {
+    *rt = NuSDaS_subc_eta2(utype1, utype2, utype3, (N_SI4 *) basetime,
+			   udescriptor,
+			   (N_SI4 *) validtime1, (N_SI4 *) validtime2,
+			   (N_SI4 *) s_lv, a, b, c, action);
+}
+
+#pragma casplit part ysqnz.c
+
+void Fortran_NUSDAS_SUBC_ETA_INQ_NZ
+    (const CHAR *utype1, const CHAR *utype2, const CHAR *utype3,
+     const INTEGER *basetime, const CHAR *member, const INTEGER *validtime,
+     const CHAR *group, INTEGER *nz, INTEGER *rt) {
+    *rt = NuSDaS_subc_eta_inq_nz(utype1, utype2, utype3, basetime,
+				 member, validtime, group, nz);
+}
+
+#pragma casplit part ysqnz2.c
+
+void Fortran_NUSDAS_SUBC_ETA_INQ_NZ2
+    (const CHAR *utype1, const CHAR *utype2, const CHAR *utype3,
+     const INTEGER *basetime, const CHAR *member,
+     const INTEGER *validtime1, const INTEGER *validtime2,
+     const CHAR *group, INTEGER *nz, INTEGER *rt) {
+    *rt =
+	NuSDaS_subc_eta_inq_nz2(utype1, utype2, utype3, basetime, member,
+				validtime1, validtime2, group, nz);
+}
+
+#pragma casplit part ysp.c
+
+void Fortran_NUSDAS_SUBC_PRESET1
+    (const CHAR *utype1, const CHAR *utype2, const CHAR *utype3,
+     CHAR *gname, INTEGER *s_lv, REAL * a, REAL * b, REAL * c,
+     INTEGER *rt) {
+    *rt =
+	NuSDaS_subc_preset1(utype1, utype2, utype3, gname, (N_SI4 *) s_lv,
+			    a, b, c);
+}
+
+#pragma casplit part yssigm.c
+
+void Fortran_NUSDAS_SUBC_SIGM
+    (const CHAR *utype1, const CHAR *utype2, const CHAR *utype3,
+     INTEGER *basetime, const CHAR *udescriptor, INTEGER *validtime1,
+     INTEGER *s_lv, REAL * a, REAL * b, REAL * c, CHAR *action,
+     INTEGER *rt) {
+    *rt =
+	NuSDaS_subc_sigm(utype1, utype2, utype3, (N_SI4 *) basetime,
+			 udescriptor, (N_SI4 *) validtime1, (N_SI4 *) s_lv,
+			 a, b, c, action);
+}
+
+#pragma casplit part yssigm2.c
+
+void Fortran_NUSDAS_SUBC_SIGM2
+    (const CHAR *utype1,
+     const CHAR *utype2,
+     const CHAR *utype3,
+     INTEGER *basetime,
+     const CHAR *udescriptor,
+     INTEGER *validtime1,
+     INTEGER *validtime2,
+     INTEGER *s_lv,
+     REAL * a, REAL * b, REAL * c, CHAR *action, INTEGER *rt) {
+    *rt = NuSDaS_subc_sigm2(utype1, utype2, utype3,
+			    (N_SI4 *) basetime, udescriptor,
+			    (N_SI4 *) validtime1, (N_SI4 *) validtime2,
+			    (N_SI4 *) s_lv, a, b, c, action);
+}
+
+#pragma casplit part ystdif.c
+
+void Fortran_NUSDAS_SUBC_TDIF
+    (const CHAR *utype1,
+     const CHAR *utype2,
+     const CHAR *utype3,
+     INTEGER *basetime,
+     const CHAR *udescriptor,
+     INTEGER *validtime1,
+     INTEGER *tdif, INTEGER *tsum, CHAR *action, INTEGER *rt) {
+    *rt = NuSDaS_subc_tdif(utype1, utype2, utype3,
+			   (N_SI4 *) basetime, udescriptor,
+			   (N_SI4 *) validtime1,
+			   (N_SI4 *) tdif, (N_SI4 *) tsum, action);
+}
+
+#pragma casplit part ystdif2.c
+
+void Fortran_NUSDAS_SUBC_TDIF2
+    (const CHAR *utype1,
+     const CHAR *utype2,
+     const CHAR *utype3,
+     INTEGER *basetime,
+     const CHAR *udescriptor,
+     INTEGER *validtime1,
+     INTEGER *validtime2,
+     INTEGER *tdif, INTEGER *tsum, CHAR *action, INTEGER *rt) {
+    *rt = NuSDaS_subc_tdif2(utype1, utype2, utype3,
+			    (N_SI4 *) basetime, udescriptor,
+			    (N_SI4 *) validtime1, (N_SI4 *) validtime2,
+			    (N_SI4 *) tdif, (N_SI4 *) tsum, action);
+}
+
+#pragma casplit part ysprgau.c
+
+void Fortran_NUSDAS_SUBC_RGAU_PRESET1
+    (const CHAR *type1, const CHAR *type2, const CHAR *type3,
+     const INTEGER *j, const INTEGER *j_start, const INTEGER *j_n,
+     const INTEGER *i, const INTEGER *i_start, const INTEGER *i_n,
+     const REAL * lat, INTEGER *rt) {
+    *rt = NuSDaS_subc_rgau_preset1(type1, type2, type3,
+				   j, j_start, j_n, i, i_start, i_n, lat);
+}
+
+#pragma casplit part ysrgau.c
+
+void Fortran_NUSDAS_SUBC_RGAU
+    (const CHAR *type1, const CHAR *type2, const CHAR *type3,
+     const INTEGER *basetime, const CHAR *member, const INTEGER *validtime,
+     INTEGER *j, INTEGER *j_start, INTEGER *j_n,
+     INTEGER *i, INTEGER *i_start, INTEGER *i_n,
+     REAL * lat, const CHAR *action, INTEGER *rt) {
+    *rt =
+	NuSDaS_subc_rgau(type1, type2, type3, basetime, member, validtime,
+			 j, j_start, j_n, i, i_start, i_n, lat, action);
+}
+
+#pragma casplit part ysrgau2.c
+
+void Fortran_NUSDAS_SUBC_RGAU2
+    (const CHAR *type1, const CHAR *type2, const CHAR *type3,
+     const INTEGER *basetime, const CHAR *member,
+     const INTEGER *validtime1, const INTEGER *validtime2, INTEGER *j,
+     INTEGER *j_start, INTEGER *j_n, INTEGER *i, INTEGER *i_start,
+     INTEGER *i_n, REAL * lat, const CHAR *action, INTEGER *rt) {
+    *rt =
+	NuSDaS_subc_rgau2(type1, type2, type3, basetime, member,
+			  validtime1, validtime2, j, j_start, j_n, i,
+			  i_start, i_n, lat, action);
+}
+
+#pragma casplit part ysqjn.c
+
+void Fortran_NUSDAS_SUBC_RGAU_INQ_JN
+    (const CHAR *type1, const CHAR *type2, const CHAR *type3,
+     const INTEGER *basetime, const CHAR *member, const INTEGER *validtime,
+     INTEGER *jn, INTEGER *rt) {
+    *rt = NuSDaS_subc_rgau_inq_jn(type1, type2, type3, basetime, member,
+				  validtime, jn);
+}
+
+#pragma casplit part ysqjn2.c
+
+void Fortran_NUSDAS_SUBC_RGAU_INQ_JN2
+    (const CHAR *type1, const CHAR *type2, const CHAR *type3,
+     const INTEGER *basetime, const CHAR *member,
+     const INTEGER *validtime1, const INTEGER *validtime2, INTEGER *jn,
+     INTEGER *rt) {
+    *rt =
+	NuSDaS_subc_rgau_inq_jn2(type1, type2, type3, basetime, member,
+				 validtime1, validtime2, jn);
+}
+
+#pragma casplit part yssrf.c
+
+void Fortran_NUSDAS_SUBC_SRF
+    (const CHAR *utype1,
+     const CHAR *utype2,
+     const CHAR *utype3,
+     INTEGER *basetime,
+     const CHAR *udescriptor,
+     INTEGER *validtime1,
+     const CHAR *ulevel1,
+     const CHAR *uelement,
+     const CHAR *gname, INTEGER *rinfo, CHAR *action, INTEGER *rt) {
+    *rt = NuSDaS_subc_srf(utype1, utype2, utype3, (N_SI4 *) basetime,
+			  udescriptor,
+			  (N_SI4 *) validtime1, ulevel1, uelement,
+			  gname, (N_SI4 *) rinfo, action);
+}
+
+#pragma casplit part yssrf2.c
+
+void Fortran_NUSDAS_SUBC_SRF2
+    (const CHAR *utype1,
+     const CHAR *utype2,
+     const CHAR *utype3,
+     INTEGER *basetime,
+     const CHAR *udescriptor,
+     INTEGER *validtime1,
+     INTEGER *validtime2,
+     const CHAR *ulevel1,
+     const CHAR *ulevel2,
+     const CHAR *uelement,
+     const CHAR *gname, INTEGER *rinfo, CHAR *action, INTEGER *rt) {
+    *rt = NuSDaS_subc_srf2(utype1, utype2, utype3,
+			   (N_SI4 *) basetime, udescriptor,
+			   (N_SI4 *) validtime1,
+			   (N_SI4 *) validtime2, ulevel1, ulevel2,
+			   uelement, gname, (N_SI4 *) rinfo, action);
+}
+
+#pragma casplit part yspzhyb.c
+
+void Fortran_NUSDAS_SUBC_ZHYB_PRESET1
+    (const CHAR *type1, const CHAR *type2, const CHAR *type3,
+     const INTEGER *nz, const REAL * ptrf, const REAL * presrf,
+     const REAL * zrp, const REAL * zrw,
+     const REAL * vctrans_p, const REAL * vctrans_w,
+     const REAL * dvtrans_p, const REAL * dvtrans_w, INTEGER *rt) {
+    *rt = NuSDaS_subc_zhyb_preset1(type1, type2, type3,
+				   nz, ptrf, presrf, zrp, zrw, vctrans_p,
+				   vctrans_w, dvtrans_p, dvtrans_w);
+}
+
+#pragma casplit part yszhyb.c
+
+void Fortran_NUSDAS_SUBC_ZHYB
+    (const CHAR *type1, const CHAR *type2, const CHAR *type3,
+     const INTEGER *basetime, const CHAR *member, const INTEGER *validtime,
+     INTEGER *nz, REAL * ptrf, REAL * presrf,
+     REAL * zrp, REAL * zrw,
+     REAL * vctrans_p, REAL * vctrans_w,
+     REAL * dvtrans_p, REAL * dvtrans_w, const CHAR *action, INTEGER *rt) {
+    *rt = NuSDaS_subc_zhyb(type1, type2, type3,
+			   basetime, member, validtime,
+			   nz, ptrf, presrf, zrp, zrw, vctrans_p,
+			   vctrans_w, dvtrans_p, dvtrans_w, action);
+}
+
+#pragma casplit part yszhyb2.c
+
+void Fortran_NUSDAS_SUBC_ZHYB2
+    (const CHAR *type1, const CHAR *type2, const CHAR *type3,
+     const INTEGER *basetime, const CHAR *member,
+     const INTEGER *validtime1, const INTEGER *validtime2, INTEGER *nz,
+     REAL * ptrf, REAL * presrf, REAL * zrp, REAL * zrw, REAL * vctrans_p,
+     REAL * vctrans_w, REAL * dvtrans_p, REAL * dvtrans_w,
+     const CHAR *action, INTEGER *rt) {
+    *rt =
+	NuSDaS_subc_zhyb2(type1, type2, type3, basetime, member,
+			  validtime1, validtime2, nz, ptrf, presrf, zrp,
+			  zrw, vctrans_p, vctrans_w, dvtrans_p, dvtrans_w,
+			  action);
+}
+
+#pragma casplit part ywrite.c
+
+void Fortran_NUSDAS_WRITE
+    (const CHAR *utype1,
+     const CHAR *utype2,
+     const CHAR *utype3,
+     INTEGER *basetime,
+     const CHAR *udescriptor,
+     INTEGER *validtime1,
+     const CHAR *ulevel1,
+     const CHAR *uelement,
+     void *data, const CHAR *dtype, const INTEGER *dnum, INTEGER *rt) {
+    *rt =
+	NuSDaS_write(utype1, utype2, utype3, (N_SI4 *) basetime,
+		     udescriptor, (N_SI4 *) validtime1, ulevel1, uelement,
+		     data, dtype, (N_SI4 *) dnum);
+}
+
+#pragma casplit part ywrite2.c
+
+void Fortran_NUSDAS_WRITE2
+    (const CHAR *utype1,
+     const CHAR *utype2,
+     const CHAR *utype3,
+     INTEGER *basetime,
+     const CHAR *udescriptor,
+     INTEGER *validtime1,
+     INTEGER *validtime2,
+     const CHAR *ulevel1,
+     const CHAR *ulevel2,
+     const CHAR *uelement,
+     void *data, const CHAR *dtype, const INTEGER *dnum, INTEGER *rt) {
+    *rt =
+	NuSDaS_write2(utype1, utype2, utype3, (N_SI4 *) basetime,
+		      udescriptor, (N_SI4 *) validtime1,
+		      (N_SI4 *) validtime2, ulevel1, ulevel2, uelement,
+		      (N_SI4 *) data, dtype, (N_SI4 *) dnum);
+}
+
+#pragma casplit part zgtim.c
+# include <string.h>
+# define NWP_PATH_MAX 1023
+
+void Fortran_NWP_GETTIME
+    (CHAR *tcname, INTEGER *py, INTEGER *pm, INTEGER *pd, INTEGER *ph,
+     INTEGER *pmn, INTEGER *iseq, INTEGER clen) {
+    char name[NWP_PATH_MAX + 1];
+    int i;
+    for (i = 0; i < NWP_PATH_MAX + 1; i++) {
+	name[i] = '\0';
+    }
+    strncpy(name, tcname, clen);
+    *iseq = NWP_gettime(name, py, pm, pd, ph, pmn);
+}
+
+#pragma casplit part zstim.c
+
+void Fortran_NWP_SYSTIME
+    (INTEGER *py, INTEGER *pm, INTEGER *pd, INTEGER *ph, INTEGER *pmn,
+     INTEGER *ps, INTEGER *iseq) {
+    *iseq = NWP_systime(py, pm, pd, ph, pmn, ps);
+}
+
+#pragma casplit part zm2seq.c
+
+void Fortran_NWP_YMDHM2SEQ
+    (INTEGER *py, INTEGER *pm, INTEGER *pd, INTEGER *ph, INTEGER *pmn,
+     INTEGER *pseq) {
+    *pseq = NWP_ymdhm2seq(*py, *pm, *pd, *ph, *pmn);
+}
+
+#pragma casplit part zh2seq.c
+
+void Fortran_NWP_YMDH2SEQ
+    (INTEGER *py, INTEGER *pm, INTEGER *pd, INTEGER *ph, INTEGER *pseq) {
+    *pseq = NWP_ymdh2seq(*py, *pm, *pd, *ph);
+}
+
+#pragma casplit part zd2seq.c
+
+void
+Fortran_NWP_YMD2SEQ(INTEGER *py, INTEGER *pm, INTEGER *pd, INTEGER *pseq)
+{
+    *pseq = NWP_ymd2seq(*py, *pm, *pd);
+}
+
+#pragma casplit part zseq2m.c
+
+void
+ Fortran_NWP_SEQ2YMDHM
+    (INTEGER *py, INTEGER *pm, INTEGER *pd, INTEGER *ph, INTEGER *pmn,
+     INTEGER *pseq) {
+    NWP_seq2ymdhm(py, pm, pd, ph, pmn, *pseq);
+}
+
+#pragma casplit part zseq2h.c
+
+void
+ Fortran_NWP_SEQ2YMDH
+    (INTEGER *py, INTEGER *pm, INTEGER *pd, INTEGER *ph, INTEGER *pseq) {
+    NWP_seq2ymdh(py, pm, pd, ph, *pseq);
+}
+
+#pragma casplit part zseq2d.c
+
+void
+Fortran_NWP_SEQ2YMD(INTEGER *py, INTEGER *pm, INTEGER *pd, INTEGER *pseq)
+{
+    NWP_seq2ymd(py, pm, pd, *pseq);
+}

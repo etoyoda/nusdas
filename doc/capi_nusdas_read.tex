@@ -1,0 +1,51 @@
+\subsection{nusdas\_read: データ記録の読取}
+\APILabel{nusdas.read}
+
+\Prototype
+\begin{quote}
+N\_SI4 {\bf nusdas\_read}(const char {\it utype1}[8], const char {\it utype2}[4], const char {\it utype3}[4], const N\_SI4 $\ast${\it basetime}, const char {\it member}[4], const N\_SI4 $\ast${\it validtime}, const char {\it plane}[6], const char {\it element}[6], void $\ast${\it data}, const char {\it fmt}[2], const N\_SI4 $\ast${\it size});
+\end{quote}
+
+\begin{tabular}{l|rp{20em}}
+\hline
+\ArgName & \ArgType & \ArgRole \\
+\hline
+{\it utype1} & const char [8] &  種別1  \\
+{\it utype2} & const char [4] &  種別2  \\
+{\it utype3} & const char [4] &  種別3  \\
+{\it basetime} & const N\_SI4 $\ast$ &  基準時刻(通算分)  \\
+{\it member} & const char [4] &  メンバー  \\
+{\it validtime} & const N\_SI4 $\ast$ &  対象時刻(通算分)  \\
+{\it plane} & const char [6] &  面の名前  \\
+{\it element} & const char [6] &  要素名  \\
+{\it data} & void $\ast$ &  結果格納配列  \\
+{\it fmt} & const char [2] &  結果格納配列の型  \\
+{\it size} & const N\_SI4 $\ast$ &  結果格納配列の要素数  \\
+\hline
+\end{tabular}
+\paragraph{\FuncDesc}引数で指定したTYPE, 基準時刻、メンバー、対象時刻、面、要素のデータを
+読み出す。 
+
+fmtは\ref{tab:typename}のものを指定するが、これらの値はN\_を接頭辞につけた定数で参照できる。
+例えば'R4'であれば定数N\_R4で参照できる。
+
+\paragraph{\ResultCode}
+\begin{quote}
+\begin{description}
+\item[{\bf 正}] 読み出して格納した格子数
+\item[{\bf 0}] 指定したデータは未記録(定義ファイルの elementmap によって書き込まれることは許容されているが、まだデータが書き込まれていない)
+\item[{\bf -2}] 指定したデータは記録することが許容されていない(elementmap によって禁止されている場合と指定した面名、要素名が登録されていない場合の両方を含む)。
+\item[{\bf -4}] 格納配列が不足
+\item[{\bf -5}] 格納配列の型とレコードの記録形式が不整合
+\end{description}\end{quote}
+
+\paragraph{ 注意 }
+nusdas\_read では、返却値 0 はエラーであることに注意が必要。
+nusdas\_read のエラーチェックは返却値が求めている格子数と一致していること
+を確認するのが望ましい。
+\paragraph{ 互換性 }
+NuSDaS1.1 では「ランレングス圧縮で、データが指定最大値を超えている」
+(返却値-6)が定義されていたが、はデータの最初だけを
+見ているだけで意味がないと思われるので、 NuSDaS 1.3 からはこのエラーは
+返さない。また、「ユーザーオープンファイルの管理部又はアドレス部が不正
+である」(返却値-7)は、共通部分の-54〜-57に対応するので、このエラーは返さない

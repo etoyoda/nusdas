@@ -1,0 +1,29 @@
+\subsection{NUSDAS\_SUBC\_SIGM: SUBC SIGM へのアクセス}
+\APILabel{nusdas.subc.sigm}
+
+\Prototype
+\begin{quote}
+CALL {\bf NUSDAS\_SUBC\_SIGM}({\it type1}, {\it type2}, {\it type3}, {\it basetime}, {\it member}, {\it validtime}, {\it n\_levels}, {\it a}, {\it b}, {\it c}, {\it getput}, {\it result})
+\end{quote}
+
+\begin{tabular}{l|rllp{16em}}
+\hline
+\ArgName & \ArgType & \ArrayDim & I/O & \ArgRole \\
+\hline
+{\it type1} & CHARACTER(8) &  & IN &  種別1  \\
+{\it type2} & CHARACTER(4) &  & IN &  種別2  \\
+{\it type3} & CHARACTER(4) &  & IN &  種別3  \\
+{\it basetime} & INTEGER(4) &  & IN &  基準時刻(通算分)  \\
+{\it member} & CHARACTER(4) &  & IN &  メンバー名  \\
+{\it validtime} & INTEGER(4) &  & IN &  対象時刻(通算分)  \\
+{\it n\_levels} & INTEGER(4) &  & I/O &  鉛直層数  \\
+{\it a} & REAL(4) & \AnySize & I/O &  係数 a  \\
+{\it b} & REAL(4) & \AnySize & I/O &  係数 b  \\
+{\it c} & REAL(4) &  & I/O &  係数 c  \\
+{\it getput} & CHARACTER(3) &  & IN &  入出力指示 ({\it "GET}" または {\it "PUT}")  \\
+{\it result} & INTEGER(4) &  & OUT & \ResultCode \\
+\hline
+\end{tabular}
+\paragraph{\FuncDesc}鉛直座標に ETA 座標系を用いるときに、鉛直座標を定めるパラメータへの
+アクセスを提供する。 
+関数の仕様は、nusdas\_subc\_eta と同じである。

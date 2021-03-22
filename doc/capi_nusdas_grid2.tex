@@ -1,0 +1,26 @@
+\subsection{nusdas\_grid2: 格子情報へのアクセス }
+\APILabel{nusdas.grid2}
+
+\Prototype
+\begin{quote}
+N\_SI4 {\bf nusdas\_grid2}(const char {\it type1}[8], const char {\it type2}[4], const char {\it type3}[4], const N\_SI4 $\ast${\it basetime}, const char {\it member}[4], const N\_SI4 $\ast${\it validtime1}, const N\_SI4 $\ast${\it validtime2}, char {\it proj}[4], N\_SI4 {\it gridsize}[2], float {\it gridinfo}[14], char {\it value}[4], const char {\it getput}[3]);
+\end{quote}
+
+\begin{tabular}{l|rp{20em}}
+\hline
+\ArgName & \ArgType & \ArgRole \\
+\hline
+{\it type1} & const char [8] &  種別1  \\
+{\it type2} & const char [4] &  種別2  \\
+{\it type3} & const char [4] &  種別3  \\
+{\it basetime} & const N\_SI4 $\ast$ &  基準時刻(通算分)  \\
+{\it member} & const char [4] &  メンバー名  \\
+{\it validtime1} & const N\_SI4 $\ast$ &  対象時刻1(通算分)  \\
+{\it validtime2} & const N\_SI4 $\ast$ &  対象時刻2(通算分)  \\
+{\it proj} & char [4] &  投影法3字略号  \\
+{\it gridsize} & N\_SI4 [2] &  格子数  \\
+{\it gridinfo} & float [14] &  投影法緒元  \\
+{\it value} & char [4] &  格子点値が周囲の場を代表する方法  \\
+{\it getput} & const char [3] &  入出力指示 ({\it "GET}" または {\it "PUT}")  \\
+\hline
+\end{tabular}

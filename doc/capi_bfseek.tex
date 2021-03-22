@@ -1,0 +1,44 @@
+\subsection{bfseek: ファイル位置設定}
+\APILabel{bfseek}
+
+\Prototype
+\begin{quote}
+int {\bf bfseek}(N\_BIGFILE $\ast${\it bf}, long {\it offset}, int {\it whence});
+\end{quote}
+
+\begin{tabular}{l|rp{20em}}
+\hline
+\ArgName & \ArgType & \ArgRole \\
+\hline
+{\it bf} & N\_BIGFILE $\ast$ &  ファイル  \\
+{\it offset} & long &  相対位置  \\
+{\it whence} & int &  起点  \\
+\hline
+\end{tabular}
+\paragraph{\FuncDesc}
+あらかじめ \APILink{bfopen}{bfopen} で開かれた
+ファイル {\it bf} の現在位置を設定する。
+{\it offset} は本来 off\_t 型が望ましいのだろうが、
+long型で実装されているので注意。
+
+ファイル位置の起算原点は {\it whence} によって異なる。
+\begin{quote}\begin{description}
+\item[{\bf SEEK\_SET}] ファイル先頭から {\it offset} バイト (非負) 進んだ位置
+\item[{\bf SEEK\_CUR}] 現在位置から {\it offset} バイト (負でもよい) 進んだ位置
+\item[{\bf SEEK\_END}] ファイル末尾から {\it offset} バイト進んだ位置
+\end{description}\end{quote}
+\paragraph{\ResultCode}
+\begin{quote}
+\begin{description}
+\item[{\bf 0}] 正常終了
+\item[{\bf -1}] エラー
+\end{description}\end{quote}
+\paragraph{注意}
+\begin{itemize}
+\item long が 32 ビット幅の場合、2 ギガバイトを超えるファイルでは
+指定できない場所がある。
+\item {\it whence} に SEEK\_END を指定して正の {\it offset} を指定した場合の
+挙動については OS の lseek(2) 等のマニュアルを参照されたい。
+\end{itemize}
+\paragraph{履歴}
+この関数は NuSDaS 1.3 で追加された。

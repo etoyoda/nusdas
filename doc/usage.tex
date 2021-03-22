@@ -1,0 +1,193 @@
+\Chapter{利用の手引}
+
+\section{動作環境}
+
+\begin{itemize}
+\item 現在のところ、トランク更新のための動作確認は
+	x86\_64 Linux + gcc で行われている
+\item 些細でない変更は x86\_64 Linux + Intel C および XTC OS + 富士通 C でテストされる
+% \item 頻繁ではないが x86\_64 Windows 7 + Cygwin, SPARC Linux + 富士通 C
+% 	への移植上の問題が報告された場合には対応するようにしている
+\item HPPA2 HP-UX や SPARC Solaris は
+	2007 年頃から動作確認されていない (実機がない)。
+	レコード長が4の倍数でないかマスクビットを使うと
+	SIGBUS を起こすことがある
+% \item Sun SPARC でもconfigure時に\verb|"--disable-mmap"|を指定することで
+%  コンパイルはできるが、SIGBUS を起こすことがある\\
+%	これを回避するには、CCをccにし(gcc不可)、
+%	\verb|CFLAGS|に\verb|-xmemalign=1i|を設定するとよい
+%	(あわせて、\verb|--disable-inline|が必要)
+\item gcc4.0以降では、コンパイラの最適化に問題がありfloat型が正常に扱えない場合がある\\
+	gcc4.0以降を利用する場合は、\verb|CFLAGS="-g -O1"|として最適化のレベルを下げること
+	によりこの問題を回避できる。
+      ただし、本件は少なくとも gcc4.8.5 では解決しているようである。
+\end{itemize}
+
+\section{利用手順}
+
+\subsection{利用手順概説}
+
+\begin{enumerate}
+\item 使っている計算機に NuSDaS ライブラリがインストールされていなければ
+	インストールする
+    \begin{itemize}
+    \item NuSDaS ライブラリのソースコードを取得する
+    \item NuSDaS ライブラリをコンパイル・インストールする
+    (詳細は INSTALL ファイルをあわせて参照されたい。)
+    \end{itemize}
+\item アプリケーションを書く
+    \begin{itemize}
+    \item Fortran ならば
+    	\ChapRef{chap:fapi} のサブルーチンを呼ぶサブルーチンの先頭で
+    	\verb|use "nusdas_fort.h"| する
+    \item C ならば
+    	\ChapRef{chap:capi} の関数を呼ぶソースコードの先頭で
+    	\verb|#include <nusdas.h>| と、通算分の計算で必要ならば
+    	\verb|#include <nwpl_capi.h>| を使う
+    \item その他のヘッダ
+	(数値予報標準ライブラリと降水短時間ライブラリを除く)
+        を使っている C プログラムは
+    	NuSDaS のバージョンに依存するため NuSDaS 1.3 以降では使えない
+    \end{itemize}
+\item アプリケーションをコンパイル・リンクする
+    \begin{itemize}
+    \item 数値予報ルーチンでは PBF を書くのでコンパイラに渡す
+    オプションの詳細に付いて心配する必要はない
+    \end{itemize}
+\item 定義ファイル・データセットを作成する
+    \begin{itemize}
+    \item 定義ファイルの構文に付いては \ChapRef{chap:deffile} を参照されたい。
+    \item データ設計については \SectionRef{sec:writers} を参考にされたい。
+    \end{itemize}
+\item アプリケーションを実行する
+\end{enumerate}
+
+
+\subsection{典型的なコマンドライン}
+
+とりあえず最低限動かすためにシンプルな例を挙げる。
+
+\subsubsection*{インストール}
+
+\begin{screen}
+\begin{verbatim}
+ $ tar xvfz nusdas-1.4.tar.gz
+ $ cd nusdas1.4
+ $ F90=f90 sh configure --prefix=/opt/nusdas1.4 --without-zlib
+ $ make
+ $ sudo make install
+\end{verbatim}
+\end{screen}
+
+ここで \verb|/opt/nusdas1.4| は任意でよいが、書込ができなければならない。
+一般ユーザ権限しかないならば \verb|/opt/nusdas1.4| とあるところを
+\verb|${HOME}| と読みかえるとよいだろう。
+
+
+\subsubsection*{C 言語のコンパイル}
+
+\begin{screen}
+\begin{verbatim}
+ $ cc -I/opt/nusdas1.4/include -c app.c
+\end{verbatim}
+\end{screen}
+
+\subsubsection*{C 言語のリンク}
+
+\begin{screen}
+\begin{verbatim}
+ $ cc -o app app.o -L/opt/nusdas1.4/lib -lnusdas -lnwp -lm
+\end{verbatim}
+\end{screen}
+
+\subsubsection*{Fortran のコンパイル}
+
+\begin{screen}
+\begin{verbatim}
+ $ f90 -I/opt/nusdas1.4/include -c app.f90
+\end{verbatim}
+\end{screen}
+
+\subsubsection*{Fortran のリンク}
+
+\begin{screen}
+\begin{verbatim}
+ $ f90 -o app app.o -L/opt/nusdas1.4/lib -lnusdas -lnwp -lm
+\end{verbatim}
+\end{screen}
+
+\subsubsection*{データセットの作成}
+
+\begin{screen}
+\begin{verbatim}
+$ mkdir fcst_p.nus
+$ mkdir fcst_p.nus/nusdas_def
+$ vi fcst_p.nus/nusdas_def/fcst_p.def
+$ ln -s fcst_p.nus NUSDAS10
+\end{verbatim}
+\end{screen}
+
+このようにして始めてプログラムが実行できる。
+
+\subsection{ライブラリ間の依存関係}
+
+\paragraph{気象庁のライブラリ間の依存性}
+
+降水短時間ライブラリ (libsrf) は NuSDaS に依存する。
+そして NuSDaS は数値予報標準ライブラリ (nwplib) に依存する。
+したがって、アプリケーションのリンク時には
+\verb|-lsrf -lnusdas -lnwp|
+の順で記述すべきである。
+
+\paragraph{ZLib 依存性}
+
+ネットワーク NuSDaS で gzip 圧縮を可能に設定していると
+ZLib が必要になる。
+
+アプリケーションのリンク時に deflate, Inflate, crc32 などの
+シンボルが未定義だといってエラーになるようならば、
+リンクのコマンドラインに \verb|-lz| オプションを追加\footnote{
+	コマンドラインの最後がよい。
+}されたい。
+ZLib が OS 標準ではないディレクトリにインストールされている場合は
+\verb|libz.a| を探して \verb|-L| オプションを \verb|-lz| の前に挿入する。
+たとえば \verb|/usr/local/lib/libz.a| があるならば、
+\verb|-L/usr/local/lib -lz| を cc なり f90 のコマンドラインの
+末尾に追加するとよい。
+
+\paragraph{数学ライブラリ依存性}
+
+NuSDaS 1.1 では使っている関数によっては数学ライブラリをまったく
+使わないでアプリケーションをビルド出来る場合があったが、
+NuSDaS 1.3 からはほとんど全てのアプリケーションで数学ライブラリが必要となった。
+
+アプリケーションのリンク時に lrint, sin, cos などのシンボルが未定義だといって
+エラーになるならば、コマンドラインの最後に \verb|-lm| を追加せよ。
+
+\subsection{設定情報提供スクリプト nusdas-conf}
+
+上述のように NuSDaS ライブラリがどのような設定になっているかによって
+必要なライブラリが変わって来るため、
+NuSDaS 1.3 からは必要なコンパイルオプションに関する情報を提供する
+スクリプト nusdas-conf を提供している。
+
+このスクリプトは「必要なコンパイルオプション」
+「必要なライブラリを示すリンカオプション」などの
+文字列を標準出力に印字するので、たとえば次のように使うことができる。
+
+\subsubsection*{コンパイル}
+\begin{screen}
+\begin{verbatim}
+ $ `/opt/nusdas1.4/bin/nusdas-config --cc --cflags -cppflags` \
+   -c app.c
+\end{verbatim}
+\end{screen}
+
+\subsubsection*{リンク}
+\begin{screen}
+\begin{verbatim}
+ $ `/opt/nusdas1.4/bin/nusdas-config --cc --cflags` \
+   -o app app.o `/opt/nusdas1.4/bin/nusdas-config --ldflags --libs`
+\end{verbatim}
+\end{screen}
+

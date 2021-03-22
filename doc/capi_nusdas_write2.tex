@@ -1,0 +1,27 @@
+\subsection{nusdas\_write2: データ記録の書出}
+\APILabel{nusdas.write2}
+
+\Prototype
+\begin{quote}
+N\_SI4 {\bf nusdas\_write2}(const char {\it utype1}[8], const char {\it utype2}[4], const char {\it utype3}[4], const N\_SI4 $\ast${\it basetime}, const char {\it member}[4], const N\_SI4 $\ast${\it validtime1}, const N\_SI4 $\ast${\it validtime2}, const char {\it plane1}[6], const char {\it plane2}[6], const char {\it element}[6], const void $\ast${\it data}, const char {\it fmt}[2], const N\_SI4 $\ast${\it nelems});
+\end{quote}
+
+\begin{tabular}{l|rp{20em}}
+\hline
+\ArgName & \ArgType & \ArgRole \\
+\hline
+{\it utype1} & const char [8] &  種別1  \\
+{\it utype2} & const char [4] &  種別2  \\
+{\it utype3} & const char [4] &  種別3  \\
+{\it basetime} & const N\_SI4 $\ast$ &  基準時刻(通算分)  \\
+{\it member} & const char [4] &  メンバー名  \\
+{\it validtime1} & const N\_SI4 $\ast$ &  対象時刻1(通算分)  \\
+{\it validtime2} & const N\_SI4 $\ast$ &  対象時刻2(通算分)  \\
+{\it plane1} & const char [6] &  面の名前1  \\
+{\it plane2} & const char [6] &  面の名前2  \\
+{\it element} & const char [6] &  要素名  \\
+{\it data} & const void $\ast$ &  データを与える配列  \\
+{\it fmt} & const char [2] &  data の型  \\
+{\it nelems} & const N\_SI4 $\ast$ &  data の要素数  \\
+\hline
+\end{tabular}

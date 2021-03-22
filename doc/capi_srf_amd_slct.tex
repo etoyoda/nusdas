@@ -1,0 +1,47 @@
+\subsection{srf\_amd\_slct: アメダスデータを指定の地点番号順に並べる}
+\APILabel{srf.amd.slct}
+
+\Prototype
+\begin{quote}
+int {\bf srf\_amd\_slct}(const N\_SI4 $\ast${\it st\_r}, int {\it n\_st\_r}, void $\ast${\it d\_r}, const char $\ast${\it t\_r}, N\_SI4 $\ast${\it st\_n}, int {\it n\_st\_n}, void $\ast${\it d\_n}, const char $\ast${\it t\_n}, int {\it sort\_f});
+\end{quote}
+
+\begin{tabular}{l|rp{20em}}
+\hline
+\ArgName & \ArgType & \ArgRole \\
+\hline
+{\it st\_r} & const N\_SI4 $\ast$ &  結果の順を指示する地点番号表  \\
+{\it n\_st\_r} & int &  結果配列長  \\
+{\it d\_r} & void $\ast$ &  結果配列  \\
+{\it t\_r} & const char $\ast$ &  結果配列の型  \\
+{\it st\_n} & N\_SI4 $\ast$ &  元データ地点番号配列  \\
+{\it n\_st\_n} & int &  元データ配列長  \\
+{\it d\_n} & void $\ast$ &  元データ配列  \\
+{\it t\_n} & const char $\ast$ &  元データ配列の型  \\
+{\it sort\_f} & int &  未ソートフラグ  \\
+\hline
+\end{tabular}
+\paragraph{\FuncDesc}
+長さ {\it n\_st\_n} の地点番号配列 {\it st\_n} と
+対応する順に並んだ {\it t\_n} 型の配列 {\it d\_n} から、
+別の地点番号配列 {\it st\_r} (要素数 {\it n\_st\_r} 個) の順に並んだ
+{\it t\_r} 型の配列 {\it d\_r} (要素数 {\it n\_st\_r} 個) を作る。
+
+配列 {\it st\_n} と {\it d\_n} があらかじめソートされている場合 {\it sort\_f} に
+N\_OFF (nusdas.h で定義される) を指定する。
+そうでない場合 {\it sort\_f} に N\_ON を指定するとソートされる。
+
+\paragraph{\ResultCode}
+\begin{quote}
+\begin{description}
+\item[{\bf 0}] 配列 {\it st\_r} の全地点が見付かった
+\item[{\bf 正}] みつからなかった地点数
+\end{description}\end{quote}
+
+\begin{itemize}
+\item 型は nusdas.h で定義される N\_R4, N\_I4, N\_I2 のいずれかで指定する。
+\item 配列 {\it st\_r} に含まれる地点番号が {\it st\_n} で見付からない場合は
+nusdas.h で定義される欠損値 N\_MV\_R4, N\_MV\_SI4, N\_MV\_SI2 が入る。
+\end{itemize}
+\paragraph{履歴}
+この関数は NAPS7 時代から存在した。

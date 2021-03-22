@@ -1,0 +1,35 @@
+\subsection{bfwrite\_native: バイトオーダー変換付きファイル出力}
+\APILabel{bfwrite.native}
+
+\Prototype
+\begin{quote}
+unsigned long {\bf bfwrite\_native}(void $\ast${\it ptr}, unsigned long {\it size}, unsigned long {\it nmemb}, N\_BIGFILE $\ast${\it bf});
+\end{quote}
+
+\begin{tabular}{l|rp{20em}}
+\hline
+\ArgName & \ArgType & \ArgRole \\
+\hline
+{\it ptr} & void $\ast$ &  データ  \\
+{\it size} & unsigned long &  オブジェクト長  \\
+{\it nmemb} & unsigned long &  オブジェクト数  \\
+{\it bf} & N\_BIGFILE $\ast$ &  ファイル  \\
+\hline
+\end{tabular}
+\paragraph{\FuncDesc}
+あらかじめ \APILink{bfopen}{bfopen} で開かれた
+ファイル {\it bf} に幅 @size バイトのオブジェクトを {\it nmemb} 個書き込む。
+書き込むデータは機械に自然なバイトオーダーで {\it ptr} から読み込まれ、
+ファイルにはビッグエンディアンで書かれる。
+\paragraph{\ResultCode}
+\begin{quote}
+\begin{description}
+\item[{\bf 正}] 書き出されたオブジェクト数 (エラー時に nmemb より少ないことがある)
+\item[{\bf 0}] エラー
+\end{description}\end{quote}
+\paragraph{参考}
+\begin{itemize}
+\item 引数 {\it size} にふさわしい値は sizeof 演算子によって得られる。
+\end{itemize}
+\paragraph{履歴}
+この関数は NuSDaS 1.3 で追加された。

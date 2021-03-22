@@ -1,0 +1,78 @@
+\subsection{NUSDAS\_PARAMETER\_CHANGE: オプション設定}
+\APILabel{nusdas.parameter.change}
+
+\Prototype
+\begin{quote}
+CALL {\bf NUSDAS\_PARAMETER\_CHANGE}({\it param}, {\it value}, {\it result})
+\end{quote}
+
+\begin{tabular}{l|rllp{16em}}
+\hline
+\ArgName & \ArgType & \ArrayDim & I/O & \ArgRole \\
+\hline
+{\it param} & INTEGER(4) &  & IN &  設定項目コード  \\
+{\it value} & \AnyType & \AnySize & IN &  設定値  \\
+{\it result} & INTEGER(4) &  & OUT & \ResultCode \\
+\hline
+\end{tabular}
+\paragraph{\FuncDesc}
+{\it param} で指定されるパラメータに値 {\it value} を設定する。
+整数値の項目については、
+互換性のため値ゼロのかわりに名前 N\_OFF を用いることができる。
+\begin{quote}\begin{description}
+\item[{\bf N\_PC\_MISSING\_UI1}] 1バイト整数の欠損値 (既定値: N\_MV\_UI1)
+\item[{\bf N\_PC\_MISSING\_SI2}] 2バイト整数の欠損値 (既定値: N\_MV\_SI2)
+\item[{\bf N\_PC\_MISSING\_SI4}] 4バイト整数の欠損値 (既定値: N\_MV\_SI4)
+\item[{\bf N\_PC\_MISSING\_R4}] 4バイト実数の欠損値 (既定値: N\_MV\_R4)
+\item[{\bf N\_PC\_MISSING\_R8}] 8バイト実数の欠損値 (既定値: N\_MV\_R8)
+\item[{\bf N\_PC\_MASK\_BIT}] マスクビット配列へのポインタ
+(既定値は NULL ポインタだが Fortran では直接設定できないので
+\APILink{nusdas.parameter.reset}{nusdas\_parameter\_reset} を用いられたい)
+\item[{\bf N\_PC\_SIZEX}] 
+非零値を設定すると強制的にデータレコードの {\it x} 方向
+格子数を設定する (0)
+\item[{\bf N\_PC\_SIZEY}] 
+強制格子サイズ:
+既定値 (0) 以外を設定するとデータレコードの {\it y} 方向
+格子数を設定する
+\item[{\bf N\_PC\_PACKING}] 
+4文字のパッキング名を設定すると、定義ファイルの指定にかかわらず
+\APILink{nusdas.write}{nusdas\_write} 等データ記録書き込みの際に用いられる
+パッキング方式が変更される。
+既定値に戻す (定義ファイルどおりに書かせる) には
+4 バイト整数値 0 を設定する。
+\item[{\bf N\_PC\_ID\_SET}] 
+NRD 番号制約:
+既定値 (-1) 以外を設定すると、その番号の NRD だけを
+入出力に用いるようになる
+\item[{\bf N\_PC\_WBUFFER}] 
+書き込みバッファサイズ (既定値: 0)
+実行時オプション FWBF に同じ。
+\item[{\bf N\_PC\_RBUFFER}] 
+読み取りバッファサイズ (既定値: 17)
+実行時オプション FRBF に同じ。
+\item[{\bf N\_PC\_KEEP\_CFILE}] 
+ファイルを閉じたあと CNTL/INDX などのヘッダ情報をキャッシュしておく
+数。負にするとキャッシュを開放しなくなる（既定値: -1）。
+実行時オプション GKCF に同じ。
+\item[{\bf N\_PC\_OPTIONS}] 
+設定のみでリセットはできない。
+ヌル終端した文字列を与えると実行時オプションとして設定する。
+Fortran インターフェイスでもヌル終端しなければならないことに注意。
+\end{description}\end{quote}
+
+\paragraph{\ResultCode}
+\begin{quote}
+\begin{description}
+\item[{\bf 0}] 正常終了
+\item[{\bf -1}] サポートされていないパラメタである
+\end{description}\end{quote}
+
+\paragraph{履歴}
+NuSDaS 1.0 から存在する。
+
+NuSDaS 1.1 ではデータセット探索のキャッシュ論理に問題があり、
+N\_PC\_ID\_SET で NRD 番号制約をかけて入出力を行った後で
+NRD 番号制約を解除して同じ種別にアクセスしても探索が行われない
+(あらかじめ NRD 制約をかけずに入出力操作をしていれば探索される)。
+この問題は NuSDaS 1.3 以降では解決されている。

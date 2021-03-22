@@ -1,0 +1,159 @@
+						TOYODA Eizi, JMA/NPD
+						nusdas-ng@npd.kishou.go.jp
+=begin
+= Installation of NuSDaS 1.4
+
+== Quick Installation
+
+	$ sh configure
+	$ make
+	$ make test			(optional)
+	$ sudo make install
+
+== When in Trouble
+
+=== Command not Found
+
+次のコマンドがみつからない場合は回避策があります。
+
++ nkf
+
+  漢字コード変換ができませんが、コンパイルができれば動作に支障はありません。
+  次のコマンドを打って make しなおしてみてください。
+
+    $ touch charset
+
++ ruby
+
+  次のコマンドを打って make しなおしてみてください。
+
+    $ touch src/*.c src/*.h
+
++ flex
+
+  次のコマンドを打って make しなおしてみてください。
+
+    $ touch src/*.c
+
++ m4
+
+  次のコマンドを打って make しなおしてみてください。
+
+    $ touch nwplib8/*.c nwplib8/*.f90
+
+=== AIXで数値予報ルーチンと同じオプションでコンパイルする場合
+
+非SMPの場合
+
+CC=cc F90=f90 ARFLAGS="-X 64 rv" CFLAGS="-64 -Os -parallel=0 -noloopreroll" \
+sh configure --with-sio
+
+SMPの場合
+CC=cc F90=f90 ARFLAGS="-X 64 rv" \
+CFLAGS="-64 -Os -parallel=4 -pardiag=2 -noloopreroll" \
+sh configure --with-sio
+
+=== クロスコンパイルするための設定
+
+SR11000 向けに Linux でクロスコンパイルする例
+
+    $ sh configure \
+        CC='/users/npd/suuchi_p/Tools/Xccc/xccc' \
+        CFLAGS='-64 -Os -parallel=4 -pardiag=2' \
+        INTMODEL=LP64 \
+        ARCHIVER='/users/npd/suuchi_p/Tools/Xccc/xar' \
+        ARFLAGS='-X64 rv' \
+        --host=powerpc-ibm-aix5.2.0.0 \
+        --disable-debug \
+        --with-sio
+
+SR8000 向けに ceop0 でクロスコンパイルする例
+
+    $ sh configure \
+        F90='xf90' \
+        FFLAGS='-64 -O4 -parallel=2' \
+        CC='xcc' \
+        CFLAGS='-64 -Os -parallel=4' \
+        INTMODEL=LP64 \
+        ARCHIVER='/users/npd/suuchi06/bin/xar' \
+        ARFLAGS='rv' \
+        --host=powerpc-hitachi-hiuxmpp \
+        --disable-debug \
+        --without-zlib \
+        --with-sio
+
+SX 向けに Linux でクロスコンパイルする例
+
+    $ sh configure \
+        SI4_TYPE=int \ 
+        FC=sxf90 \
+        F90=sxf90 \
+        FFLAGS=-Cvopt \
+        CC=sxcc \
+        CFLAGS='-xint' \
+        ARCHIVER=/SX/usr/bin/sxar \
+        ARFLAGS=rv \
+        --host=sx6-nec-superux \
+        --disable-debug \
+        --without-zlib \
+        --with-sio
+
+ 64bit 整数を正しく扱うために、CFLAGS='-xint' が必要です。
+
+=== Warnings from Compiler
+
++ Unrecognized character
+
+  * 漢字コードがあっていません。NuSDaS 1.4 のソースコードは
+    libsrf, nwplib8 が Shift_JIS, その他が EUC-JP で CVS に登録されています。
+    make charset とすると漢字コードは自動的に変換されるはずで、
+    ただ make とした場合にも自動的に呼ばれるはずですが、
+    不具合があればご報告ください。
+
+=== Linker Error
+
+この手の問題は make test とすることで早目に発見できることがあります。
+
++ Duplicated symbol "NUSDAS", "nusdas_" etc.
+
+  * 新しい (1.4) ライブラリに古い (1.1 以前の) ヘッダでコンパイルした
+    Fortran モジュールをリンクしようとしています。
+    古い nusdas.h を使わないように -I オプションの順序を調整してください。
+  * NUSDAS などの名前をユーザが使っている場合にもこの問題が起こります。
+    NuSDaS ライブラリは NuS, NUS, nus で始まる外部名を予約しています
+    ので、これらの名前を使っている場合は改名してください。
+
++ Undefined symbol "deflate", "inflate" etc.
+
+  * ZLib を使うように NuSDaS が設定されているのに、
+    アプリケーションをリンクする際に -lz が指定されていません。
+  * あるいは、リンカに -lz が渡されていても libz.a がシステムの規定位置
+    (/usr/lib/ など) に置かれていないので見付けられません。
+    たとえば /usr/local/lib/libz.a を用いるなら -L/usr/local/lib を
+    指定します。
+  * ZLib を使わないように NuSDaS を設定するには
+
+       configure --without-zlib
+
+    とします。
+
++ Unresoleved Symbol (または、シンボルが未定義です）
+
+  * まず nm(1) で該当する関数があるかどうか調べてください。
+  * 関数があるのにリンクできない場合があります。この場合、link するライブラリの順番を
+    変更すると、うまくいく場合があります。たとえば、
+
+       $(LD) -o hoge hoge.o \
+             $(NUS14DIR)/src/libnusdas.a \
+             $(NUS14DIR)/nwplib8/libnwp.a \
+             $(NUS14DIR)/libsrf/libsrf.a
+
+    とするとリンクに失敗しても
+
+       $(LD) -o hoge hoge.o \
+             $(NUS14DIR)/libsrf/libsrf.a \
+             $(NUS14DIR)/nwplib8/libnwp.a \
+             $(NUS14DIR)/src/libnusdas.a
+
+    とすると成功する場合があります。
+

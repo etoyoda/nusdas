@@ -1,0 +1,57 @@
+\subsection{NUSDAS\_WRITE: データ記録の書出}
+\APILabel{nusdas.write}
+
+\Prototype
+\begin{quote}
+CALL {\bf NUSDAS\_WRITE}({\it utype1}, {\it utype2}, {\it utype3}, {\it basetime}, {\it member}, {\it validtime}, {\it plane}, {\it element}, {\it data}, {\it fmt}, {\it nelems}, {\it result})
+\end{quote}
+
+\begin{tabular}{l|rllp{16em}}
+\hline
+\ArgName & \ArgType & \ArrayDim & I/O & \ArgRole \\
+\hline
+{\it utype1} & CHARACTER(8) &  & IN &  種別1  \\
+{\it utype2} & CHARACTER(4) &  & IN &  種別2  \\
+{\it utype3} & CHARACTER(4) &  & IN &  種別3  \\
+{\it basetime} & INTEGER(4) &  & IN &  基準時刻(通算分)  \\
+{\it member} & CHARACTER(4) &  & IN &  メンバー名  \\
+{\it validtime} & INTEGER(4) &  & IN &  対象時刻(通算分)  \\
+{\it plane} & CHARACTER(6) &  & IN &  面の名前  \\
+{\it element} & CHARACTER(6) &  & IN &  要素名  \\
+{\it data} & \AnyType & \AnySize & IN &  データ配列  \\
+{\it fmt} & CHARACTER(2) &  & IN &  データ配列の型  \\
+{\it nelems} & INTEGER(4) &  & IN &  データ配列の要素数  \\
+{\it result} & INTEGER(4) &  & OUT & \ResultCode \\
+\hline
+\end{tabular}
+\paragraph{\FuncDesc}
+データレコードを指定された場所に書き出す。
+
+fmtは\ref{tab:typename}のものを指定するが、これらの値はN\_を接頭辞につけた定数で参照できる。
+例えば'R4'であれば定数N\_R4で参照できる。
+
+\paragraph{\ResultCode}
+\begin{quote}
+\begin{description}
+\item[{\bf 正}] 実際に書き出された要素数
+\item[{\bf -2}] メンバー名、面名、要素名が間違っている
+\item[{\bf -2}] このレコードは ELEMENTMAP によって書き出しが禁止されている
+\item[{\bf -3}] 与えられたデータ要素数 {\it nelems} が必要より小さい
+\item[{\bf -4}] 指定データセットにはデータ配列の型 {\it fmt} は書き出せない
+\item[{\bf -5}] データレコード長が固定レコード長を超える
+\item[{\bf -6}] データセットの欠損値指定方式と RLEN 圧縮は併用できない
+\item[{\bf -7}] マスクビットの設定がされていない
+\item[{\bf -8}] エンコード過程でのエラー (数値が過大または RLEN 圧縮エラー)
+\end{description}\end{quote}
+
+\paragraph{注意}
+\begin{itemize}
+\item データセットの指定と異なる大きさのレコードを書き出すにはあらかじめ
+\APILink{nusdas.parameter.change}{nusdas\_parameter\_change} を使って設定を変えておく。
+\item 格子数 (データセットの指定または \APILink{nusdas.parameter.change}{nusdas\_parameter\_change} 設定)
+より大きい要素数 {\it nelems} を指定するとエラーにはならず、
+余った要素が書き出されない結果となるので注意されたい。
+\end{itemize}
+
+\paragraph{履歴}
+この関数は NuSDaS 1.0 から存在した。

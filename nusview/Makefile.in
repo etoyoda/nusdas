@@ -1,0 +1,154 @@
+#/* Makefile for nusview */
+# $Id: Makefile.in,v 1.15 2007-03-19 10:48:06 suuchi43 Exp $
+
+CC=@CC@
+CL=@CC@
+lflags=@LDFLAGS@
+BINDIR=@BINDIR@
+
+TARGETS = nusdump nusdir nusmeta nusispec nussigm nustdif \
+	nusinfo nuscntl nusdump_rawgz nusinqdef nussubc_srf \
+	nusinqnz nusrgaujn nusrgau nuszhyb nussubcinfo nusinqdata
+
+OBJ_GZLIB_yes = # nus_gszlib.o
+OBJ_GZLIB_no  =
+LD_ZLIB_yes = -lz
+LD_ZLIB_no  =
+
+
+OBJS_COMMON=setenv.o textout.o
+OBJS_D=nusdump.o getgrids.o stringplus.o panpath.o glue.o $(OBJS_COMMON)
+OBJS_I=nusispec.o stringplus.o panpath.o glue.o $(OBJS_COMMON)
+OBJS_M=nusmeta.o stringplus.o panpath.o glue.o $(OBJS_COMMON)
+OBJS_R=nusdir.o listtype.o dirsub.o stringplus.o panpath.o glue.o $(OBJS_COMMON)
+OBJS_G=nussigm.o stringplus.o panpath.o glue.o $(OBJS_COMMON)
+OBJS_T=nustdif.o stringplus.o panpath.o glue.o $(OBJS_COMMON)
+OBJS_F=nusinfo.o stringplus.o panpath.o glue.o $(OBJS_COMMON)
+OBJS_C=nuscntl.o stringplus.o panpath.o glue.o $(OBJS_COMMON)
+OBJS_DR=nusdump_rawgz.o panpath.o stringplus.o glue.o $(OBJS_COMMON) $(OBJ_GZLIB_@ZLIB_AVAILABLE@)
+OBJS_Q=nusinqdef.o stringplus.o panpath.o glue.o $(OBJS_COMMON)
+OBJS_SRF=nussubc_srf.o stringplus.o panpath.o glue.o $(OBJS_COMMON)
+OBJS_INQNZ=nusinqnz.o stringplus.o panpath.o glue.o $(OBJS_COMMON)
+OBJS_RGAUJN=nusrgaujn.o stringplus.o panpath.o glue.o $(OBJS_COMMON)
+OBJS_RGAU=nusrgau.o stringplus.o panpath.o glue.o $(OBJS_COMMON)
+OBJS_ZHYB=nuszhyb.o stringplus.o panpath.o glue.o $(OBJS_COMMON)
+OBJS_SUBCINFO=nussubcinfo.o stringplus.o panpath.o glue.o $(OBJS_COMMON)
+OBJS_INQDATA=nusinqdata.o stringplus.o panpath.o glue.o $(OBJS_COMMON)
+LIBNUS=../src/libnusdas.a
+
+cflags=@CFLAGS@ @CPPFLAGS@ -I../nwplib8 -I../src
+ldlibs = -L../src -lnusdas -L../nwplib8 -lnwp -lm \
+ $(LD_ZLIB_@ZLIB_AVAILABLE@) @LDFLAGS@ @LIBS@
+
+
+.SUFFIXES:
+.SUFFIXES: .c .o
+
+.c.o:
+	$(CC) -c $(cflags) $<
+
+all: $(TARGETS)
+
+nusdump_rawgz.o : nusdump_rawgz.c
+	$(CC) -c $(cflags) $(CFLAGS_ZLIB) $<
+
+nusdump: $(OBJS_D) $(LIBNUS)
+	$(CL) $(lflags) -o $@ $(OBJS_D) $(ldlibs)
+
+nusispec: $(OBJS_I) $(LIBNUS)
+	$(CL) $(lflags) -o $@ $(OBJS_I) $(ldlibs)
+
+nusdir_rbr: $(OBJS_B)
+	$(CL) $(lflags) -o $@ $(OBJS_B) $(ldlibs)
+
+nusdump_rbr: $(OBJS_K) $(LIBNUS)
+	$(CL) $(lflags) -o $@ $(OBJS_K) $(ldlibs)
+
+nusdir: $(OBJS_R) $(LIBNUS)
+	$(CL) $(lflags) -o $@ $(OBJS_R) $(ldlibs)
+
+nusmeta: $(OBJS_M) $(LIBNUS)
+	$(CL) $(lflags) -o $@ $(OBJS_M) $(ldlibs)
+
+test-panpath: test-panpath.o glue.o str.o $(LIBNUS)
+	$(CL) $(lflags) -o $@ test-panpath.o glue.o str.o $(ldlibs)
+
+test-panpath.o: panpath.c $(LIBNUS)
+	$(CL) -DTESTRUN $(cflags) -c -o $@ $<
+
+nussigm: $(OBJS_G) $(LIBNUS)
+	$(CL) $(lflags) -o $@ $(OBJS_G) $(ldlibs)
+
+nustdif: $(OBJS_T) $(LIBNUS)
+	$(CL) $(lflags) -o $@ $(OBJS_T) $(ldlibs)
+
+nusinfo: $(OBJS_F) $(LIBNUS)
+	$(CL) $(lflags) -o $@ $(OBJS_F) $(ldlibs)
+
+nuscntl: $(OBJS_C) $(LIBNUS)
+	$(CL) $(lflags) -o $@ $(OBJS_C) $(ldlibs)
+
+nusdump_rawgz: $(OBJS_DR) $(LIBNUS)
+	$(CL) $(lflags) -o $@ $(OBJS_DR) $(ldlibs) $(LD_ZLIB)
+
+nusinqdef: $(OBJS_Q) $(LIBNUS)
+	$(CL) $(lflags) -o $@ $(OBJS_Q) $(ldlibs)
+
+nussubc_srf: $(OBJS_SRF) $(LIBNUS)
+	$(CL) $(lflags) -o $@ $(OBJS_SRF) $(ldlibs)
+
+nusinqnz: $(OBJS_INQNZ) $(LIBNUS)
+	$(CL) $(lflags) -o $@ $(OBJS_INQNZ) $(ldlibs)
+
+nusrgaujn: $(OBJS_RGAUJN) $(LIBNUS)
+	$(CL) $(lflags) -o $@ $(OBJS_RGAUJN) $(ldlibs)
+
+nusrgau: $(OBJS_RGAU) $(LIBNUS)
+	$(CL) $(lflags) -o $@ $(OBJS_RGAU) $(ldlibs)
+
+nuszhyb: $(OBJS_ZHYB) $(LIBNUS)
+	$(CL) $(lflags) -o $@ $(OBJS_ZHYB) $(ldlibs)
+
+nussubcinfo: $(OBJS_SUBCINFO) $(LIBNUS)
+	$(CL) $(lflags) -o $@ $(OBJS_SUBCINFO) $(ldlibs)
+
+nusinqdata: $(OBJS_INQDATA) $(LIBNUS)
+	$(CL) $(lflags) -o $@ $(OBJS_INQDATA) $(ldlibs)
+
+$(OBJS_R):
+$(OBJS_D):
+$(OBJS_M):
+
+clear:
+	-rm -f *.o
+
+clean: clear
+	-rm -f $(TARGETS)
+
+distclean: clean
+	-rm -f $(TARGET_L)
+	-rm -f Makefile config.h
+
+tags: $(OBJS:.o=.c)
+	ctags *.c *.h
+
+install: all
+	test -d $(BINDIR) || mkdir $(BINDIR)
+	cp $(TARGETS) $(BINDIR)
+
+shift_jis:
+
+euc-jp:
+
+# DO NOT DELETE
+
+dirsub.o: nusdir.h nusdim.h
+getgrids.o: nusdim.h
+glue.o: nusdim.h
+listtype.o: nusdim.h
+nusdir.o: nusdir.h nusdim.h
+nusdump.o: nusdim.h
+panpath.o: nusdim.h
+setenv.o: nusdim.h config.h
+str.o: nusdim.h
+textout.o: textout.h

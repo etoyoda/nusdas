@@ -1,0 +1,79 @@
+\subsection{nusdas\_inq\_data: データ記録の諸元問合せ}
+\APILabel{nusdas.inq.data}
+
+\Prototype
+\begin{quote}
+N\_SI4 {\bf nusdas\_inq\_data}(const char {\it type1}[8], const char {\it type2}[4], const char {\it type3}[4], const N\_SI4 $\ast${\it basetime}, const char {\it member}[4], const N\_SI4 $\ast${\it validtime}, const char {\it plane}[6], const char {\it element}[6], N\_SI4 {\it param}, void $\ast${\it data}, const N\_SI4 $\ast${\it nelems});
+\end{quote}
+
+\begin{tabular}{l|rp{20em}}
+\hline
+\ArgName & \ArgType & \ArgRole \\
+\hline
+{\it type1} & const char [8] &  種別1  \\
+{\it type2} & const char [4] &  種別2  \\
+{\it type3} & const char [4] &  種別3  \\
+{\it basetime} & const N\_SI4 $\ast$ &  基準時刻(通算分)  \\
+{\it member} & const char [4] &  メンバー名  \\
+{\it validtime} & const N\_SI4 $\ast$ &  対象時刻(通算分)  \\
+{\it plane} & const char [6] &  面  \\
+{\it element} & const char [6] &  要素名  \\
+{\it param} & N\_SI4 &  問合せ項目コード  \\
+{\it data} & void $\ast$ &  結果格納配列  \\
+{\it nelems} & const N\_SI4 $\ast$ &  結果格納配列の要素数  \\
+\hline
+\end{tabular}
+\paragraph{\FuncDesc}
+引数 {\it type1} から {\it element} までで指定されるデータ記録について
+引数 {\it query} で指定される問合せを行う。
+
+\begin{quote}\begin{description}
+\item[{\bf N\_DATA\_QUADRUPLET}] 
+16 バイトのメモリ領域を引数に取り、 N\_GRID\_SIZE から
+\newline N\_MISSING\_VALUE までの情報が返される。
+\item[{\bf N\_GRID\_SIZE}] 
+引数 {\it data} に4バイト整数の長さ2の配列を取り、
+そこに X, Y 方向の格子数が書かれる。
+\item[{\bf N\_PC\_PACKING}] 
+引数 {\it data} に4バイトの文字列を取り、
+そこにパック方式名称が書かれる。
+文字列はヌル終端されないことに注意。
+\item[{\bf N\_MISSING\_MODE}] 
+引数 {\it data} に4バイトの文字列を取り、
+そこに欠損値表現方式名が書かれる。
+文字列はヌル終端されないことに注意。
+\item[{\bf N\_MISSING\_VALUE}] 
+引数には上述 N\_PC\_PACKING 項目によって決まる型の変数を取り、
+そこにデータ記録上の欠損値が書かれる。
+この値は \APILink{nusdas.read}{nusdas\_read} で得られる配列で用いられる
+欠損値とは異なることに注意。
+\item[{\bf N\_DATA\_EXIST}] 
+引数 {\it data} に4バイト整数型変数をとり、
+そこにデータの存在有無を示す値が書かれる。
+0はデータの不在、1は存在を示す。
+\item[{\bf N\_DATA\_NBYTES}] 
+引数 {\it data} に4バイト整数型変数をとり、
+そこにデータ記録のバイト数が書かれる。
+\item[{\bf N\_DATA\_CONTENT}] 
+引数 {\it data} が指すバイト列にデータ記録がそのまま書かれる。
+データ記録は、DATA レコードのフォーマット表\ref{table.fmt.data}の
+項番10〜13までのデータが格納される。
+\item[{\bf N\_RECORD\_TIME}] 
+引数 {\it data} に4バイト整数型変数をとり、
+そこにデータ記録の作成時刻が書かれる。
+この問合せはデータ記録の更新確認用に用意されており、
+結果は大小比較だけに用いるべきもので日時等を算出すべきではない。
+この値は time システムコールの返す値の下位 32 ビットであり、
+2038 年問題の対策のためいずれ機種依存の意味を持つように
+なるものと思われる。
+\end{description}\end{quote}
+\paragraph{\ResultCode}
+\begin{quote}
+\begin{description}
+\item[{\bf 正}] 格納要素数
+\item[{\bf -1}] データの配列数が不足している
+\item[{\bf -2}] データの配列が確保されていない
+\item[{\bf -3}] 問い合わせ項目が不正 
+\end{description}\end{quote}
+\paragraph{ 履歴 }
+この関数は pnusdas では実装はされていたが、ドキュメント化されていなかった。

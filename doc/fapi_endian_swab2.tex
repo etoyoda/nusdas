@@ -1,0 +1,23 @@
+\subsection{ENDIAN\_SWAB2: 2バイト整数のバイトオーダー変換}
+\APILabel{endian.swab2}
+
+\Prototype
+\begin{quote}
+CALL {\bf ENDIAN\_SWAB2}({\it ary}, {\it count})
+\end{quote}
+
+\begin{tabular}{l|rllp{16em}}
+\hline
+\ArgName & \ArgType & \ArrayDim & I/O & \ArgRole \\
+\hline
+{\it ary} & \AnyType & \AnySize & I/O &  配列  \\
+{\it count} & INTEGER(4) &  & IN &  配列の要素数  \\
+\hline
+\end{tabular}
+\paragraph{\FuncDesc}
+リトルエンディアン機では、2バイト整数の配列 {\it ary} の
+バイトオーダーを逆順にする。
+ビッグエンディアンのデータを読んだ後整数として解釈する前、
+または整数として値を格納した後ビッグエンディアンで書き出す前に呼ぶ。
+
+ビッグエンディアン機ではなにもしない。

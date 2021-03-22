@@ -1,0 +1,39 @@
+CC =		@CC@ $(CCFlags)
+CFLAGS = 	-I../src -I../nwplib8 @CFLAGS@ @CPPFLAGS@ $(CFlags)
+LDFLAGS = 	-L../src -lnusdas -L../nwplib8 -lnwp \
+		@LDFLAGS@ $(LDFlags) -lm @LIBS@
+
+.SUFFIXES:
+.SUFFIXES: .c .exe
+
+all: testbin
+
+.PHONY: testbin clean distclean
+
+TESTBIN=api_read.exe def_read.exe miniwrite.exe sys_int.exe vsnprintf.exe
+NLIB=libnusdas.a
+
+testbin: $(TESTBIN)
+
+.c.exe:
+	$(CC) $(CFLAGS) -o $@ $< $(LDFLAGS)
+
+api_read.exe: ../src/$(NLIB)
+def_read.exe: ../src/$(NLIB)
+sys_int.exe: ../src/$(NLIB)
+vsnprintf.exe: ../src/$(NLIB)
+miniwrite.exe: ../src/$(NLIB)
+
+test:
+	./vsnprintf.exe
+	./miniwrite.exe
+	if which ruby; \
+	then \
+		./sys_int.exe | ruby sys_int.rb; \
+	fi
+
+clean: 
+	-rm -f *.o *.exe *~
+
+distclean: clean
+	-rm -f Makefile

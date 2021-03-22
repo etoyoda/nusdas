@@ -1,0 +1,37 @@
+\subsection{SRF\_AMD\_AQC: AQCのパックを展開}
+\APILabel{srf.amd.aqc}
+
+\Prototype
+\begin{quote}
+CALL {\bf SRF\_AMD\_AQC}({\it aqc\_in}, {\it num}, {\it aqc\_out}, {\it param})
+\end{quote}
+
+\begin{tabular}{l|rllp{16em}}
+\hline
+\ArgName & \ArgType & \ArrayDim & I/O & \ArgRole \\
+\hline
+{\it aqc\_in} & INTEGER(2) & \AnySize & IN &  AQC 配列  \\
+{\it num} & INTEGER(4) &  & IN &  配列要素数  \\
+{\it aqc\_out} & INTEGER(2) & \AnySize & I/O &  結果配列  \\
+{\it param} & CHARACTER($\ast$) & \AnySize & IN &  要素名  \\
+\hline
+\end{tabular}
+\paragraph{\FuncDesc}
+アメダス デコード データセットに含まれる AQC から
+要素名 {\it param} で指定される各ビットフィールドを取り出す。
+\begin{quote}\begin{description}
+\item[{\bf UNYOU△}] 入電・休止・運用情報 (-1:休止, 0:入電無し, 正:入電回数)
+\item[{\bf RRfr0△}] 降水量の情報
+(0:入電無し, 1:ハードエラー・欠測・休止, 2:AQC該当値, 3:正常値; 以下同じ)
+\item[{\bf SSfr0△}] 日照時間の情報
+\item[{\bf T△△△△△}] 気温の情報
+\item[{\bf WindD△}] 風向の情報
+\item[{\bf WindS△}] 風速の情報
+\item[{\bf SnowD△}] 積雪深の情報
+\end{description}\end{quote}
+
+\paragraph{注意}
+要素名が不正な場合は警告後なにもせず終了する。
+(NuSDaS 1.3 より前は不定動作)
+\paragraph{履歴}
+この関数は NAPS7 時代から存在した。

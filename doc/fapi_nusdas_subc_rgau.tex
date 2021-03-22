@@ -1,0 +1,50 @@
+\subsection{NUSDAS\_SUBC\_RGAU: SUBC RGAU へのアクセス }
+\APILabel{nusdas.subc.rgau}
+
+\Prototype
+\begin{quote}
+CALL {\bf NUSDAS\_SUBC\_RGAU}({\it type1}, {\it type2}, {\it type3}, {\it basetime}, {\it member}, {\it validtime}, {\it j}, {\it j\_start}, {\it j\_n}, {\it i}, {\it i\_start}, {\it i\_n}, {\it lat}, {\it getput}, {\it result})
+\end{quote}
+
+\begin{tabular}{l|rllp{16em}}
+\hline
+\ArgName & \ArgType & \ArrayDim & I/O & \ArgRole \\
+\hline
+{\it type1} & CHARACTER(8) &  & IN &  種別1  \\
+{\it type2} & CHARACTER(4) &  & IN &  種別2  \\
+{\it type3} & CHARACTER(4) &  & IN &  種別3  \\
+{\it basetime} & INTEGER(4) &  & IN &  基準時刻(通算分)  \\
+{\it member} & CHARACTER(4) &  & IN &  メンバー名  \\
+{\it validtime} & INTEGER(4) &  & IN &  対象時刻(通算分)  \\
+{\it j} & INTEGER(4) &  & I/O &  全球の南北分割数  \\
+{\it j\_start} & INTEGER(4) &  & I/O &  データの最北格子の番号(1始まり)  \\
+{\it j\_n} & INTEGER(4) &  & I/O &  データの南北格子数  \\
+{\it i} & INTEGER(4) & \AnySize & I/O &  全球の東西格子数  \\
+{\it i\_start} & INTEGER(4) & \AnySize & I/O &  データの最西格子の番号(1始まり)  \\
+{\it i\_n} & INTEGER(4) & \AnySize & I/O &  データの東西格子数  \\
+{\it lat} & REAL(4) & \AnySize & I/O &  緯度  \\
+{\it getput} & CHARACTER(3) &  & IN &  入出力指示 ({\it "GET}" または {\it "PUT}")  \\
+{\it result} & INTEGER(4) &  & OUT & \ResultCode \\
+\hline
+\end{tabular}
+\paragraph{\FuncDesc}Reduced Gauss 格子を使う場合の補助管理情報へのアクセスを提供する。
+入出力指示が {\it GET} の場合においても、j\_n の値はセットする。
+特に parameter 宣言された変数を j\_n に指定してはならない。この j\_n の値は
+nusdas\_subc\_rgau\_inq\_jn を使って問い合わせできる。
+i, i\_start, i\_n, lat は j\_n 要素をもった配列を用意する。
+\paragraph{\ResultCode}
+\begin{quote}
+\begin{description}
+\item[{\bf 0}] 正常終了
+\item[{\bf -2}] レコードが存在しない、または書き込まれていない。
+\item[{\bf -3}] サイズの情報が引数と定義ファイルで不一致
+\item[{\bf -4}] 指定した入力値(j\_n, j\_start, j\_n, i, i\_start, i\_n)が不正(PUTのときのみ)
+\item[{\bf -5}] 入出力指示が不正
+\item[{\bf -6}] 指定した入力値(j\_n)が不正(GETのときのみ)
+\end{description}\end{quote}
+\paragraph{ 注意 }
+Reduced Gauss 格子を使う場合は1次元でデータを格納するので、定義ファイルの
+size(格子数)には (実際の格子数) 1 と指定する。また、SUBC のサイズは 
+16 $\ast$ j\_n + 12 を計算した値を定義ファイルに書く。
+\paragraph{ 履歴 }
+この関数はNuSDaS1.2で実装された

@@ -1,0 +1,52 @@
+\subsection{rdr\_lv\_trans: レベル値から代表値への変換}
+\APILabel{rdr.lv.trans}
+
+\Prototype
+\begin{quote}
+int {\bf rdr\_lv\_trans}(N\_SI4 {\it idat}[\,], float {\it fdat}[\,], int {\it dnum}, const char $\ast${\it param});
+\end{quote}
+
+\begin{tabular}{l|rp{20em}}
+\hline
+\ArgName & \ArgType & \ArgRole \\
+\hline
+{\it idat} & N\_SI4 [\,] &  入力データ  \\
+{\it fdat} & float [\,] &  結果格納配列  \\
+{\it dnum} & int &  データ要素数  \\
+{\it param} & const char $\ast$ &  テーブル名  \\
+\hline
+\end{tabular}
+\paragraph{\FuncDesc}
+配列 {\it idat} のレベル値を代表値 {\it fdat} に変換する。
+変換テーブルとしてファイル ./SRF\_LV\_TABLE/param.ltb を読む。
+ここで {\it param} は変換テーブル名 (最長 4 字) である。
+
+\paragraph{\ResultCode}
+\begin{quote}
+\begin{description}
+\item[{\bf -1}] 変換テーブルを開くことができない
+\item[{\bf -2}] 変換テーブルに 256 以上のレベルが指定されている
+\item[{\bf 非負}] 変換に成功。返却値は不明値以外となったデータの要素数
+\end{description}\end{quote}
+
+\paragraph{注}
+\begin{itemize}
+\item 不明値は -1 となる。
+\item 
+NAPS8 では変換テーブルとして
+/grpK/nwp/Open/Const/Vsrf/Comm/lvtbl.txd 以下に
+her ie2 ier kor pft pi10 pm2 pmf pr2 prr rr60
+sr1 sr2 sr3 srf srj srr yar yrr
+が置かれている。
+ルーチンジョブではこのディレクトリへシンボリックリンク SRF\_LV\_TABLE
+を張って利用する。
+\item 
+上記変換テーブルのうち、
+pi10 と rr60 は1行にレベル値と代表値の2列が書かれており、
+その他はレベル値、最小値、代表値の3列が書かれているが、
+本サブルーチンはどちらにも対応している。
+\end{itemize}
+\paragraph{履歴}
+この関数は NAPS7 時代には存在しなかったようである。
+レーダー情報作成装置に関連して開発されたと考えられているが、
+NuSDaS 1.3 以前にはきちんとメンテナンスされていなかった。

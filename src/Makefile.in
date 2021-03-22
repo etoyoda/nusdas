@@ -1,0 +1,326 @@
+# edit Makefile.in.rb instead of Makefile or Makefile.in
+
+CC =		@CC@ $(CCFlags)
+CFLAGS = 	$(CFlags) -I../nwplib8
+F90 =		@F90@
+AR =            @ARCHIVER@
+ARFLAGS =	@ARFLAGS@
+prefix =        @prefix@
+exec_prefix =   @exec_prefix@
+LIBDIR =        @libdir@
+INCDIR =        @includedir@
+BINDIR =        @bindir@
+INSTALLD =      mkdir -p
+INSTALLF =      cp
+RUBY = ruby
+
+.SUFFIXES:
+.SUFFIXES: .c .o .f
+
+.c.o:
+	$(CC) @CFLAGS@ @CPPFLAGS@ $(CFLAGS) -c $<
+
+.f.o:
+	$(F90) @FFLAGS@ $(FFLAGS) -c $<
+
+OBJS_CORE= api_bfio.o api_close.o api_cpsd.o api_cut.o api_cut_raw.o \
+    api_esf_flush.o api_grid.o api_gzip.o api_info.o api_inq_btime.o \
+    api_inq_cntl.o api_inq_data.o api_inq_def.o api_inq_jn.o api_inq_nz.o \
+    api_inq_subc.o api_inq_vtime.o api_iocntl.o api_make_mask.o api_param.o \
+    api_parami.o api_paramr.o api_read.o api_read2_raw.o api_read3d.o \
+    api_rlde.o api_rlen.o api_scan_ds.o api_set_mask.o api_snprintf.o \
+    api_subc_delt.o api_subc_eta.o api_subc_rgau.o api_subc_ship.o \
+    api_subc_srf.o api_subc_tdif.o api_subc_zhyb.o api_swab.o api_unpack.o \
+    api_write.o api_write3d.o dds_dftab.o dds_find.o dds_open.o dds_times.o \
+    dds_tmpl.o dds_wrgrid.o def_read.o dfile.o dset.o glb_dsscan.o \
+    glb_gc.o glb_param.o glb_type1.o glb_typetab.o io_esf.o io_opts.o \
+    io_posix.o io_stdio.o iosub_flush.o ndf_aux.o ndf_auxtab.o ndf_codec.o \
+    ndf_grid.o ndf_inqcntl.o ndf_open.o ndf_rlen.o ndf_seqf.o nus_cpsd.o \
+    nus_gzlib.o nus_jp2k.o pds_cfgscan.o pds_cntltab.o pds_open.o \
+    sys_ary4.o sys_ary4v.o sys_ary8.o sys_aryp.o sys_clock.o sys_err.o \
+    sys_file.o sys_listp.o sys_mem.o sys_printf.o sys_time.o typ_dstab.o 
+HDRS= config.h config_panlib.h def_phase.h dfile.h dset.h glb.h internal_types.h \
+    io_comm.h iosub_flush.h ndf.h ndf_codec.h nus_gzlib.h nusdas.h \
+    nusdas_fort.h pandora_lib.h pds.h sys_container.h sys_endian.h \
+    sys_err.h sys_file.h sys_int.h sys_kwd.h sys_mem.h sys_string.h \
+    sys_sym.h sys_time.h 
+SRCS= api_bfio.c api_close.c api_cpsd.c api_cut.c api_cut_raw.c api_esf_flush.c \
+    api_grid.c api_gzip.c api_info.c api_inq_btime.c api_inq_cntl.c \
+    api_inq_data.c api_inq_def.c api_inq_jn.c api_inq_nz.c api_inq_subc.c \
+    api_inq_vtime.c api_iocntl.c api_make_mask.c api_param.c api_parami.c \
+    api_paramr.c api_read.c api_read2_raw.c api_read3d.c api_rlde.c \
+    api_rlen.c api_scan_ds.c api_set_mask.c api_snprintf.c api_subc_delt.c \
+    api_subc_eta.c api_subc_rgau.c api_subc_ship.c api_subc_srf.c \
+    api_subc_tdif.c api_subc_zhyb.c api_swab.c api_unpack.c api_write.c \
+    api_write3d.c dds_dftab.c dds_find.c dds_open.c dds_times.c dds_tmpl.c \
+    dds_wrgrid.c def_read.c dfile.c dset.c glb_dsscan.c glb_gc.c \
+    glb_param.c glb_type1.c glb_typetab.c io_esf.c io_opts.c io_posix.c \
+    io_stdio.c iosub_flush.c ndf_aux.c ndf_auxtab.c ndf_codec.c ndf_grid.c \
+    ndf_inqcntl.c ndf_open.c ndf_rlen.c ndf_seqf.c nus_cpsd.c nus_gzlib.c \
+    nus_jp2k.c pandora_lib.c pds_cfgscan.c pds_cntltab.c pds_open.c \
+    sys_ary4.c sys_ary4v.c sys_ary8.c sys_aryp.c sys_clock.c sys_err.c \
+    sys_file.c sys_listp.c sys_mem.c sys_printf.c sys_time.c typ_dstab.c 
+OBJS_Fyes   = dummy.o
+OBJS_Fno    =
+OBJS_NETyes = pandora_lib.o
+OBJS_NETno  =
+OBJS        = $(OBJS_CORE) $(OBJS_NET@NET_AVAILABLE@) $(OBJS_F@F90_AVAILABLE@)
+LIBNUS      = libnusdas.a
+
+all: $(LIBNUS)
+
+$(LIBNUS): $(OBJS)
+	$(AR) $(ARFLAGS) $(LIBNUS) $(OBJS)
+
+echo-objs-nusdas:
+	@echo OBJS=$(OBJS)
+
+LIBS_to_INSTALL = $(LIBNUS)
+HEADERS_to_INSTALL = nusdas.h nusdas_fort.h
+
+install: all
+	test -d $(LIBDIR) || $(INSTALLD) $(LIBDIR)
+	$(INSTALLF) $(LIBS_to_INSTALL) $(LIBDIR)/
+	test -d $(INCDIR) || $(INSTALLD) $(INCDIR)
+	$(INSTALLF) $(HEADERS_to_INSTALL) $(INCDIR)/
+	test -d $(BINDIR) || $(INSTALLD) $(BINDIR)
+	for exe in nusdas-config ; do 		$(INSTALLF) $$exe $(BINDIR)/ ;		chmod ugo+rx $(BINDIR)/$$exe ;	done
+
+refresh:
+	$(MAKE) -f Refresh.mk
+
+doc-c-ref: cparse.rb
+	$(RUBY) cprodoc.rb -a nusdas.h 	-m s/nusdas_swab/endian_swab/i 	-m s/nusdas_encode/n_encode/i 	-m s/nusdas_decode/n_decode/i 	-m s/nusdas_bf/bf/i 	-m downcase 	-m s/_i1/_I1/ 	-o ../doc/capi_@.tex api_*.c
+
+doc-f-ref: cparse.rb
+	$(RUBY) cprodoc.rb -a nusdas.h --lang Fortran 	-x NuSDaS_bf -x NuSDaS_snprintf 	-m s/nusdas_encode/n_encode/i 	-m s/nusdas_decode/n_decode/i 	-m s/nusdas_swab/endian_swab/i -m upcase 	-o ../doc/fapi_@.tex api_*.c
+
+doc: ../html/index.html
+
+cparse.rb:
+	racc -o cparse.rb cparse.y
+
+../html/index.html: $(SRCS) $(HDRS)
+	doxygen
+
+charset: @CHARSET@
+
+decharset: euc-jp
+
+shift_jis: $(SRCS) $(HDRS) Pbfmaker.rb ../InstNaps8.rb
+	if [ ! -f shift_jis ] ;\
+	then \
+		for file in $(SRCS) $(HDRS) Pbfmaker.rb ../InstNaps8.rb ;\
+		do \
+			@EUCTOSJIS@ < $$file > xconv.tmp && mv -f xconv.tmp $$file ;\
+		done; \
+	fi
+	-rm -f euc-jp utf8
+	touch shift_jis
+
+euc-jp: $(SRCS) $(HDRS) Pbfmaker.rb ../InstNaps8.rb
+	if [ ! -f euc-jp ] ;\
+	then \
+		for file in $(SRCS) $(HDRS) Pbfmaker.rb ../InstNaps8.rb ;\
+		do \
+			@SJISTOEUC@ < $$file > xconv.tmp && mv -f xconv.tmp $$file ;\
+		done; \
+	fi
+	-rm -f shift_jis utf8
+	touch euc-jp
+
+utf8: $(SRCS) $(HDRS) Pbfmaker.rb ../InstNaps8.rb
+	if [ ! -f utf8 ] ;\
+	then \
+		for file in $(SRCS) $(HDRS) Pbfmaker.rb ../InstNaps8.rb ;\
+		do \
+			nkf -w < $$file > xconv.tmp && mv -f xconv.tmp $$file ;\
+		done; \
+	fi
+	-rm -f shift_jis euc-jp
+	touch utf8
+
+tags: $(SRCS) $(HDRS)
+	ctags *.c *.h
+
+clean: decharset
+	-rm -f *~ *.bak *.o $(LIBNUS)
+
+distclean: clean
+	-rm -f Makefile Testbin.mk config.h nusdas.h nusdas-config utf8 euc-jp shift_jis
+
+# following are made by "gcc -MM -I../nwplib8 *.c"
+api_bfio.o: api_bfio.c config.h nusdas.h sys_endian.h sys_int.h sys_mem.h
+api_close.o: api_close.c config.h nusdas.h internal_types.h dset.h glb.h \
+ sys_time.h sys_sym.h sys_err.h
+api_cpsd.o: api_cpsd.c config.h nusdas.h sys_kwd.h internal_types.h \
+ sys_sym.h sys_endian.h sys_string.h sys_err.h dfile.h ndf_codec.h
+api_cut.o: api_cut.c config.h nusdas.h internal_types.h sys_kwd.h \
+ sys_sym.h sys_err.h sys_time.h dfile.h dset.h glb.h
+api_cut_raw.o: api_cut_raw.c config.h nusdas.h internal_types.h sys_err.h \
+ sys_endian.h sys_kwd.h sys_sym.h glb.h sys_mem.h
+api_esf_flush.o: api_esf_flush.c config.h nusdas.h internal_types.h \
+ sys_time.h sys_err.h glb.h
+api_grid.o: api_grid.c config.h nusdas.h internal_types.h sys_kwd.h \
+ sys_sym.h sys_time.h sys_err.h dset.h glb.h
+api_gzip.o: api_gzip.c config.h nusdas.h nus_gzlib.h sys_err.h
+api_info.o: api_info.c config.h nusdas.h internal_types.h sys_time.h \
+ sys_kwd.h sys_sym.h sys_err.h glb.h dset.h
+api_inq_btime.o: api_inq_btime.c config.h nusdas.h internal_types.h \
+ sys_time.h sys_kwd.h sys_sym.h glb.h dset.h sys_err.h
+api_inq_cntl.o: api_inq_cntl.c config.h nusdas.h internal_types.h \
+ sys_sym.h sys_time.h sys_err.h dset.h glb.h
+api_inq_data.o: api_inq_data.c config.h nusdas.h internal_types.h \
+ sys_err.h sys_time.h sys_sym.h glb.h dset.h
+api_inq_def.o: api_inq_def.c config.h nusdas.h internal_types.h sys_sym.h \
+ dset.h glb.h sys_err.h sys_time.h
+api_inq_jn.o: api_inq_jn.c config.h nusdas.h internal_types.h sys_time.h \
+ sys_kwd.h sys_err.h sys_endian.h sys_sym.h dset.h glb.h
+api_inq_nz.o: api_inq_nz.c config.h nusdas.h internal_types.h sys_time.h \
+ sys_err.h sys_endian.h sys_kwd.h sys_sym.h dset.h glb.h
+api_inq_subc.o: api_inq_subc.c config.h nusdas.h internal_types.h \
+ sys_sym.h sys_err.h sys_time.h dset.h glb.h
+api_inq_vtime.o: api_inq_vtime.c config.h nusdas.h internal_types.h \
+ sys_err.h sys_time.h sys_sym.h dset.h glb.h
+api_iocntl.o: api_iocntl.c config.h nusdas.h internal_types.h sys_time.h \
+ glb.h sys_err.h
+api_make_mask.o: api_make_mask.c config.h nusdas.h internal_types.h \
+ sys_sym.h sys_kwd.h sys_err.h glb.h
+api_param.o: api_param.c config.h nusdas.h internal_types.h sys_err.h \
+ glb.h
+api_parami.o: api_parami.c config.h nusdas.h internal_types.h sys_err.h \
+ glb.h
+api_paramr.o: api_paramr.c config.h nusdas.h internal_types.h sys_err.h \
+ glb.h
+api_read.o: api_read.c config.h nusdas.h internal_types.h sys_sym.h \
+ sys_time.h dset.h dfile.h glb.h sys_err.h
+api_read2_raw.o: api_read2_raw.c config.h nusdas.h sys_err.h
+api_read3d.o: api_read3d.c config.h nusdas.h internal_types.h sys_sym.h \
+ sys_kwd.h sys_err.h glb.h
+api_rlde.o: api_rlde.c config.h nusdas.h sys_mem.h
+api_rlen.o: api_rlen.c config.h nusdas.h internal_types.h dfile.h \
+ ndf_codec.h
+api_scan_ds.o: api_scan_ds.c config.h nusdas.h internal_types.h \
+ sys_string.h sys_err.h sys_time.h dset.h glb.h
+api_set_mask.o: api_set_mask.c config.h nusdas.h internal_types.h dset.h \
+ glb.h sys_time.h sys_err.h sys_sym.h sys_mem.h
+api_snprintf.o: api_snprintf.c config.h nusdas.h sys_err.h
+api_subc_delt.o: api_subc_delt.c config.h nusdas.h internal_types.h \
+ sys_kwd.h sys_sym.h sys_endian.h sys_time.h sys_err.h dset.h glb.h
+api_subc_eta.o: api_subc_eta.c config.h nusdas.h internal_types.h \
+ sys_kwd.h sys_time.h glb.h dset.h sys_err.h sys_sym.h sys_endian.h
+api_subc_rgau.o: api_subc_rgau.c config.h nusdas.h internal_types.h \
+ sys_kwd.h sys_sym.h sys_endian.h sys_time.h sys_err.h dset.h glb.h
+api_subc_ship.o: api_subc_ship.c config.h nusdas.h internal_types.h \
+ sys_kwd.h sys_time.h glb.h dset.h sys_err.h sys_sym.h sys_endian.h \
+ sys_int.h
+api_subc_srf.o: api_subc_srf.c config.h nusdas.h internal_types.h \
+ sys_err.h sys_time.h sys_kwd.h sys_sym.h sys_endian.h sys_int.h dset.h \
+ glb.h
+api_subc_tdif.o: api_subc_tdif.c config.h nusdas.h internal_types.h \
+ sys_kwd.h sys_time.h glb.h dset.h sys_err.h sys_sym.h sys_endian.h \
+ sys_int.h
+api_subc_zhyb.o: api_subc_zhyb.c config.h nusdas.h internal_types.h \
+ sys_endian.h sys_kwd.h sys_sym.h sys_time.h sys_err.h dset.h glb.h
+api_swab.o: api_swab.c config.h nusdas.h sys_int.h sys_endian.h
+api_unpack.o: api_unpack.c config.h nusdas.h internal_types.h sys_kwd.h \
+ sys_sym.h sys_endian.h sys_err.h dfile.h ndf_codec.h
+api_write.o: api_write.c config.h nusdas.h internal_types.h dset.h glb.h \
+ sys_sym.h dfile.h sys_time.h sys_err.h
+api_write3d.o: api_write3d.c config.h nusdas.h internal_types.h sys_sym.h \
+ sys_kwd.h sys_err.h glb.h
+dds_dftab.o: dds_dftab.c config.h nusdas.h sys_int.h internal_types.h \
+ sys_mem.h sys_string.h dset.h
+dds_find.o: dds_find.c config.h nusdas.h internal_types.h sys_string.h \
+ glb.h dset.h
+dds_open.o: dds_open.c config.h nusdas.h internal_types.h sys_time.h \
+ sys_int.h sys_mem.h sys_string.h sys_kwd.h sys_err.h io_comm.h dset.h \
+ dfile.h glb.h
+dds_times.o: dds_times.c config.h nusdas.h internal_types.h dset.h \
+ dfile.h sys_int.h io_comm.h sys_mem.h sys_string.h sys_time.h sys_err.h \
+ sys_container.h sys_kwd.h
+dds_tmpl.o: dds_tmpl.c config.h nusdas.h internal_types.h sys_mem.h \
+ sys_string.h sys_time.h sys_err.h sys_kwd.h dset.h
+dds_wrgrid.o: dds_wrgrid.c config.h nusdas.h internal_types.h dset.h \
+ dfile.h io_comm.h sys_err.h
+def_read.o: def_read.c config.h nusdas.h internal_types.h sys_kwd.h \
+ sys_sym.h sys_int.h sys_mem.h sys_string.h dset.h glb.h sys_err.h \
+ sys_file.h def_phase.h
+dfile.o: dfile.c config.h internal_types.h nusdas.h sys_err.h sys_kwd.h \
+ dset.h dfile.h glb.h sys_endian.h sys_int.h io_comm.h
+dset.o: dset.c config.h internal_types.h nusdas.h dset.h sys_kwd.h \
+ sys_err.h sys_endian.h glb.h sys_mem.h
+glb_dsscan.o: glb_dsscan.c config.h nusdas.h internal_types.h \
+ sys_container.h sys_string.h sys_int.h sys_err.h io_comm.h dset.h glb.h
+glb_gc.o: glb_gc.c config.h internal_types.h nusdas.h dset.h glb.h \
+ sys_err.h
+glb_param.o: glb_param.c config.h nusdas.h internal_types.h glb.h \
+ sys_file.h sys_err.h sys_kwd.h sys_sym.h sys_mem.h sys_string.h \
+ sys_time.h sys_int.h io_comm.h
+glb_type1.o: glb_type1.c config.h nusdas.h internal_types.h sys_sym.h \
+ sys_string.h sys_err.h
+glb_typetab.o: glb_typetab.c config.h nusdas.h sys_int.h internal_types.h \
+ sys_mem.h
+io_esf.o: io_esf.c config.h nusdas.h io_comm.h sys_err.h
+io_opts.o: io_opts.c config.h internal_types.h nusdas.h sys_int.h \
+ sys_kwd.h sys_err.h glb.h io_comm.h
+io_posix.o: io_posix.c config.h nusdas.h internal_types.h sys_int.h \
+ sys_mem.h io_comm.h sys_err.h sys_file.h sys_time.h glb.h iosub_flush.h
+io_stdio.o: io_stdio.c config.h nusdas.h sys_int.h sys_mem.h io_comm.h \
+ sys_file.h sys_err.h internal_types.h glb.h iosub_flush.h
+iosub_flush.o: iosub_flush.c config.h sys_err.h iosub_flush.h
+ndf_aux.o: ndf_aux.c config.h nusdas.h sys_int.h internal_types.h \
+ sys_kwd.h sys_string.h sys_endian.h sys_err.h sys_file.h dfile.h dset.h \
+ glb.h sys_mem.h io_comm.h ndf.h
+ndf_auxtab.o: ndf_auxtab.c config.h nusdas.h sys_int.h internal_types.h \
+ sys_mem.h dfile.h ndf.h
+ndf_codec.o: ndf_codec.c config.h nusdas.h internal_types.h sys_kwd.h \
+ sys_endian.h sys_int.h glb.h dset.h dfile.h sys_file.h ndf_codec.h \
+ sys_err.h sys_string.h sys_mem.h
+ndf_grid.o: ndf_grid.c config.h internal_types.h nusdas.h sys_endian.h \
+ sys_string.h sys_err.h sys_kwd.h dfile.h glb.h ndf.h
+ndf_inqcntl.o: ndf_inqcntl.c config.h nusdas.h internal_types.h sys_kwd.h \
+ sys_err.h sys_int.h sys_string.h sys_container.h sys_endian.h dfile.h \
+ ndf.h
+ndf_open.o: ndf_open.c config.h nusdas.h internal_types.h sys_endian.h \
+ sys_mem.h sys_string.h sys_sym.h sys_int.h sys_kwd.h sys_time.h \
+ sys_container.h io_comm.h dset.h dfile.h ndf_codec.h glb.h ndf.h \
+ sys_err.h
+ndf_rlen.o: ndf_rlen.c config.h nusdas.h internal_types.h dfile.h \
+ ndf_codec.h
+ndf_seqf.o: ndf_seqf.c config.h nusdas.h internal_types.h sys_kwd.h \
+ sys_endian.h sys_int.h sys_err.h sys_mem.h io_comm.h dfile.h ndf.h glb.h
+nus_cpsd.o: nus_cpsd.c config.h nusdas.h internal_types.h sys_kwd.h \
+ sys_endian.h sys_int.h glb.h dset.h dfile.h sys_file.h ndf_codec.h \
+ sys_err.h sys_string.h sys_mem.h
+nus_gzlib.o: nus_gzlib.c config.h nus_gzlib.h
+nus_jp2k.o: nus_jp2k.c config.h nusdas.h internal_types.h sys_kwd.h \
+ sys_endian.h sys_int.h glb.h dset.h dfile.h sys_file.h ndf_codec.h \
+ sys_err.h sys_string.h sys_mem.h
+pandora_lib.o: pandora_lib.c config.h pandora_lib.h sys_mem.h
+pds_cfgscan.o: pds_cfgscan.c config.h sys_mem.h pds.h
+pds_cntltab.o: pds_cntltab.c config.h nusdas.h sys_int.h internal_types.h \
+ sys_mem.h sys_string.h
+pds_open.o: pds_open.c config.h nusdas.h internal_types.h sys_mem.h \
+ sys_string.h sys_file.h sys_endian.h sys_err.h sys_kwd.h sys_sym.h \
+ sys_time.h dset.h pds.h dfile.h glb.h ndf_codec.h sys_container.h \
+ nus_gzlib.h sys_int.h pandora_lib.h
+sys_ary4.o: sys_ary4.c config.h nusdas.h sys_mem.h sys_container.h
+sys_ary4v.o: sys_ary4v.c config.h nusdas.h sys_mem.h sys_container.h
+sys_ary8.o: sys_ary8.c config.h nusdas.h sys_mem.h sys_int.h \
+ sys_container.h
+sys_aryp.o: sys_aryp.c config.h nusdas.h sys_mem.h sys_container.h
+sys_clock.o: sys_clock.c config.h nusdas.h internal_types.h sys_time.h \
+ sys_err.h sys_mem.h sys_string.h
+sys_err.o: sys_err.c config.h nusdas.h sys_err.h
+sys_file.o: sys_file.c config.h sys_mem.h sys_file.h
+sys_listp.o: sys_listp.c config.h nusdas.h sys_container.h sys_mem.h
+sys_mem.o: sys_mem.c config.h nusdas.h internal_types.h glb.h
+sys_printf.o: sys_printf.c config.h nusdas.h internal_types.h sys_int.h \
+ sys_kwd.h sys_time.h
+sys_time.o: sys_time.c config.h nusdas.h internal_types.h sys_time.h \
+ sys_file.h sys_kwd.h sys_string.h ../nwplib8/nwpl_capi.h \
+ ../nwplib8/nwplib.h ../nwplib8/nwpl_timecnv.h \
+ ../nwplib8/nwpl_mapproj_df.h
+typ_dstab.o: typ_dstab.c config.h nusdas.h sys_container.h \
+ internal_types.h dset.h glb.h sys_err.h sys_mem.h

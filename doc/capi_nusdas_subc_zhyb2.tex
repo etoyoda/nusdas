@@ -1,0 +1,31 @@
+\subsection{nusdas\_subc\_zhyb2: SUBC ZHYB へのアクセス }
+\APILabel{nusdas.subc.zhyb2}
+
+\Prototype
+\begin{quote}
+N\_SI4 {\bf nusdas\_subc\_zhyb2}(const char {\it type1}[8], const char {\it type2}[4], const char {\it type3}[4], const N\_SI4 $\ast${\it basetime}, const char {\it member}[4], const N\_SI4 $\ast${\it validtime1}, const N\_SI4 $\ast${\it validtime2}, N\_SI4 $\ast${\it nz}, float $\ast${\it ptrf}, float $\ast${\it presrf}, float {\it zrp}[\,], float {\it zrw}[\,], float {\it vctrans\_p}[\,], float {\it vctrans\_w}[\,], float {\it dvtrans\_p}[\,], float {\it dvtrans\_w}[\,], const char {\it getput}[3]);
+\end{quote}
+
+\begin{tabular}{l|rp{20em}}
+\hline
+\ArgName & \ArgType & \ArgRole \\
+\hline
+{\it type1} & const char [8] &  種別1  \\
+{\it type2} & const char [4] &  種別2  \\
+{\it type3} & const char [4] &  種別3  \\
+{\it basetime} & const N\_SI4 $\ast$ &  基準時刻(通算分)  \\
+{\it member} & const char [4] &  メンバー名  \\
+{\it validtime1} & const N\_SI4 $\ast$ &  対象時刻1(通算分)  \\
+{\it validtime2} & const N\_SI4 $\ast$ &  対象時刻2(通算分)  \\
+{\it nz} & N\_SI4 $\ast$ &  鉛直層数  \\
+{\it ptrf} & float $\ast$ &  温位の参照値  \\
+{\it presrf} & float $\ast$ &  気圧の参照値  \\
+{\it zrp} & float [\,] &  モデル面高度 (フルレベル)  \\
+{\it zrw} & float [\,] &  モデル面高度 (ハーフレベル)  \\
+{\it vctrans\_p} & float [\,] &  座標変換関数 (フルレベル)  \\
+{\it vctrans\_w} & float [\,] &  座標変換関数 (ハーフレベル)  \\
+{\it dvtrans\_p} & float [\,] &  座標変換関数の鉛直微分 (フルレベル)  \\
+{\it dvtrans\_w} & float [\,] &  座標変換関数の鉛直微分 (ハーフレベル)  \\
+{\it getput} & const char [3] &  入出力指示 ({\it "GET}" または {\it "PUT}")  \\
+\hline
+\end{tabular}

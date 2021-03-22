@@ -1,0 +1,54 @@
+\subsection{nusdas\_make\_mask: マスクビット配列の作成}
+\APILabel{nusdas.make.mask}
+
+\Prototype
+\begin{quote}
+N\_SI4 {\bf nusdas\_make\_mask}(const void $\ast${\it udata}, const char {\it utype}[2], const N\_SI4 $\ast${\it usize}, void $\ast${\it output}, const N\_SI4 $\ast${\it mb\_bytes});
+\end{quote}
+
+\begin{tabular}{l|rp{20em}}
+\hline
+\ArgName & \ArgType & \ArgRole \\
+\hline
+{\it udata} & const void $\ast$ &  格子データ  \\
+{\it utype} & const char [2] &  格子データの型  \\
+{\it usize} & const N\_SI4 $\ast$ &  格子データの要素数  \\
+{\it output} & void $\ast$ &  マスクビット配列  \\
+{\it mb\_bytes} & const N\_SI4 $\ast$ &  マスクビット配列のバイト数  \\
+\hline
+\end{tabular}
+\paragraph{\FuncDesc}
+配列 {\it udata} の内容をチェックしてマスクビット列を作成し
+{\it output} に書き込む。
+引数 {\it utype} と欠損値は配列の型に応じて次のように指定する。
+\begin{quote}\begin{description}
+\item[{\bf 1バイト整数型}] 
+引数 {\it utype} に N\_I1 を指定する。
+配列中の欠損扱いしたい要素に N\_MV\_UI1 を設定しておく。
+\item[{\bf 2バイト整数型}] 
+引数 {\it utype} に N\_I2 を指定する。
+配列中の欠損扱いしたい要素に N\_MV\_SI2 を設定しておく。
+\item[{\bf 4バイト整数型}] 
+引数 {\it utype} に N\_I4 を指定する。
+配列中の欠損扱いしたい要素に N\_MV\_SI4 を設定しておく。
+\item[{\bf 4バイト実数型}] 
+引数 {\it utype} に N\_R4 を指定する。
+配列中の欠損扱いしたい要素に N\_MV\_R4 を設定しておく。
+\item[{\bf 8バイト実数型}] 
+引数 {\it utype} に N\_R8 を指定する。
+配列中の欠損扱いしたい要素に N\_MV\_R8 を設定しておく。
+\end{description}\end{quote}
+
+\paragraph{\ResultCode}
+\begin{quote}
+\begin{description}
+\item[{\bf 0}] 正常終了
+\item[{\bf -1}] 配列長 {\it mb\_bytes} が不足している
+\item[{\bf -5}] 未知の型名 {\it utype} が与えられた
+\end{description}\end{quote}
+
+\paragraph{サイズ要件}
+{\it mb\_bytes} は少なくとも ({\it usize} + 7) / 8 バイト以上必要である。
+
+\paragraph{履歴}
+\APILink{nusdas.make.mask}{nusdas\_make\_mask} は NuSDaS 1.0 から存在する。

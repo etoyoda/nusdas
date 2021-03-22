@@ -1,0 +1,46 @@
+AC_INIT(src/Doxyfile)
+
+# === test of host environment ===
+AC_CANONICAL_HOST
+
+# === checking command availability ===
+NUS_HOST_CHARSET
+NUS_ARCHIVER
+AC_PATH_PROG(SED, sed, [echo "specify SED"; exit 1])
+AC_CHECK_TOOL(M4, m4)
+NUS_PROG_F90
+
+# === tests using C compiler ===
+AC_SYS_LARGEFILE
+
+NUS_C_INTMODEL
+NUS_C_SWITCH_LONG_LONG
+NUS_C_INLINE
+NUS_C_ALIGNMENT
+NUS_C_BIGENDIAN
+AC_CHECK_LIB(m, lrint)
+
+# === build options ===
+NUS_USE_DEBUG
+NUS_USE_PROFILE
+NUS_SIO_DEFAULT
+NUS_FUNC_CSES
+
+NUS_USE_SRF
+NUS_CFLAGS_HACK
+NUS_USE_NET
+NUS_FILEVER
+NUS_CHECK_ZLIB
+NUS_CHECK_JASPER
+NUS_CHECK_OPENJPEG
+NUS_CHECK_GPFS_ARCHIVE
+NUS_CHECK_LUSTRE_FLUSH
+NUS_CHECK_FSYNC
+NUS_MALLOC
+NUS_OMP
+
+# === output result ===
+AC_CONFIG_HEADER(src/config.h libnwprpack/config.h)
+AC_OUTPUT(Makefile src/Makefile libsrf/Makefile libnwprpack/Makefile
+	  src/nusdas.h test/Makefile nwplib8/Makefile
+	  src/nusdas-config wrap/Makefile InstNaps8.rb)

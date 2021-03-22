@@ -1,0 +1,46 @@
+\subsection{NUSDAS\_READ\_3D: 高次元読み込み}
+\APILabel{nusdas.read.3d}
+
+\Prototype
+\begin{quote}
+CALL {\bf NUSDAS\_READ\_3D}({\it type1}, {\it type2}, {\it type3}, {\it basetime}, {\it member}, {\it validtime}, {\it plane}, {\it element}, {\it nrecs}, {\it udata}, {\it utype}, {\it usize}, {\it result})
+\end{quote}
+
+\begin{tabular}{l|rllp{16em}}
+\hline
+\ArgName & \ArgType & \ArrayDim & I/O & \ArgRole \\
+\hline
+{\it type1} & CHARACTER(8) &  & IN &  種別1  \\
+{\it type2} & CHARACTER(4) &  & IN &  種別2  \\
+{\it type3} & CHARACTER(4) &  & IN &  種別3  \\
+{\it basetime} & INTEGER(4) &  & IN &  基準時刻  \\
+{\it member} & CHARACTER(4) & \AnySize & IN &  メンバ名の配列  \\
+{\it validtime} & INTEGER(4) & \AnySize & IN &  対象時刻の配列  \\
+{\it plane} & CHARACTER(6) & \AnySize & IN &  面名の配列  \\
+{\it element} & CHARACTER(6) & \AnySize & IN &  要素名の配列  \\
+{\it nrecs} & INTEGER(4) &  & IN &  レコード数  \\
+{\it udata} & \AnyType & \AnySize & OUT &  結果格納配列  \\
+{\it utype} & CHARACTER(2) &  & IN &  結果格納配列の型  \\
+{\it usize} & INTEGER(4) &  & IN &  レコードあたり要素数  \\
+{\it result} & INTEGER(4) &  & OUT & \ResultCode \\
+\hline
+\end{tabular}
+
+\paragraph{\FuncDesc}
+{\it member}, {\it validtime}, {\it plane}, {\it element} には {\it nrecs} 個の大きさを持つ配列を指定する。
+これらの配列の各要素を指定して \APILink{nusdas.read}{nusdas\_read} を順次呼びだし {\it udata} に格納する。
+{\it udata} の要素数は {\it nrecs} * {\it usize} 個以上でなければならない。
+nusdas\_read の返却値（終了コード）が {\it usize} と一致しなかった場合は読み込みを終了する。
+
+utypeは\ref{tab:typename}のものを指定するが、これらの値はN\_を接頭辞につけた定数で参照できる。
+例えば'R4'であれば定数N\_R4で参照できる。
+
+\paragraph{\ResultCode}
+\begin{quote}
+\begin{description}
+\item[{\bf 正}] 全てのデータを読むことができた場合は {\it nrecs} * {\it usize} を返す。
+\item[{\bf 負}] 最後に呼び出した \APILink{nusdas.read}{nusdas\_read} の終了コードを返す。
+\end{description}\end{quote}
+
+\paragraph{注意}
+読み込みを途中で終了した場合、どこまで処理したかを知る方法は無い。

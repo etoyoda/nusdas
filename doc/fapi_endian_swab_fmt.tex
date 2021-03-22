@@ -1,0 +1,48 @@
+\subsection{ENDIAN\_SWAB\_FMT: 任意構造のバイトオーダー変換}
+\APILabel{endian.swab.fmt}
+
+\Prototype
+\begin{quote}
+CALL {\bf ENDIAN\_SWAB\_FMT}({\it ptr}, {\it fmt})
+\end{quote}
+
+\begin{tabular}{l|rllp{16em}}
+\hline
+\ArgName & \ArgType & \ArrayDim & I/O & \ArgRole \\
+\hline
+{\it ptr} & \AnyType & \AnySize & I/O &  変換対象  \\
+{\it fmt} & CHARACTER($\ast$) & \AnySize & IN &  書式  \\
+\hline
+\end{tabular}
+\paragraph{\FuncDesc}
+リトルエンディアン機では、
+さまざまな長さのデータが混在するメモリ領域 {\it ptr} の
+バイトオーダーを逆順にする。
+ビッグエンディアンのデータを読んだ後整数として解釈する前、
+または整数として値を格納した後ビッグエンディアンで書き出す前に呼ぶ。
+
+ビッグエンディアン機ではなにもしない。
+
+メモリのレイアウトは文字列 {\it fmt} で指定される。
+文字列は以下に示す型を表わす文字の羅列である。
+\begin{quote}\begin{description}
+\item[{\bf D, d, L, l}] 8バイト
+\item[{\bf F, f, I, i}] 4バイト
+\item[{\bf H, h}] 2バイト
+\item[{\bf B, b, N, n}] 1バイト (なにもしない)
+\end{description}\end{quote}
+文字の前に数字をつけると繰り返し数をあらわす。
+たとえば ``{\tt 4c8i}'' は最初の 4 バイトが無変換、
+次に 4 バイト単位で 8 個変換を行うことを示す。
+
+\paragraph{注意}
+\begin{itemize}
+\item 数字は strtoul(3) で解釈しているので十進だけではなく八進や十六進
+も使える。
+たとえば ``{\tt 0xFFi}'' は 4 バイト単位で 255 個変換することを示し、
+``{\tt 0100h}'' は 2 バイト単位で 64 個変換することを示す。
+\end{itemize}
+
+\paragraph{履歴}
+本関数は pnusdas から存在し、NuSDaS 1.3 で Fortran ラッパーを伴う
+サービスサブルーチンとしてドキュメントされた。

@@ -1,0 +1,38 @@
+\subsection{srf\_search\_amdstn: 地点番号の辞書内通番を探す}
+\APILabel{srf.search.amdstn}
+
+\Prototype
+\begin{quote}
+int {\bf srf\_search\_amdstn}(const SRF\_AMD\_SINFO $\ast${\it amd}, int {\it ac}, int {\it stn}, int {\it amd\_type});
+\end{quote}
+
+\begin{tabular}{l|rp{20em}}
+\hline
+\ArgName & \ArgType & \ArgRole \\
+\hline
+{\it amd} & const SRF\_AMD\_SINFO $\ast$ &  地点辞書配列  \\
+{\it ac} & int &  地点辞書配列の長さ  \\
+{\it stn} & int &  地点番号  \\
+{\it amd\_type} & int &  地点種別  \\
+\hline
+\end{tabular}
+\paragraph{\FuncDesc}
+SRF\_AMD\_SINFO 構造型の配列 {\it amd} (地点数 {\it ac} 個) から
+地点番号 {\it stn} の地点情報を収めた添字 (1始まり) を返す。
+
+\paragraph{\ResultCode}
+\begin{quote}
+\begin{description}
+\item[{\bf 正}] 地点の辞書内格納順位 (1始まり)
+\item[{\bf -1}] 地点がみつからない
+\end{description}\end{quote}
+
+\paragraph{注意}
+\begin{itemize}
+\item 地点種別 {\it amd\_type} は無視される。
+\item 配列が地点番号順にソートされていることを前提に二分探索を使っている。
+\end{itemize}
+\paragraph{履歴}
+この関数は NAPS7 時代から存在したようであるが
+ドキュメントされていなかった。
+NuSDaS 1.3 リリースに際してドキュメントされるようになった。

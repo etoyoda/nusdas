@@ -1,0 +1,140 @@
+\Chapter{Fortran リファレンスマニュアル}
+\label{chap:fapi}
+
+\section{凡例}
+
+\newcommand{\Prototype}{\paragraph{書式}}
+\newcommand{\ArgName}{引数名}
+\newcommand{\ArgType}{引数の型}
+\newcommand{\ArrayDim}{配列長}
+\newcommand{\ArgRole}{役割}
+\newcommand{\AnyType}{任意}
+\newcommand{\AnySize}{可変}
+\newcommand{\ResultCode}{終了コード}
+\newcommand{\FuncDesc}{説明}
+\newcommand{\Bug}{バグ}
+\newcommand{\APILabel}[1]{\label{fapi:#1}}
+\newcommand{\APILink}[2]{{#2(p. \pageref{fapi:#1})}}
+
+\begin{itemize}
+ \item
+  引数 {\it fmt} または {\it utype} (配列の型) に与えるべき定数名は、
+  \TabRef{tab:typename}参照。
+\end{itemize}
+
+\clearpage
+\section{最低限知るべきサブルーチン}
+
+\input{fapi_nusdas_read}
+
+\input{fapi_nusdas_write}
+
+\input{fapi_nusdas_iocntl}
+
+\input{fapi_nusdas_allfile_close}
+
+\clearpage
+\section{データ読書サブルーチン}
+
+\input{fapi_nusdas_cut}
+\input{fapi_nusdas_cut_raw}
+\input{fapi_nusdas_read2_raw}
+\input{fapi_nusdas_read_3d}
+\input{fapi_nusdas_write_3d}
+
+\clearpage
+\section{動作制御用サブルーチン}
+
+\input{fapi_nusdas_esf_flush}
+\input{fapi_nusdas_make_mask}
+\input{fapi_nusdas_set_mask}
+\input{fapi_nusdas_onefile_close}
+\input{fapi_nusdas_parameter_change}
+ \paragraph{Fortran 版の仕様変更}
+ NuSDaS 1.2 以前では C API と同様、
+ 引数 {\it value} に nusdas\_fort.h で定義される変数 NULL を与えると
+ パラメタを既定値に戻すことができたが、
+ この機能は可搬性の問題から廃止された。
+ 上述の既定値を明示的に設定するか、
+ nusdas\_parameter\_reset() を利用されたい。
+\input{fapi_nusdas_inq_parameter}
+
+\input{fapi_nusdas_parameter_reset}
+
+\clearpage
+\section{問合せサブルーチン}
+
+\input{fapi_nusdas_grid}
+\input{fapi_nusdas_info}
+\input{fapi_nusdas_inq_cntl}
+\input{fapi_nusdas_inq_data}
+\input{fapi_nusdas_inq_def}
+\input{fapi_nusdas_inq_nrdbtime}
+\input{fapi_nusdas_inq_nrdvtime}
+\input{fapi_nusdas_inq_subcinfo}
+
+\paragraph{注意}
+「レコード内容」として取得されるのは表 \ref{table.fmt.subc} 項番 6 と同じで
+あり、その長さはレコード有効長から 16 を引いたものに等しい。
+
+\input{fapi_nusdas_scan_ds}
+
+\clearpage
+\section{メタデータ用サブルーチン}
+
+\input{fapi_nusdas_subc_delt}
+\input{fapi_nusdas_subc_delt_preset1}
+\input{fapi_nusdas_subc_eta}
+\input{fapi_nusdas_subc_eta_inq_nz}
+\input{fapi_nusdas_subc_preset1}
+\input{fapi_nusdas_subc_rgau}
+\input{fapi_nusdas_subc_rgau_inq_jn}
+\input{fapi_nusdas_subc_rgau_preset1}
+\input{fapi_nusdas_subc_sigm}
+\input{fapi_nusdas_subc_srf}
+\input{fapi_nusdas_subc_tdif}
+\input{fapi_nusdas_subc_zhyb}
+\input{fapi_nusdas_subc_zhyb_preset1}
+
+\clearpage
+\section{サービスサブルーチン}
+\label{fapi:service}
+
+\input{fapi_endian_swab2}
+\input{fapi_endian_swab4}
+\input{fapi_endian_swab8}
+\input{fapi_endian_swab_fmt}
+\input{fapi_nusdas_gunzip}
+\input{fapi_nusdas_gunzip_nbytes}
+\input{fapi_nusdas_gzip}
+\input{fapi_nusdas_unpack}
+\input{fapi_nusdas_uncpsd}
+\input{fapi_nusdas_uncpsd_nbytes}
+\input{fapi_n_decode_rlen_nbit_i1.tex}
+\input{fapi_n_encode_rlen_8bit.tex}
+\input{fapi_n_encode_rlen_8bit_i1.tex}
+
+\clearpage
+\section{降水短時間ライブラリ}
+\label{fapi:libsrf}
+
+\subsection{概要}
+
+降水短時間ルーチンに関連するアメダスデータ・レーダーデータに
+特有な処理のためのサブルーチンをまとめたものが
+降水短時間ライブラリ libsrf.a として提供される。
+ライブラリ全体の関数プロトタイプを与えるヘッダは存在しない%
+\footnote{このため IBM 系環境では Fortran ラッパーが提供できない。}が、
+\APILink{srf.amd.rdic}{SRF\_AMD\_RDIC} 及び
+\APILink{srf.search.amdstn}{SRF\_SEARCH\_AMDSTN} を呼ぶ時は
+SRF\_AMD\_SINFO 型や定数の定義を参照するため
+\verb|"srf_amedas_fort.h"| をインクルードする必要がある。
+
+\input{fapi_rdr_lv_trans.tex}
+\input{fapi_srf_amd_aqc.tex}
+\input{fapi_srf_amd_rdic.tex}
+\input{fapi_srf_amd_slct.tex}
+\input{fapi_srf_lv_set.tex}
+\input{fapi_srf_lv_trans.tex}
+\input{fapi_srf_rd_rdic.tex}
+\input{fapi_srf_search_amdstn.tex}

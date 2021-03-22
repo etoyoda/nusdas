@@ -1,0 +1,24 @@
+\subsection{N\_ENCODE\_RLEN\_8BIT\_I1: 1バイト整数を RLE 圧縮する}
+\APILabel{n.encode.rlen.8bit.i1}
+
+\Prototype
+\begin{quote}
+CALL {\bf N\_ENCODE\_RLEN\_8BIT\_I1}({\it udata}, {\it compressed\_data}, {\it udata\_nelems}, {\it max\_compress\_nbytes}, {\it maxvalue}, {\it result})
+\end{quote}
+
+\begin{tabular}{l|rllp{16em}}
+\hline
+\ArgName & \ArgType & \ArrayDim & I/O & \ArgRole \\
+\hline
+{\it udata} & CHARACTER & \AnySize & IN &  元データ配列  \\
+{\it compressed\_data} & CHARACTER & \AnySize & OUT &  結果格納配列  \\
+{\it udata\_nelems} & INTEGER(4) &  & IN &  元データの要素数  \\
+{\it max\_compress\_nbytes} & INTEGER(4) &  & IN &  結果配列のバイト数  \\
+{\it maxvalue} & INTEGER(4) &  & OUT &  元データの最大値  \\
+{\it result} & INTEGER(4) &  & OUT & \ResultCode \\
+\hline
+\end{tabular}
+\paragraph{\FuncDesc}\paragraph{履歴}
+この関数は NuSDaS 1.0 から存在するが、ドキュメントされていなかった。
+NuSDaS 1.3 から Fortran API を伴う
+サービスサブルーチンとして採録された。

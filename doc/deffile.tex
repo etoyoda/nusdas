@@ -1,0 +1,786 @@
+\Chapter{定義ファイルリファレンス}
+\label{chap:deffile}
+
+\section{はじめに}
+\subsection{定義ファイルの文法}
+
+NuSDaS 定義ファイルは概ねフリーフォーマットのテキストである。
+\begin{itemize}
+\item 定義ファイルは改行文字で区切られる行からなる。
+\item 各行は空白 (スペース、タブ、鉛直タブ、フォームフィードの
+	いずれか) で区切られる語に分解される。
+\item 行頭の語が `{\tt \#}' で始まるとき、その行は無視される。
+	(NuSDaS 1.1 では公式にはコメント機能はなかったが、
+	たまたま定義ファイルパーザの作りがよかったので動作していた)
+\item 行頭の語が次のキーワード (大文字・小文字は区別されない)
+	のひとつであるとき\footnote{
+		NuSDaS 1.3 以降でもルーチンに見られるスペル誤り
+		OTHER, MISSSING, SUBCTNL と OPTION
+		を許容する。
+	}、
+	その名をもつ文の解析が始まる。
+\begin{quote}
+NUSDAS PATH FILENAME CREATOR TYPE1 TYPE2 TYPE3 MEMBER {\nobreak MEMBERLIST}
+BASETIME VALIDTIME VALIDTIME1 VALIDTIME2 PLANE PLANE1 PLANE2 \\*
+ELEMENT ELEMENTMAP SIZE BASEPOINT DISTANCE STANDARD OTHERS VALUE PACKING
+MISSING INFORMATION SUBCNTL FORCEDRLEN OPTIONS
+\end{quote}
+\item 複数の語からなる文は次の行にまたがって書いてもよい。
+	ただし、行頭の語が上のキーワードになってはならない。
+\item 複数の文をひとつの行に書くべきではない。
+	NuSDaS 1.1 で読めなくなるからである。
+\item 一部の文は決まった順序で書かなければならない。
+\item ELEMENTMAP 文と INFORMATION 文をのぞき、
+	同種の文が複数現れることはない。
+\end{itemize}
+
+\subsection{凡例}
+
+\begin{itemize}
+\item タイプライタ体 {\tt typewriter font} の文字は文字どおり用いられる
+	ことを意味する。
+\item 斜体 {\it italic} の文字は適宜置き換えるべき語を意味する。
+\item 「書式」の項の各語は定義ファイルの1語に対応する。
+\item 「書式」の項で ``...'' とあるのは語数が不定であることを示す。
+	不定といっても先行する語や文などで数は定まるのであり、
+	本文を参照されたい。
+\item 経緯度を設定するとき
+	$\lambda_*${\tt E}, $\varphi_*${\tt N} のように
+	書いてあるところにそれぞれ
+	$\lambda_*${\tt W}, $\varphi_*${\tt S} のように
+	書けば、それぞれ西経・南緯を設定することができる。
+\item 経緯度を設定する文の経緯度
+	(書式の項に $\lambda_*${\tt E} \ $\varphi_*${\tt N} と書いてある)
+	は逆順に書いてもよい。
+\end{itemize}
+
+\section{BASEPOINT: 参照点の設定}
+\label{sec:def:BASEPOINT}
+\paragraph{書式}
+\begin{quote}
+{\tt BASEPOINT} $x_0$ $y_0$ $\lambda_0${\tt E} $\varphi_0${\tt N}
+\end{quote}
+\paragraph{機能}
+BASEPOINT 文はデータセットの格子番号 ($x_0$, $y_0$) が
+地球上の経緯度 ($\lambda_0$, $\varphi_0$) を持つ地点であることを設定する。
+\paragraph{省略時}
+あたかも
+{\tt BASEPOINT 0 0 0 0}
+が書かれたかのように扱われる。
+この設定値が適切か否かは2次元座標系しだいであり、
+一概に誤りと断定することはできないが、
+格子番号は1から数え始めることを考えるとほとんどの場合有用ではない。
+
+\section{BASETIME: 基準時刻の設定}
+\label{sec:def:BASETIME}
+\paragraph{書式}
+\begin{quote}
+{\tt BASETIME} {\it yyyymmddhhnn}
+\end{quote}
+\paragraph{機能}
+BASETIME 文は定数データセットが持つ唯一つの基準時刻を設定する。
+ここに設定した以外の基準時刻によるデータの読み書きは失敗するように
+コーディングされるべきである、が、
+NuSDaS 1.1 のコードを見ても引数 {\it yyyymmddhhnn} を
+使っているようには見えない。
+\paragraph{省略時}
+データセットには任意の基準時刻のデータファイルを作成できるようになる。
+\paragraph{未実装注意}
+この機能は使われていないので NuSDaS 1.4 でもまだ実装されていない。
+
+\section{CREATOR: データ作成者の設定}
+\label{sec:def:CREATOR}
+\paragraph{書式}
+\begin{quote}
+{\tt CREATOR} {\it creator}
+\end{quote}
+\paragraph{機能}
+CREATOR 文はデータファイルの NUSD レコード
+作成者フィールド
+(\TabRef{table.fmt.nusd} 項番 5)
+に書き込む文字列を設定する。
+\paragraph{省略時}
+コンパイル時に設定した値が用いられる。
+デフォルトは
+\begin{quote}
+{\tt Japan Meteorological Agency, http://www.jma.go.jp/}
+\end{quote}
+である。
+\paragraph{バグ}
+空白を含んだ任意文字列を設定する方法がない。
+
+\section{DISTANCE: 格子間隔の設定}
+\label{sec:def:DISTANCE}
+\paragraph{書式}
+以下のいずれか:
+\begin{quote}
+{\tt DISTANCE} $D_i$ $D_j$ \\
+{\tt DISTANCE} $D_r$ $D_\theta$ \\
+{\tt DISTANCE} $D_X$ $D_Y$
+\end{quote}
+\paragraph{機能}
+DISTANCE 文は格子間隔を設定する。
+\begin{itemize}
+\item
+ 2次元座標系が {\tt LL}, {\tt GS}, {\tt RG} のとき、
+ {\tt DISTANCE} $D_i$ $D_j$ 
+ は経緯度の度単位での格子間隔 $D_i$, $D_j$ を設定する。
+\item
+ 2次元座標系が {\tt RT} のとき、
+ {\tt DISTANCE} $D_r$ $D_\theta$ 
+ はメートル単位での格子間隔 $D_X$ と
+ 度単位での方位角間隔 $D_\theta$ を設定する。
+\item
+ 2次元座標系が
+ 地図投影 ({\tt MR}, {\tt PS}, {\tt LM}, {\tt OL}) のとき、
+ {\tt DISTANCE} $D_X$ $D_Y$ 
+ はメートル単位での格子間隔 $D_X$, $D_Y$ を設定する。
+\end{itemize}
+\paragraph{省略時}
+あたかも {\tt DISTANCE 0 0} が書かれたかのように動作する。
+2次元座標系が {\tt ST} など、格子間隔の概念をもたず、
+当然グリッド情報チェックでも値ゼロが許容される場合に使える。
+
+\section{ELEMENT: 要素数の設定}
+\label{sec:def:ELEMENT}
+\paragraph{書式}
+\begin{quote}
+{\tt ELEMENT} $N_E$ \end{quote}
+\paragraph{順序制約}
+\DefRef{ELEMENTMAP} よりも先に記述しなければならない。
+\paragraph{機能}
+ELEMENT 文は要素の数を設定する。
+ELEMENTMAP 文は $N_E$ 個設定する必要がある。
+\paragraph{必須性}
+ELEMENT 文を省略してはならない。
+
+\section{ELEMENTMAP: 要素名と書込禁止制約}
+\subsection{概要}
+\label{sec:def:ELEMENTMAP}
+\paragraph{書式}
+以下のいずれか:
+\begin{quote}
+{\tt ELEMENTMAP} {\it elemname} {\tt 0} \\
+{\tt ELEMENTMAP} {\it elemname} {\tt 1} {\it bitmap} ... \\
+{\tt ELEMENTMAP} {\it elemname} {\tt 2} [$n_V$ {\it bitmap} ...] ...
+\end{quote}
+\paragraph{順序制約}
+\DefRef{MEMBER} より前に記述してはならない。
+\DefRef{VALIDTIME} よりも後に記述しなければならない。
+\DefRef{PLANE} よりも後に記述しなければならない。
+\DefRef{ELEMENT} よりも後に記述しなければならない。
+ELEMENTMAP 文の $N_E$ 個記述しなければならないし、それを越えてもいけない。
+\paragraph{機能}
+定義ファイル中に現れた $i_E$ 番目の
+ELEMENTMAP 文は要素名 {\it elemname} とともに
+その要素に関する書込禁止制約のビットマップ (elementmap と呼ばれる) を
+データセットの $i_E$ 番目の要素として登録する。
+\paragraph{必須性}
+ELEMENTMAP 文を省略してはならない。
+
+\subsection{第0種ELEMENTMAP文}
+第3語が {\tt 0} の ELEMENTMAP 文は、
+要素 {\it elemname} に書込禁止制約を設定しないことを意味する。
+たとえば 
+\begin{screen}
+{\tt ELEMENTMAP T  0}
+\end{screen}
+ならば、{\tt T} という要素はすべてのメンバー、対象時刻、
+面の組み合わせについて書込可能である。
+
+\subsection{第1種ELEMENTMAP文}
+第3語が {\tt 1} の ELEMENTMAP 文は、
+すべてのメンバー・対象時刻に共通のビットマップで
+要素 {\it elemname} に書込禁止制約を設定する。
+第4語以下 $N_Z$ [\DefRef{PLANE}] 個のビットが並び、
+各ビットは {\tt 0} が書込禁止、{\tt 1} が書込許可を意味する。
+
+たとえば 
+\begin{screen}
+\begin{verbatim}
+PLANE         5
+PLANE1                SURF 1000 700 500 300
+ELEMENTMAP U       1  0    1    1   1   1
+\end{verbatim}
+\end{screen}
+ならば、{\tt U} という要素は {\tt SURF} 以外の面について書込可能である。
+
+なお、ビット数が多過ぎるときは行末まで読み飛ばされ、
+少な過ぎるときは不足分に {\tt 0} が補われるが、
+将来の版でエラーに変更されるかもしれない。
+
+\subsection{第2種ELEMENTMAP文}
+第3語が {\tt 2} の ELEMENTMAP 文は、
+すべてのメンバーについて共通だけれど対象時刻によって異なるビットマップで
+要素 {\it elemname} に書込禁止制約を設定する。
+第4語以下はビットマップのくり返しである。
+各ビットマップはくり返し数 $n_V$ を前置した $N_Z$ 個のビットで、
+くり返し数の合計が $N_V$ [\DefRef{VALIDTIME}] と
+なったところで文が終わる。
+
+たとえば
+\begin{screen}
+\begin{verbatim}
+VALIDTIME     12 HOUR in
+VALIDTIME1 ARITHMETIC 0 1
+PLANE         5
+PLANE1                   SURF 1000 700 500 300
+ELEMENTMAP TKE     2   1 0    0    0   0   0
+                      10 0    1    1   0   0
+                       1 0    0    0   0   0
+\end{verbatim}
+\end{screen}
+ならば、要素 {\tt TKE} は
+予報時間 1 から 10 の間だけ、
+面 {\tt 1000} と {\tt 700} についてだけ書込できる。
+
+なお、くり返し数が過大のときは行末まで読み飛ばされ、
+過小であるときは {\tt 0} が補われる、
+つまり該当する対象時刻は書込禁止となるが、
+将来の版でエラーに変更されるかもしれない。
+
+\subsection{第3種ELEMENTMAP文 (参考)}
+
+第3語が {\tt 3} の ELEMENTMAP 文は
+メンバーによっても対象時刻によっても異なる ELEMENTMAP を設定できる。
+第4語以下は
+「メンバーくり返し数を前置した第1種または第2種 ELEMENTMAP 文の第3語目以降」
+のくり返しであり、
+メンバーくり返し数の合計が $N_M$ [\DefRef{MEMBER}] と
+なったところで文が終わる。
+\paragraph{バグ}
+第3種 ELEMENTMAP 文の実装はいいかげんであり、よくテストされていない。
+
+\section{FILENAME: データファイル名の設定}
+\label{sec:def:FILENAME}
+\paragraph{書式}
+\begin{quote}
+{\tt FILENAME} {\it filename}
+\end{quote}
+\paragraph{機能}
+FILENAME 文は \DefRef{PATH} と組み合わせてデータファイルの
+名前を設定する。詳細は PATH 文の項を参照せよ。
+\paragraph{注意}
+いわゆる NWP 系のパス指定を用いると FILENAME 文の設定は無視される。
+
+\section{FORCEDRLEN: 強制レコード長の設定}
+\label{sec:def:FORCEDRLEN}
+\paragraph{書式}
+\begin{quote}
+{\tt FORCEDRLEN} {\it nbytes}
+\end{quote}
+\paragraph{機能}
+FORCEDRLEN 文はデータファイルのレコード長を {\it nbytes} バイトに設定する。
+ここでレコード長とはレコード全体、
+つまり \TabRef{table.fmt.general} の項番 1--7 の長さである。
+\paragraph{省略時}
+データファイルのレコード長は内容に応じて可変となる。
+ただし、ファイル形式 13 以降では、レコード長は8の倍数となるように
+調整される。
+
+\section{INFORMATION: INFOレコードの定義}
+\label{sec:def:INFORMATION}
+\paragraph{書式}
+\begin{quote}
+{\tt INFORMATION} {\it group} {\it nbytes} {\it filename}
+\end{quote}
+\paragraph{位置制約}
+INFORMATION 文は好きな数だけ記述してよい。
+\paragraph{機能}
+INFORMATION 文は群名 {\it group} の INFO レコードを定義する。
+データファイル作成時には長さ {\it nbytes} のファイル {\it filename} を
+読み込んでレコード内容が作られる。
+したがって {\it nbytes} はレコードのペイロード長すなわち
+\TabRef{table.fmt.general} の項番 5 の長さである。
+\paragraph{省略時}
+\DefRef{SUBCNTL} と同様に INFO レコードを作ることができなくなる、
+と言いたいところであるが、
+残念ながら INFO レコードは後から書き足すことができる。
+
+\section{MEMBER: メンバー数の設定}
+\label{sec:def:MEMBER}
+\paragraph{書式}
+つぎのいずれか:
+\begin{quote}
+{\tt MEMBER} $N_M$ {\tt IN}\\
+{\tt MEMBER} $N_M$ {\tt OUT}\\
+\end{quote}
+\paragraph{位置制約}
+\DefRef{MEMBERLIST},
+\DefRef{ELEMENTMAP} より先に記述しなければならない。
+\paragraph{機能}
+MEMBER 文はメンバー数を設定する。
+第3語の {\tt IN} は異なるメンバーのデータがひとつのデータファイルに
+書かれることを意味し、
+第3語の {\tt OUT} は異なるメンバーのデータは別のデータファイルに
+書かれることを意味する。
+\paragraph{省略時}
+メンバーはただひとつスペース4文字 {\tt \SPC\SPC\SPC\SPC} のものが作られる。
+\paragraph{バグ}
+第3語の IN/OUT と \DefRef{PATH} や
+\DefRef{FILENAME} との矛盾が検査されない。
+
+\section{MEMBERLIST: メンバー名の設定}
+\label{sec:def:MEMBERLIST}
+\paragraph{書式}
+\begin{quote}
+{\tt MEMBERLIST} {\it name} ...
+\end{quote}
+\paragraph{位置制約}
+\DefRef{MEMBER} より後に記述しなければならない。
+MEMBER 文を書いたならば省略してはならない。
+\paragraph{機能}
+MEMBERLIST 文は $N_M$ 個のメンバー名 {\it name} を設定する。
+メンバー名は 4文字以下の英数字または下線である。
+
+\section{MISSING: 欠損値表現法の設定}
+\label{sec:def:MISSING}
+\paragraph{書式}
+次のいずれか:
+\begin{quote}
+{\tt MISSING NONE}\\
+{\tt MISSING UDFV}\\
+{\tt MISSING MASK}
+\end{quote}
+\paragraph{機能}
+MISSING 文は欠損値の表現方法を設定する。
+それぞれの機能は\TabRef{tab:missing}を参照。
+
+\paragraph{省略時}
+{\tt MISSING NONE} が仮定される。
+\paragraph{注意}
+UDFVで欠損値を設定して書き込みを行う場合、PACKING が I1, I2, I4, R4, R8 の際には
+以下の値は必ず欠損値として扱われる。これは
+\APIRef{nusdas.parameter.change}{nusdas\_parameter\_change}で
+欠損値として扱う値を変更した場合も変わらない。
+\begin{itemize}
+\item I1, I2, I4 では全bitが1となる -128, -32768, -2147483648
+\item R4, R8 ではINFを除いた最大値に相当する 3.40282347e+38, 1.7976931348623157d+308
+\end{itemize}
+なお、 PACKING が 2UPC など I1, I2, I4, R4, R8 以外の場合は本件に該当しない。
+
+\section{NUSDAS: データファイルの版番号}
+\label{sec:def:NUSDAS}
+\paragraph{書式}
+\begin{quote}
+{\tt NUSDAS} {\it version}
+\end{quote}
+\paragraph{機能}
+この定義ファイルを持つデータセットで新規に作成される
+データファイルの形式を {\it version} に設定する。
+有効な {\it version} の値は次の通り:
+\begin{description}
+\item[10] ファイル形式 10 となる。
+\item[11] ファイル形式 11 となる。
+\item[13] ファイル形式 13 となる。
+\item[14] ファイル形式 14 となる。
+\end{description}
+\paragraph{省略時}
+configureオプションによる。特に設定せずにconfigureした場合は{\tt NUSDAS 14} が仮定される。
+{\tt --enable-dfver}を設定した場合は{\tt NUSDAS 11}が、
+{\tt --enable-dfver=13}を設定した場合は{\tt NUSDAS 13}が仮定される。
+NAPS9, NAPS10 およびこれらの関連機器では{\tt NUSDAS 11}が仮定されるようになっている。
+アプリケーションプログラマは将来デフォルトが
+{\tt NUSDAS 14} などに変更される可能性を考慮すべきである。
+
+\section{OPTIONS: データセットの実行時オプションの設定}
+\label{sec:def:OPTIONS}
+\paragraph{書式}
+\begin{quote}
+{\tt options} \ {\it optstring}
+\end{quote}
+\paragraph{機能}
+OPTIONS 文は実行時オプションを設定する。
+設定ファイル ``{\tt nusdas.ini}'' または環境変数 ``{\tt NUSDAS\_OPTS}''
+と異なり、設定の効力はデータセットに限定される。
+一方、システム全体の設定 (項目名が `G' ではじまるもの) は設定できない。
+項目の詳細については \SectionRef{sec:opts:runtime} 参照。
+
+\section{OTHERS: 斜軸ランベルトのパラメタ設定}
+\label{sec:def:OTHERS}
+\paragraph{書式}
+\begin{quote}
+{\tt others} \ $\hat\lambda_P${\tt E} \ $\hat\varphi_P${\tt N}
+	\ $\lambda_E${\tt E} \ $\varphi_E${\tt N}
+\end{quote}
+\paragraph{機能}
+OTHERS 文は地図投影パラメタが 5 個以上あるときの設定に用いる。
+実際には斜軸ランベルト図法でしか使わないので、
+\SectionRef{sec:proj:OL} を参照されたい。
+\paragraph{省略時}
+{\tt OTHERS 0E 0N 0E 0N} が仮定される。
+斜軸ランベルト以外では OTHERS 文を省略する。
+
+\section{PACKING: パッキング方式設定}
+\label{sec:def:PACKING}
+\paragraph{書式}
+\begin{quote}
+{\tt PACKING} {\it packing}
+\end{quote}
+\paragraph{機能}
+PACKING 文はデータレコードのパック方式を {\it packing} に設定する。
+許される値については\TabRef{tab:packing}を、
+またパック方式については\ChapRef{chap:packing}参照。
+
+\paragraph{省略時}
+{\tt PACKING 2UPC} が仮定される。
+
+\section{PATH: ディレクトリ構造の設定}
+\label{sec:def:PATH}
+\paragraph{書式}
+次のいずれか:
+\begin{quote}
+{\tt PATH NWP\_PATH\_S} \\
+{\tt PATH NWP\_PATH\_BS} \\
+{\tt PATH NWP\_PATH\_M} \\
+{\tt PATH NWP\_PATH\_VM} \\
+{\tt PATH RELATIVE\_PATH} {\it relpath} \\
+{\tt PATH NWP\_ESF}
+\end{quote}
+\paragraph{機能}
+PATH 文は \DefRef{FILENAME} とともに
+データファイルの位置を設定する。
+PATH 文の第一引数に対応して、次のようにデータファイルが決められる。
+
+\begin{tabular}{lp{35zw}}
+{\tt RELATIVE\_PATH} & 
+ 引数 {\it relpath} はスラッシュを含みうる文字列である。
+ データファイルの名前は \newline
+ {\tt NUSDAS}{\it nn}{\tt /}{\it relpath}{\tt /}{\it filename}
+ あるいは FILENAME 文を省略すると \newline
+ {\tt NUSDAS}{\it nn}{\tt /}{\it relpath}
+ となる。
+ ここで {\it nn} は NRD 番号であり、
+ {\it relpath} をスラッシュで区切ったものと {\it filename}
+ のそれぞれについてパス名置換(後述)が行われる。
+ MEMBER 文、VALIDTIME 文の設定はパス名に影響しない。
+\\
+ PATH 文省略時 &
+ 前項に準じて、
+ 定義ファイルにあたかも \newline
+ {\tt PATH RELATIVE\_PATH}
+ {\tt \_model/\_attribute/\_space/\_time/\_name/\_basetime} \newline
+ と書かれているかのようにふるまう。
+ ただし、MEMBER 文に OUT が設定されている場合は
+ このあとに {\tt /\_member} が追加され、
+ VALIDTIME 文に OUT が設定されている場合は
+ さらにそのあとに {\tt /\_validtime} が追加される。
+ FILENAME 文が存在すれば、さらにこの後に {\tt /}{\it filename} が追加される。
+\\
+ {\tt NWP\_PATH\_S} &
+ データファイルの名前は
+ {\tt NUSDAS}{\it nn}{\tt /}{\it 3dname}{\tt /}{\it validtime}
+ となる。 
+ ここで、{\it 3dname} はパス名置換の {\tt \_3d} と {\tt \_name} を
+ 連結したもの、
+ {\it validtime} はパス名置換の {\tt \_validtime} と同じである。
+ FILENAME 文、MEMBER 文、VALIDTIME 文の設定はパス名に影響しない。
+\\
+ {\tt NWP\_PATH\_BS} &
+ データファイルの名前は
+ {\tt NUSDAS}{\it nn}{\tt /}{\it 3dname}{\tt /}{\it basetime}
+ となる。 
+ ここで {\it basetime} はパス名置換の {\tt \_basetime} と同じである。
+ FILENAME 文、MEMBER 文、VALIDTIME 文の設定はパス名に影響しない。
+\\
+ {\tt NWP\_PATH\_M} &
+ データファイルの名前は
+ {\tt NUSDAS}{\it nn}{\tt /}{\it 3dname}{\tt /}{\it member}%
+ {\tt /}{\it validtime}
+ となる。 
+ ここで {\it member} はパス名置換の {\tt \_member} と同じである。
+ FILENAME 文、MEMBER 文、VALIDTIME 文の設定はパス名に影響しない。
+\\
+ {\tt NWP\_PATH\_VM} &
+ データファイルの名前は
+ {\tt NUSDAS}{\it nn}{\tt /}{\it 3dname}{\tt /}{\it member}
+ となる。 
+ FILENAME 文、MEMBER 文、VALIDTIME 文の設定はパス名に影響しない。
+\\
+ {\tt NWP\_ESF} &
+ データファイルの名前は
+ {\tt NUSD}{\it type1type2type3}
+ となる。
+ 通常は日立 CSES のために実行時オプション {\tt IESF}
+ \SectionRef{sec:opts:runtime}
+ とともに使う。
+\\
+ 上記に該当しない時 &
+ PATH 文省略時と同じ挙動になる。
+\end{tabular}
+
+\paragraph{パス名置換}
+それぞれのパス要素が次のようなものであるとき、
+次元値に応じた値に置換される。
+
+\begin{tabular}{lp{35zw}}
+{\tt \_basetime}
+	& 基準時刻を12文字の数字列で表わしたもの。
+	たとえば 200703312330 は 2007 年 3 月 31 日 12 時 30 分である。 \\
+{\tt \_validtime} & 対象時刻を12文字の数字列で表わしたもの。 \\
+{\tt \_member} & メンバ名。 \\
+{\tt \_model} & モデル名 (種別1の前半4文字)。 \\
+{\tt \_space} & 空間種別名 (種別1の後半4文字)。 \\
+{\tt \_2d} & 2次元座標名 (空間種別名の前半2文字)。 \\
+{\tt \_3d} & 3次元座標名 (空間種別名の後半2文字)。 \\
+{\tt \_attribute} & 属性名 (種別2の前半2文字)。 \\
+{\tt \_time} & 時間種別名 (種別2の後半2文字)。 \\
+{\tt \_name} & 種別3。 \\
+\end{tabular}
+
+空白を含む名前が用いられたときは、ファイル名を生成するまえに
+空白を下線 (`{\tt \_}') に置換する。
+
+\paragraph{互換性}
+{\tt PATH NWP\_ESF} 
+は NAPS8, NAPS9 の数値予報ルーチンでは使えません
+[NuSDaS 1.1 と NuSDaS 1.3 の r4374 (2014-12-11)
+以降及び NuSDaS 1.4 でだけサポートされています。]
+
+\section{PLANE: 面数の設定}
+\label{sec:def:PLANE}
+\paragraph{書式}
+\begin{quote}
+{\tt PLANE} $N_Z$
+\end{quote}
+\paragraph{位置制約}
+\DefRef{ELEMENTMAP},
+\DefRef{PLANE1} や
+\DefRef{PLANE2} より先に書かねばならない。
+\paragraph{機能}
+PLANE 文は面の数を設定する。
+\paragraph{必須性}
+PLANE 文を省略してはならない。
+
+\section{PLANE1: 面1の名前を設定}
+\label{sec:def:PLANE1}
+\paragraph{書式}
+\begin{quote}
+{\tt PLANE1} {\it name} ...
+\end{quote}
+\paragraph{位置制約}
+\DefRef{PLANE} より後に書かねばならない。
+\paragraph{機能}
+PLANE1 文は $N_Z$ 個の面1の名前 {\it name} のリストを設定する。
+名前は 6 文字以下の英数字または下線で、表 \ref{tab:plane} に従う。
+ライブラリは名前を検査しないが、
+その他の任意の名前は開発用途の一時的使用に限定される。
+\paragraph{必須性}
+PLANE1 文を省略してはならない。
+
+\section{PLANE2: 面2の名前を設定}
+\label{sec:def:PLANE2}
+\paragraph{書式}
+\begin{quote}
+{\tt PLANE2} {\it name} ...
+\end{quote}
+\paragraph{機能}
+PLANE2 文は $N_Z$ 個の面2の名前 {\it name} のリストを設定する。
+その他の事項は PLANE1 文と共通である。
+面を範囲で設定するデータセットでだけ用いられるため、
+結局のところ実用例は皆無である。
+\paragraph{省略時}
+面2のリストには面1と同じ名前が登録される。
+
+\section{SIZE: 格子数を設定}
+\label{sec:def:SIZE}
+\paragraph{書式}
+\begin{quote}
+{\tt SIZE} $N_X$ \ $N_Y$
+\end{quote}
+\paragraph{機能}
+SIZE 文はデータレコード1つに含まれる格子の数
+$N_X$, $N_Y$ を設定する。
+\paragraph{必須性}
+SIZE 文を省略してはならない。
+
+\section{STANDARD: 地図投影法パラメタ設定}
+\label{sec:def:STANDARD}
+\paragraph{書式}
+\begin{quote}
+{\tt STANDARD}	\ $\lambda_1${\tt E} \ $\varphi_1${\tt N}
+	\ $\lambda_1${\tt E} \ $\varphi_2${\tt N}
+\end{quote}
+\paragraph{機能}
+STANDARD 文は地図投影法パラメタを設定する。
+概ね $\varphi_1$ と $\varphi_2$ が標準緯度、
+概ね $\lambda_1$ が標準経度と呼ばれるが、
+その具体的な意味については付録 \ref{chap:proj} を参照されたい。
+\paragraph{省略時}
+{\tt STANDARD 0E 0N 0E 0N}
+が仮定される。
+それが適切か否かは2次元座標系しだいである。
+
+\section{SUBCNTL: SUBC レコードの登録}
+\label{sec:def:SUBCNTL}
+\paragraph{書式}
+\begin{quote}
+{\tt SUBCNTL} $N_s$ [{\it name} {\it nbytes}] ...
+\end{quote}
+\paragraph{機能}
+SUBCNTL 文はデータファイルが持つべき SUBC レコードについて設定する。
+\DefRef{INFORMATION} と異なり、
+1つの定義ファイルには SUBCNTL 文は1つだけ記述し、
+そこに $N_s$ 個の SUBC レコードすべてを記述する。
+
+名前 {\it name} は4文字以下の名前で、
+使える名前は
+{\tt ETA\SPC}, {\tt SIGM}, {\tt ZHYB}, {\tt RGAU},
+{\tt RADR}, {\tt RADS}, {\tt DPRD}, {\tt ISPC}, {\tt DELT},
+{\tt TDIF}, {\tt LOCA}
+のいずれかである。
+
+長さ {\it nbytes} は SUBC のペイロードつまり
+\TabRef{table.fmt.subc} の項番 6 の長さであるが、
+{\tt RADR}, {\tt RADS}, {\tt DPRD}, {\tt ISPC},
+{\tt TDIF}, {\tt LOCA}
+(いいかえると preset できないもの)
+についてはメンバ数 $N_M$ (もしあれば) と対象時刻数 $N_V$ だけ繰り返されるので
+本当のレコード長は次式で与えられる:
+\[
+	\hbox{(項番6のバイト数)} = N_M \times N_V \times {\it nbytes}.
+\]
+
+\paragraph{省略時}
+登録されていない SUBC レコードは書き出せないので、
+データファイルに
+SUBC レコードを作ることはできなくなる。
+
+\section{TYPE1: 種別1の設定}
+\label{sec:def:TYPE1}
+\paragraph{書式}
+\begin{quote}
+{\tt TYPE1} {\it model 2d 3d}
+\end{quote}
+\paragraph{機能}
+TYPE1 文は種別1を
+{\it model}, {\it 2d}, {\it 3d} を連結した文字列に
+設定する。
+引数 {\it model}, {\it 2d}, {\it 3d} は
+それぞれモデル名 [\TabRef{tab:model}],
+2次元座標名 [\TabRef{tab:2dname}],
+3次元座標名 [\TabRef{tab:3dname}],
+である。
+\paragraph{必須性}
+TYPE1 文を省略してはならない。
+そのような定義ファイルが存在しても参照する方法がない。
+
+\section{TYPE2: 種別2の設定}
+\label{sec:def:TYPE2}
+\paragraph{書式}
+\begin{quote}
+{\tt TYPE2} {\it attribute time}
+\end{quote}
+\paragraph{機能}
+TYPE2 文は種別2を
+{\it attribute} と {\it time} を連結した文字列に設定する。
+引数 {\it attribute} と {\it time} は
+それぞれ属性名 [\TabRef{tab:attribute}] と
+時間種別名 [\TabRef{tab:time}]
+である。
+\paragraph{必須性}
+TYPE2 文を省略してはならない。
+そのような定義ファイルが存在しても参照する方法がない。
+
+\section{TYPE3: 種別3の設定}
+\label{sec:def:TYPE3}
+\paragraph{書式}
+\begin{quote}
+{\tt TYPE3} {\it name}
+\end{quote}
+\paragraph{機能}
+TYPE3 文は種別3を {\it name} に設定する。
+種別3は4文字の英数字または下線である。
+末尾には空白があってもよい、つまり3文字の種別3を設定することができるが、
+混乱の元なので推奨しない。
+\paragraph{必須性}
+TYPE3 文を省略してはならない。
+そのような定義ファイルが存在しても参照する方法がない。
+
+\section{VALIDTIME: 対象時刻の数を設定}
+\label{sec:def:VALIDTIME}
+\paragraph{書式}
+次のいずれか:
+\begin{quote}
+{\tt VALIDTIME} $N_V$ {\it tunits} {\tt IN}\\
+{\tt VALIDTIME} $N_V$ {\it tunits} {\tt OUT}\\
+{\tt VALIDTIME} $N_V$ {\tt IN} {\it tunits}\\
+{\tt VALIDTIME} $N_V$ {\tt OUT} {\it tunits}\\
+\end{quote}
+\paragraph{位置制約}
+\DefRef{ELEMENTMAP},
+\DefRef{VALIDTIME1},
+\DefRef{VALIDTIME2} (あれば)
+より先に記述しなければならない。
+\paragraph{機能}
+VALIDTIME 文は対象時刻の数を設定する。
+引数 {\tt IN} は異なる対象時刻のデータがひとつのデータファイルに
+書かれることを意味し、
+引数 {\tt OUT} は異なる対象時刻のデータは別のデータファイルに
+書かれることを意味する。
+時間の単位 {\it tunits} は予報時間の単位で、次のいずれかである;
+{\tt MIN}: 分,
+{\tt HOUR}: 時,
+{\tt DAY}: 日,
+{\tt WEEK}: 週,
+{\tt PENT}: 暦日半旬,
+{\tt JUN}: 旬,
+{\tt MONT}: 月.
+\paragraph{必須性}
+VALIDTIME 文を省略してはならない。
+
+\section{VALIDTIME1: 予報時間リストを設定}
+\label{sec:def:VALIDTIME1}
+\paragraph{書式}
+次のいずれか:
+\begin{quote}
+{\tt VALIDTIME1 ARITHMETIC} {\it first} {\it step} \\
+{\tt VALIDTIME1 ALL\_LIST} {\it ft} ...
+\end{quote}
+\paragraph{位置制約}
+\DefRef{VALIDTIME} より後に記述しなければならない。
+\paragraph{機能}
+VALIDTIME1 文は予報時間のリストを設定する。
+キーワード {\tt ARITHMETIC} が用いられた場合は
+初項 {\it first}, 交差 {\it step} の等差数列となる。
+キーワード {\tt ALL\_LIST} が用いられた場合は
+$N_V$ 個の予報時間のリストを記述する。
+予報時間は整数でなければならないが、負値でもよい。
+\paragraph{必須性}
+VALIDTIME1 文を省略してはならない。
+
+\section{VALIDTIME2: 範囲の予報時間を設定}
+\label{sec:def:VALIDTIME2}
+\paragraph{書式}
+次のいずれか
+\begin{quote}
+{\tt VALIDTIME2} {\tt -}{\it ft} \\
+{\tt VALIDTIME2} {\it ft} ...
+\end{quote}
+\paragraph{機能}
+VALIDTIME2 文は対象時刻を範囲で設定するデータセットのための機能で、
+実例が皆無である。
+最初の数値が負値 ${}-{}${\it ft} であれば、
+$N_V$ 個の予報時間2 はすべて {\it ft} (符号反転値) である。
+そうでなければ
+あたかも VALIDTIME1 文の ALL\_LIST 設定時のように
+$N_V$ 個の予報時間2 の一覧を設定する。
+\paragraph{省略時}
+{\tt VALIDTIME2 -1} が設定されたかのように
+すべて $1$ が仮定される。
+
+\section{VALUE: 格子の空間代表性を設定}
+\label{sec:def:VALUE}
+\paragraph{書式}
+次のいずれか:
+\begin{quote}
+{\tt VALUE PVAL}\\
+{\tt VALUE MEAN}\\
+{\tt VALUE REPR}
+\end{quote}
+\paragraph{機能}
+VALUE 文はデータが格子点近傍の場をどのように代表しているかを設定する。
+許される値については\TabRef{tab:value}を参照。
+
+\paragraph{省略時}
+{\tt VALUE PVAL} が仮定される。

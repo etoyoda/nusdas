@@ -1,0 +1,66 @@
+\subsection{srf\_lv\_set: 実数からレベル値への変換}
+\APILabel{srf.lv.set}
+
+\Prototype
+\begin{quote}
+int {\bf srf\_lv\_set}(N\_SI4 {\it idat}[\,], const float {\it fdat}[\,], int {\it dnum}, N\_SI4 {\it ispec}[\,], const char $\ast${\it param});
+\end{quote}
+
+\begin{tabular}{l|rp{20em}}
+\hline
+\ArgName & \ArgType & \ArgRole \\
+\hline
+{\it idat} & N\_SI4 [\,] &  レベル値格納配列  \\
+{\it fdat} & const float [\,] &  変換元データ配列  \\
+{\it dnum} & int &  データ配列要素数  \\
+{\it ispec} & N\_SI4 [\,] &  新 ISPC  \\
+{\it param} & const char $\ast$ &  変換テーブル名  \\
+\hline
+\end{tabular}
+\paragraph{\FuncDesc}
+配列 {\it fdat} の実数データをレベル値 {\it idat} に変換し、
+ISPC 配列 {\it ispec} にレベル代表値をセットする。
+変換テーブルとしてファイル ./SRF\_LV\_TABLE/param.ltb を読む。
+ここで {\it param} は変換テーブル名 (最長 4 字) である。
+
+\paragraph{\ResultCode}
+\begin{quote}
+\begin{description}
+\item[{\bf -1}] 変換テーブルを開くことができない
+\item[{\bf -2}] 変換テーブルに 256 以上のレベルが指定されている
+\item[{\bf 正}] 変換に成功した。返却値はレベル数
+\end{description}\end{quote}
+
+\paragraph{注}
+\begin{itemize}
+\item 
+NAPS7 では変換テーブルとして
+her ier prr pmf srr srf pr2
+を用意していた。
+NAPS8 では \newline 
+/grpK/nwp/Open/Const/Vsrf/Comm/lvtbl.txd 以下に
+her ie2 ier kor pft pm2 pmf pr2 prr sr1 sr2 sr3 srf srj srr yar yrr
+が置かれている。
+ルーチンジョブではこのディレクトリへシンボリックリンク SRF\_LV\_TABLE
+を張って利用する。
+\item 
+変換テーブル名が ie2, kor, pft のとき,
+ISPEC には変換テーブルに書かれた代表値の 1/10 が書かれる。
+それ以外の場合は変換テーブルの代表値がそのまま書かれる。
+\item 
+変換テーブル名が sr2 または srj のときは実数データが -900.0 より小さい
+ものが欠損値とみなされる。そうでなければ、負値が欠損値とみなされる
+(NAPS7 のマニュアルでは欠損値は -1 を指定することとされている)。
+\item 
+変換テーブル名が srj のときは、実数データが変換テーブルの下限値に
+正確に一致しないと最も上の階級 (具体的には 42 で 21.0を意味する)
+に割り当てられる。この挙動はバグかもしれない。
+\item 
+変換テーブルに 191 行以上書かれているとき、
+最初の 190 行だけが用いられ、レベル値は 0..190 となるが、
+返却値には実際のレベル数 (変換テーブルの行数 + 1) が返される。
+これは ispec の配列をオーバーフローしないためである。
+\end{itemize}
+\paragraph{履歴}
+この関数は NAPS7 時代から存在した。
+Fortran ラッパーが文字列の長さを伝えないバグは NuSDaS 1.3 で解決した。

@@ -1,0 +1,188 @@
+\documentclass[10pt,a4paper]{report}
+ \usepackage{ascmac}
+ \usepackage{longtable}
+ \usepackage{sectbars}
+ %\usepackage{a4j}
+ \usepackage[dvipdfmx]{graphicx}
+ \usepackage[dvipdfmx,bookmarks=true,bookmarksnumbered=true,%
+ bookmarkstype=toc]{hyperref}
+ \ifnum 42146=\euc"A4A2 \AtBeginDvi{\special{pdf:tounicode EUC-UCS2}}\else
+ \AtBeginDvi{\special{pdf:tounicode 90ms-RKSJ-UCS2}}\fi
+ \newcommand{\ChapRef}[1]{\ref{#1}章 (p. \pageref{#1})}
+ \newcommand{\SectionRef}[1]{\ref{#1}節 (p. \pageref{#1})}
+ \newcommand{\DefRef}[1]{#1 文 (\ref{sec:def:#1} 節, p. \pageref{sec:def:#1})}
+ \newcommand{\EqRef}[1]{式 \ref{#1} (p. \pageref{#1})}
+ \newcommand{\TabRef}[1]{Table \ref{#1} (p. \pageref{#1})}
+ \newcommand{\APIRef}[2]{#2 (p. \pageref{fapi:#1}, \pageref{capi:#1})}
+ \newcommand{\SPC}{\symbol{"01}}
+ \newcommand{\BACKSLASH}{\symbol{"5C}}
+ \newcommand{\HEADINGS}{%
+	\pagestyle{myheadings}%
+	\markright{NuSDaS 1.4-2(2020-01-21)}%
+ }
+ \newcommand{\Chapter}[1]{\chapter{#1}\HEADINGS}
+ \renewcommand{\thefootnote}{(注\arabic{footnote})}
+ \setlength{\textheight}{24cm}
+ \setlength{\topmargin}{-5mm}
+ \setlength{\oddsidemargin}{-5mm}
+ \setlength{\evensidemargin}{-5mm}
+ \setlength{\textwidth}{17cm}
+\begin{document}
+
+ \HEADINGS
+ \thispagestyle{empty}
+ \begin{center}
+ \bf\LARGE
+ \vspace*{\fill}
+ NuSDaS
+ \\
+ （数値予報標準データセットシステム）
+ \\
+ バージョン 1.4-2\\
+ \vspace*{\fill}
+ 2020-01-21
+ \\
+ 気象庁 \\
+ \vspace*{\fill}
+ \end{center}
+ \clearpage
+
+\section*{改訂履歴}
+\begin{center}
+\begin{tabular}{|c|p{30zw}|}
+\hline
+日付 & 変更点 \\
+\hline
+2007-03-30 & 初版 (豊田　英司, 原　旅人) \\
+\hline
+2007-04-16 & 第2版 GS, RGの使い分けと「検証」用の種別追加(横井　信太郎)\\
+\hline
+2007-05-02 & 第3版 STDIO を標準にするオプション、入力バッファを使わない
+ オプションの実装と記述の追加(原　旅人)\\
+\hline
+2007-06-22 & 第4版 GS と RG の定義ファイルについて、補足説明追加と。
+Sun sparc でのコンパイルの仕方を記述(横井　信太郎)\\
+\hline
+2007-06-28 & 第5版 基本時刻のリスト問い合わせ関数の戻値の説明を追加
+(横井　信太郎)\\
+\hline
+2008-04-03 & 第6版 SUBC DPRD のフォーマットの説明を追加。 
+(横井　信太郎)\\
+\hline
+2008-06-13 & 第7版 NuSDaS 要素名の追加と要素名の先頭の「 \_ 」の扱いを明記。 
+(横井　信太郎)\\
+\hline
+2008-06-18 & 第8版 NuSDaS 要素名の追加と要素名の先頭の「 . 」の扱いを明記。 
+(横井　信太郎)\\
+\hline
+2008-12-11 & 第9版 要素名の先頭の「 A\_ 」、「 I\_ 」の扱いを明記。 
+(横井　信太郎)\\
+\hline
+2009-01-23 & 第9.1版 誤字修正
+(田浦　俊太郎)\\
+\hline
+2009-01-30 & 第10版 要素名 PSI(流線関数) を追加。
+(横井　信太郎)\\
+\hline
+2009-02-19 & 第10.1版 要素の単位 SnWe と SnowD の単位を追加
+(横井　信太郎)\\
+\hline
+2011-11-09 & 第10.2版 「間引きガウス格子」→「適合ガウス格子」
+(長谷川 昌樹)\\
+\hline
+2012-09-19 & 第10.3版 ランベルトの表式の誤りを訂正;
+ パッキング2UPJの説明
+(豊田 英司)\\
+\hline
+2014-11-21 & r4351--r4353 パッキング1PAC, 2PAC, 2UPJ, 4PAC の説明の訂正;
+ r4354 用語: パラメータ名→要素名
+(豊田 英司) \\
+\hline
+2014-11-25 & r4359 (設定初期値の誤り);
+r4360 (時間範囲に関するドキュメント改善)
+(豊田 英司) \\
+\hline
+2014-12-10 & r4369 aio, mmap, ibmshmat 廃止 (豊田 英司) \\
+\hline
+2014-12-12 & r4376 実行時オプション GSVB 新設 (豊田 英司) \\
+\hline
+2015-01-08 & r4380 ES 対応, r4386 OpenMP 対応,
+	r4388 実行時・コンパイル時オプションの説明改善 (豊田 英司) \\
+\hline
+2015-03-31 & r4407 リトルエンディアン機でのバグ対応,
+r4413 SUBCを上書きするとENDレコードが壊れる問題対処,
+r4420 複合差分圧縮,
+r4432 NAPS インストールツール再整備
+(豊田 英司) \\
+\hline
+2017-06-09 & 「ビットマスク」と「マスクビット」を「マスクビット」に統一。
+定義ファイルでバージョン省略した際の挙動を最新の仕様に変更。
+R4(R8) で欠損値を利用する際の注意点を追記
+(雁津 克彦) \\
+\hline
+2017-07-27 & 複合差分圧縮用のユーザインターフェースを実装
+(雁津 克彦) \\
+\hline
+2017-10-20 & 複合差分圧縮の圧縮手順を追記
+(雁津 克彦) \\
+\hline
+2017-12-18 & PATH文の説明修正
+(雁津 克彦) \\
+\hline
+2018-06-15 & レコード形式と適合ガウス格子の誤植修正
+(雁津 克彦) \\
+\hline
+2019-06-03 & NuSDaS1.4-1:
+fsync,NTMS,エラーコード-83,テープライブラリについて追記。
+N\_NDを新規実装,レコード数が不正になる不具合修正
+(雁津 克彦) \\
+\hline
+2020-01-21 & NuSDaS1.4-2:
+NTMSをGNTSに変更、Lustre末尾欠落問題に対応、不正読み込み時に戻り値が正常とならないよう修正
+(雁津 克彦) \\
+\hline
+\end{tabular}
+\end{center}
+
+ \tableofcontents
+ % Chapter はじめに
+ \include{general}
+ % Chapter 利用の手引
+ \include{usage}
+ \include{opts}
+ \include{datamodel}
+ % Chapter ガイドライン
+ \include{writers}
+ \include{readers}
+ % Chapter 定義ファイルリファレンス
+ \include{deffile}
+ % Chapter Fortran リファレンスマニュアル
+ \sloppy
+ \include{fapi}
+ % Chapter C リファレンスマニュアル
+ \include{capi}
+ \fussy
+ % Chapter ネットワーク NuSDaS
+ \include{nusdas_net}
+\appendix
+ % Chapter データファイル形式
+ \include{format}
+ % Chapter 数値・名前の表
+ \include{tables}
+ % Chapter 
+ \include{proj}
+ % Chapter 
+ \include{packing}
+ % Chapter 
+ \include{changes}
+ % Chapter 
+ \sloppy
+ \include{api2}
+ \fussy
+ \Chapter{pandora}
+ \include{pandora_driver_for_nusdas}
+ \include{pandora_driver_lib}
+ \include{pandora_lib}
+ \bibliographystyle{jplain}
+ \bibliography{nusref}
+\end{document}

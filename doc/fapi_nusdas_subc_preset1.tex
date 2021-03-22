@@ -1,0 +1,40 @@
+\subsection{NUSDAS\_SUBC\_PRESET1: SUBC ETA/SIGM のデフォルト値設定 }
+\APILabel{nusdas.subc.preset1}
+
+\Prototype
+\begin{quote}
+CALL {\bf NUSDAS\_SUBC\_PRESET1}({\it type1}, {\it type2}, {\it type3}, {\it group}, {\it n\_levels}, {\it a}, {\it b}, {\it c}, {\it result})
+\end{quote}
+
+\begin{tabular}{l|rllp{16em}}
+\hline
+\ArgName & \ArgType & \ArrayDim & I/O & \ArgRole \\
+\hline
+{\it type1} & CHARACTER(8) &  & IN &  種別1  \\
+{\it type2} & CHARACTER(4) &  & IN &  種別2  \\
+{\it type3} & CHARACTER(4) &  & IN &  種別3  \\
+{\it group} & CHARACTER(4) &  & IN &  群名  \\
+{\it n\_levels} & INTEGER(4) &  & IN &  鉛直層数  \\
+{\it a} & REAL(4) & \AnySize & I/O &  係数 a  \\
+{\it b} & REAL(4) & \AnySize & I/O &  係数 b  \\
+{\it c} & REAL(4) &  & I/O &  係数 c  \\
+{\it result} & INTEGER(4) &  & OUT & \ResultCode \\
+\hline
+\end{tabular}
+\paragraph{\FuncDesc}ファイルが新たに生成される際にETA, SIGMに書き込む値を設定する。
+SIGM や引数については nusdas\_subc\_eta を参照。
+引数の「群名」には、"ETA " または "SIGM" を指定する。
+\paragraph{\ResultCode}
+\begin{quote}
+\begin{description}
+\item[{\bf 0}] 正常終了
+\item[{\bf -1}] 定義ファイルに指定した群名が登録されていない
+\item[{\bf -2}] メモリの確保に失敗した
+\item[{\bf -3}] レコードのサイズが不正
+\end{description}\end{quote}
+
+\paragraph{ 互換性 }
+NuSDaS1.1 では、一つのNuSDaSデータセットに設定できる補助管理部の数は最大
+10 に制限されており、それを超えると-2が返された。一方、 NuSDaS 1.3 からは
+メモリが確保できる限り数に制限はなく、-2 をメモリ確保失敗のエラーコードに
+読み替えている。

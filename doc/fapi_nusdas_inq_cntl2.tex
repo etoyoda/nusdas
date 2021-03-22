@@ -1,0 +1,25 @@
+\subsection{NUSDAS\_INQ\_CNTL2: データファイルの諸元問合せ }
+\APILabel{nusdas.inq.cntl2}
+
+\Prototype
+\begin{quote}
+CALL {\bf NUSDAS\_INQ\_CNTL2}({\it type1}, {\it type2}, {\it type3}, {\it basetime}, {\it member}, {\it validtime1}, {\it validtime2}, {\it param}, {\it data}, {\it datasize}, {\it result})
+\end{quote}
+
+\begin{tabular}{l|rllp{16em}}
+\hline
+\ArgName & \ArgType & \ArrayDim & I/O & \ArgRole \\
+\hline
+{\it type1} & CHARACTER(8) &  & IN &  種別1  \\
+{\it type2} & CHARACTER(4) &  & IN &  種別2  \\
+{\it type3} & CHARACTER(4) &  & IN &  種別3  \\
+{\it basetime} & INTEGER(4) &  & IN &  基準時刻(通算分)  \\
+{\it member} & CHARACTER(4) &  & IN &  メンバー名  \\
+{\it validtime1} & INTEGER(4) &  & IN &  対象時刻1(通算分)  \\
+{\it validtime2} & INTEGER(4) &  & IN &  対象時刻2(通算分)  \\
+{\it param} & INTEGER(4) &  & IN &  問合せ項目コード  \\
+{\it data} & \AnyType & \AnySize & OUT &  問合せ結果配列  \\
+{\it datasize} & INTEGER(4) &  & IN &  問合せ結果配列の要素数  \\
+{\it result} & INTEGER(4) &  & OUT & \ResultCode \\
+\hline
+\end{tabular}

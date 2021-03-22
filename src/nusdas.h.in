@@ -1,0 +1,922 @@
+/** \file
+ * \brief Common declarations for library users.
+ *
+ * All user and library source code is supposed to include this file.
+ */
+
+#ifndef NUSDAS_H
+#define NUSDAS_H
+
+#ifndef UCHAR_MAX
+# include <limits.h>
+#endif
+#ifndef FLT_MAX
+# include <float.h>
+#endif
+
+#define N_NUSDAS_VERSION 14
+
+/** unsigned integer with exactly 8 bits */
+typedef unsigned char		N_UI1;
+/** signed integer with exactly 8 bits */
+typedef signed char		N_SI1;
+
+/** signed integer with exactly 16 bits */
+typedef @SI2_TYPE@		N_SI2;
+/** unsigned integer with exactly 16 bits */
+typedef unsigned @SI2_TYPE@	N_UI2;
+
+/** signed integer with exactly 32 bits */
+typedef @SI4_TYPE@		N_SI4;
+/** unsigned integer with exactly 32 bits */
+typedef unsigned @SI4_TYPE@	N_UI4;
+
+#define HAVE_SI8_TYPE		@HAVE_SI8_TYPE@
+#if HAVE_SI8_TYPE
+/** signed integer with exactly 64 bits */
+typedef @SI8_TYPE@		N_SI8;
+/** unsigned integer with exactly 64 bits */
+typedef unsigned @SI8_TYPE@	N_UI8;
+#else
+typedef struct N_UI8 { N_UI4 loaddr, hiaddr; } N_UI8;
+typedef N_UI8 N_SI8;
+#endif
+
+N_SI4 NuSDaS_allfile_close(N_SI4 param);
+
+N_SI4 NuSDaS_cut(const char type1[8],
+		const char type2[4],
+		const char type3[4],
+		const N_SI4 *basetime,
+		const char member[4],
+		const N_SI4 *validtime,
+		const char plane[6],
+		const char element[6],
+		void *udata,
+		const char utype[2],
+		const N_SI4 *usize,
+		const N_SI4 *ixstart,
+		const N_SI4 *ixfinal,
+		const N_SI4 *iystart,
+		const N_SI4 *iyfinal);
+
+N_SI4 NuSDaS_cut2(const char type1[8],
+		const char type2[4],
+		const char type3[4],
+		const N_SI4 *basetime,
+		const char member[4],
+		const N_SI4 *validtime1,
+		const N_SI4 *validtime2,
+		const char plane1[6],
+		const char plane2[6],
+		const char element[6],
+		void *udata,
+		const char utype[2],
+		const N_SI4 *usize,
+		const N_SI4 *ixstart,
+		const N_SI4 *ixfinal,
+		const N_SI4 *iystart,
+		const N_SI4 *iyfinal);
+
+N_SI4 NuSDaS_cut_raw(const char type1[8],
+		const char type2[4],
+		const char type3[4],
+		const N_SI4 *basetime,
+		const char member[4],
+		const N_SI4 *validtime,
+		const char plane[6],
+		const char element[6],
+		void *udata,
+		const N_SI4 *usize,
+		const N_SI4 *ixstart,
+		const N_SI4 *ixfinal,
+		const N_SI4 *iystart,
+		const N_SI4 *iyfinal);
+
+N_SI4 NuSDaS_cut2_raw(const char type1[8],
+		const char type2[4],
+		const char type3[4],
+		const N_SI4 *basetime,
+		const char member[4],
+		const N_SI4 *validtime1,
+		const N_SI4 *validtime2,
+		const char plane1[6],
+		const char plane2[6],
+		const char element[6],
+		void *udata,
+		const N_SI4 *usize,
+		const N_SI4 *ixstart,
+		const N_SI4 *ixfinal,
+		const N_SI4 *iystart,
+		const N_SI4 *iyfinal);
+
+N_SI4 NuSDaS_decode_rlen_nbit_I1(unsigned char udata[],
+		const unsigned char compressed_data[],
+		N_SI4 compressed_nbytes,
+		N_SI4 udata_nelems,
+		N_SI4 maxvalue,
+		N_SI4 nbit);
+
+N_SI4 NuSDaS_encode_rlen_8bit_I1(const unsigned char udata[],
+		unsigned char compressed_data[],
+		N_SI4 udata_nelems,
+		N_SI4 max_compress_nbytes,
+		N_SI4 *maxvalue);
+
+N_SI4 NuSDaS_encode_rlen_8bit(const N_SI4 udata[],
+		unsigned char compressed_data[],
+		N_SI4 udata_nelems,
+		N_SI4 max_compress_nbytes,
+		N_SI4 *maxvalue);
+
+N_SI4 NuSDaS_esf_flush(const char type1[8],
+		const char type2[4],
+		const char type3[4],
+		const N_SI4 *basetime,
+		const char member[4],
+		const N_SI4 *validtime1);
+
+N_SI4 NuSDaS_grid(const char type1[8],
+		const char type2[4],
+		const char type3[4],
+		const N_SI4 *basetime,
+		const char member[4],
+		const N_SI4 *validtime,
+		char	proj[4],
+		N_SI4	gridsize[2],
+		float	*gridinfo,
+		char	value[4],
+		const char getput[3]);
+
+N_SI4 NuSDaS_grid2(const char type1[8],
+		const char type2[4],
+		const char type3[4],
+		const N_SI4 *basetime,
+		const char member[4],
+		const N_SI4 *validtime1,
+		const N_SI4 *validtime2,
+		char	proj[4],
+		N_SI4	gridsize[2],
+		float	*gridinfo,
+		char	value[4],
+		const char getput[3]);
+
+N_SI4 NuSDaS_gzip(const void *in_data, 
+		N_UI4 in_nbytes, 
+		void *out_buf, 
+		N_UI4 out_nbytes);
+
+N_SI4 NuSDaS_gunzip_nbytes(const void *in_data, 
+		N_UI4 in_nbytes);
+
+N_SI4 NuSDaS_gunzip(const void *in_data, 
+		N_UI4 in_nbytes, 
+		void *out_buf, 
+		N_UI4 out_nbytes);
+
+N_SI4 NuSDaS_info(const char type1[8],
+		const char type2[4],
+		const char type3[4],
+		const N_SI4 *basetime,
+		const char member[4],
+		const N_SI4 *validtime,
+		const char group[4],
+		char	info[],
+		const N_SI4 bytesize[1],
+		const char getput[3]);
+
+N_SI4 NuSDaS_info2(const char type1[8],
+		const char type2[4],
+		const char type3[4],
+		const N_SI4 *basetime,
+		const char member[4],
+		const N_SI4 *validtime1,
+		const N_SI4 *validtime2,
+		const char group[4],
+		char	info[],
+		const N_SI4 *bytesize,
+		const char getput[3]);
+
+N_SI4 NuSDaS_inq_cntl(const char type1[8],
+		const char type2[4],
+		const char type3[4],
+		const N_SI4 *basetime,
+		const char member[4],
+		const N_SI4 *validtime,
+		N_SI4 param,
+		void *data,
+		const N_SI4 *datasize);
+
+N_SI4 NuSDaS_inq_cntl2(const char type1[8],
+		const char type2[4],
+		const char type3[4],
+		const N_SI4 *basetime,
+		const char member[4],
+		const N_SI4 *validtime1,
+		const N_SI4 *validtime2,
+		N_SI4 param,
+		void *data,
+		const N_SI4 *datasize);
+
+N_SI4 NuSDaS_inq_data(const char type1[8],
+		const char type2[4],
+		const char type3[4],
+		const N_SI4 *basetime,
+		const char member[4],
+		const N_SI4 *validtime,
+		const char plane[6],
+		const char element[6],
+		N_SI4 param,
+		void *data,
+		const N_SI4 *datasize);
+
+N_SI4 NuSDaS_inq_data2(const char type1[8],
+		const char type2[4],
+		const char type3[4],
+		const N_SI4 *basetime,
+		const char member[4],
+		const N_SI4 *validtime1,
+		const N_SI4 *validtime2,
+		const char plane1[6],
+		const char plane2[6],
+		const char element[6],
+		N_SI4 param,
+		void *data,
+		const N_SI4 *datasize);
+
+N_SI4 NuSDaS_inq_def(const char type1[8],
+		const char type2[4],
+		const char type3[4],
+		const N_SI4 param,
+		void	*data,
+		const N_SI4 *datasize);
+
+N_SI4 NuSDaS_inq_nrdbtime(const char type1[8],
+		const char type2[4],
+		const char type3[4],
+		N_SI4 *btlist,
+		const N_SI4 *btmax,
+		N_SI4 pflag);
+
+N_SI4 NuSDaS_inq_nrdvtime(const char type1[8],
+		const char type2[4],
+		const char type3[4],
+		N_SI4 *vtlist,
+		const N_SI4 *vtlistsize,
+		const N_SI4 *basetime,
+		N_SI4 pflag);
+
+N_SI4 NuSDaS_inq_parameter(N_SI4 item, void *data);
+
+N_SI4 NuSDaS_inq_subcinfo(const char type1[8],
+		const char type2[4],
+		const char type3[4],
+		const N_SI4 *basetime,
+		const char member[4],
+		const N_SI4 *validtime,
+		N_SI4 query,
+		const char group[4],
+		void *buf,
+		const N_SI4 bufnelems);
+
+N_SI4 NuSDaS_iocntl(N_SI4 param, N_SI4 value);
+
+N_SI4 NuSDaS_make_mask(const void *udata,
+		const char utype[2],
+		const N_SI4 *usize,
+		void *maskbits,
+		const N_SI4 *mb_bytes);
+
+N_SI4 NuSDaS_onefile_close(const char type1[8],
+		const char type2[4],
+		const char type3[4],
+		const N_SI4 *basetime,
+		const char member[4],
+		const N_SI4 *validtime);
+
+N_SI4 NuSDaS_onefile_close2(const char type1[8],
+		const char type2[4],
+		const char type3[4],
+		const N_SI4 *basetime,
+		const char member[4],
+		const N_SI4 *validtime1,
+		const N_SI4 *validtime2);
+
+N_SI4 NuSDaS_parameter_change(N_SI4 param,
+		const void *value);
+
+N_SI4 NuSDaS_parameter_reset(N_SI4 param);
+
+N_SI4 NuSDaS_read(const char type1[8],
+		const char type2[4],
+		const char type3[4],
+		const N_SI4 *basetime,
+		const char member[4],
+		const N_SI4 *validtime,
+		const char plane[6],
+		const char element[6],
+		void *udata,
+		const char utype[2],
+		const N_SI4 *usize);
+
+N_SI4 NuSDaS_read2(const char type1[8],
+		const char type2[4],
+		const char type3[4],
+		const N_SI4 *basetime,
+		const char member[4],
+		const N_SI4 *validtime1,
+		const N_SI4 *validtime2,
+		const char plane1[6],
+		const char plane2[6],
+		const char element[6],
+		void *udata,
+		const char utype[2],
+		const N_SI4 *usize);
+
+N_SI4 NuSDaS_read2_raw(const char type1[8],
+		const char type2[4],
+		const char type3[4],
+	     	const N_SI4 *basetime,
+		const char member[4],
+		const N_SI4 *validtime1,
+		const N_SI4 *validtime2,
+		const char plane1[6],
+		const char plane2[6],
+		const char element[6],
+		void *buf,
+		const N_SI4 *buf_nbytes);
+
+N_SI4 NuSDaS_read_3d(const char type1[8],
+		const char type2[4],
+		const char type3[4],
+		const N_SI4 *basetime,
+		const char member[][4],
+		const N_SI4 validtime[],
+		const char plane[][6],
+		const char element[][6],
+		const N_SI4 *nrecs,
+		void *udata,
+		const char utype[2],
+		const N_SI4 *usize);
+
+N_SI4 NuSDaS_scan_ds(char type1[8],
+		char type2[4],
+		char type3[4],
+		N_SI4 *nrd);
+
+N_SI4 NuSDaS_set_mask(const char type1[8],
+		const char type2[4],
+		const char type3[4],
+		const void *udata,
+		const char utype[2],
+		N_SI4 usize);
+
+N_SI4 NuSDaS_subc_delt(const char type1[8],
+		const char type2[4],
+		const char type3[4],
+		const N_SI4 *basetime,
+		const char member[4],
+		const N_SI4 *validtime,
+		float *delt,
+		const char getput[3]);
+
+N_SI4 NuSDaS_subc_delt2(const char type1[8],
+		const char type2[4],
+		const char type3[4],
+		const N_SI4 *basetime,
+		const char member[4],
+		const N_SI4 *validtime1,
+		const N_SI4 *validtime2,
+		float *delt,
+		const char getput[3]);
+
+N_SI4 NuSDaS_subc_delt_preset1(const char type1[8],
+		const char type2[4],
+		const char type3[4],
+		const float *delt);
+
+N_SI4 NuSDaS_subc_eta(const char type1[8],
+		const char type2[4],
+		const char type3[4],
+		const N_SI4 *basetime,
+		const char member[4],
+		const N_SI4 *validtime,
+		N_SI4 *n_levels,
+		float *a,
+		float *b,
+		float *c,
+		const char getput[3]);
+
+N_SI4 NuSDaS_subc_eta2(const char type1[8],
+		const char type2[4],
+		const char type3[4],
+		const N_SI4 *basetime,
+		const char member[4],
+		const N_SI4 *validtime1,
+		const N_SI4 *validtime2,
+		N_SI4 *n_levels,
+		float *a,
+		float *b,
+		float *c,
+		const char getput[3]);
+
+N_SI4 NuSDaS_subc_eta_inq_nz(const char type1[8],
+		const char type2[4],
+		const char type3[4],
+	        const N_SI4 *basetime,
+		const char member[4],
+		const N_SI4 *validtime,
+		const char group[4],
+		N_SI4 *n_levels);
+
+N_SI4 NuSDaS_subc_eta_inq_nz2(const char type1[8],
+		const char type2[4],
+		const char type3[4],
+	        const N_SI4 *basetime,
+		const char member[4],
+		const N_SI4 *validtime1,
+		const N_SI4 *validtime2,
+		const char group[4],
+		N_SI4 *n_levels);
+
+N_SI4 NuSDaS_subc_preset1(const char type1[8],
+		const char type2[4],
+		const char type3[4],
+		const char group[4],
+		const N_SI4 *n_levels,
+		float *a,
+		float *b,
+		float *c);
+
+N_SI4 NuSDaS_subc_rgau(const char type1[8],
+		const char type2[4],
+		const char type3[4],
+		const N_SI4 *basetime,
+		const char member[4],
+		const N_SI4 *validtime,
+		N_SI4 *j,
+		N_SI4 *j_start,
+		N_SI4 *j_n,
+		N_SI4 i[],
+		N_SI4 i_start[],
+		N_SI4 i_n[],
+		float lat[],
+		const char getput[3]);
+
+N_SI4 NuSDaS_subc_rgau2(const char type1[8],
+		const char type2[4],
+		const char type3[4],
+		const N_SI4 *basetime,
+		const char member[4],
+		const N_SI4 *validtime1,
+		const N_SI4 *validtime2,
+		N_SI4 *j,
+		N_SI4 *j_start,
+		N_SI4 *j_n,
+		N_SI4 i[],
+		N_SI4 i_start[],
+		N_SI4 i_n[],
+		float lat[],
+		const char getput[3]);
+
+N_SI4 NuSDaS_subc_rgau_inq_jn(const char type1[8],
+		const char type2[4],
+		const char type3[4],
+		const N_SI4 *basetime,
+		const char member[4],
+		const N_SI4 *validtime,
+		N_SI4 *j_n);
+
+N_SI4 NuSDaS_subc_rgau_inq_jn2(const char type1[8],
+		const char type2[4],
+		const char type3[4],
+		const N_SI4 *basetime,
+		const char member[4],
+		const N_SI4 *validtime1,
+		const N_SI4 *validtime2,
+		N_SI4 *j_n);
+
+N_SI4 NuSDaS_subc_rgau_preset1(const char type1[8],
+		const char type2[4],
+		const char type3[4],
+		const N_SI4 *j,
+		const N_SI4 *j_start,
+		const N_SI4 *j_n,
+		const N_SI4 i[],
+		const N_SI4 *i_start,
+		const N_SI4 *i_n,
+		const float lat[]);
+
+N_SI4 NuSDaS_subc_sigm(const char type1[8],
+		const char type2[4],
+		const char type3[4],
+		const N_SI4 *basetime,
+		const char member[4],
+		const N_SI4 *validtime,
+		N_SI4 *n_levels,
+		float *a,
+		float *b,
+		float *c,
+		const char getput[3]);
+
+N_SI4 NuSDaS_subc_sigm2(const char type1[8],
+		const char type2[4],
+		const char type3[4],
+		const N_SI4 *basetime,
+		const char member[4],
+		const N_SI4 *validtime1,
+		const N_SI4 *validtime2,
+		N_SI4 *n_levels,
+		float *a,
+		float *b,
+		float *c,
+		const char getput[3]);
+
+N_SI4 NuSDaS_subc_srf(const char type1[8],
+		const char type2[4],
+		const char type3[4],
+		const N_SI4 *basetime,
+		const char member[4],
+		const N_SI4 *validtime,
+		const char plane[6],
+		const char element[6],
+		const char group[4],
+		N_SI4 *data,
+		const char getput[3]);
+
+N_SI4 NuSDaS_subc_srf2(const char type1[8],
+		const char type2[4],
+		const char type3[4],
+		const N_SI4 *basetime,
+		const char member[4],
+		const N_SI4 *validtime1,
+		const N_SI4 *validtime2,
+		const char plane1[6],
+		const char plane2[6],
+		const char element[6],
+		const char group[4],
+		N_SI4 *data,
+		const char getput[3]);
+
+N_SI4 NuSDaS_subc_srf_ship(const char type1[8],
+		const char type2[4],
+		const char type3[4],
+		const N_SI4 *basetime,
+		const char member[4],
+		const N_SI4 *validtime,
+		N_SI4 *lat,
+		N_SI4 *lon,
+		const char getput[3]);
+
+N_SI4 NuSDaS_subc_srf_ship2(const char type1[8],
+		const char type2[4],
+		const char type3[4],
+		const N_SI4 *basetime,
+		const char member[4],
+		const N_SI4 *validtime1,
+		const N_SI4 *validtime2,
+		N_SI4 *lat,
+		N_SI4 *lon,
+		const char getput[3]);
+
+N_SI4 NuSDaS_subc_tdif(const char type1[8],
+		const char type2[4],
+		const char type3[4],
+		const N_SI4 *basetime,
+		const char member[4],
+		const N_SI4 *validtime,
+		N_SI4	*diff_time,
+		N_SI4	*total_sec,
+		const char getput[3]);
+
+N_SI4 NuSDaS_subc_tdif2(const char type1[8],
+		const char type2[4],
+		const char type3[4],
+		const N_SI4 *basetime,
+		const char member[4],
+		const N_SI4 *validtime1,
+		const N_SI4 *validtime2,
+		N_SI4	*diff_time,
+		N_SI4	*total_sec,
+		const char getput[3]);
+
+N_SI4 NuSDaS_subc_zhyb(const char type1[8],
+		const char type2[4],
+		const char type3[4],
+		const N_SI4 *basetime,
+		const char member[4],
+		const N_SI4 *validtime,
+		N_SI4 *nz,
+		float *ptrf,
+		float *presrf,
+		float zrp[],
+		float zrw[],
+		float vctrans_p[],
+		float vctrans_w[],
+		float dvtrans_p[],
+		float dvtrans_w[],
+		const char getput[3]);
+
+N_SI4 NuSDaS_subc_zhyb2(const char type1[8],
+		const char type2[4],
+		const char type3[4],
+		const N_SI4 *basetime,
+		const char member[4],
+		const N_SI4 *validtime1,
+		const N_SI4 *validtime2,
+		N_SI4 *nz,
+		float *ptrf,
+		float *presrf,
+		float zrp[],
+		float zrw[],
+		float vctrans_p[],
+		float vctrans_w[],
+		float dvtrans_p[],
+		float dvtrans_w[],
+		const char getput[3]);
+
+N_SI4 NuSDaS_subc_zhyb_preset1(const char type1[8],
+		const char type2[4],
+		const char type3[4],
+		const N_SI4 *nz,
+		const float *ptrf,
+		const float *presrf,
+		const float zrp[],
+		const float zrw[],
+		const float vctrans_p[],
+		const float vctrans_w[],
+		const float dvtrans_p[],
+		const float dvtrans_w[]);
+
+N_SI4 NuSDaS_write(const char type1[8],
+		const char type2[4],
+		const char type3[4],
+		const N_SI4 *basetime,
+		const char member[4],
+		const N_SI4 *validtime,
+		const char plane[6],
+		const char element[6],
+		const void *udata,
+		const char utype[2],
+		const N_SI4 *usize);
+
+N_SI4 NuSDaS_write2(const char type1[8],
+		const char type2[4],
+		const char type3[4],
+		const N_SI4 *basetime,
+		const char member[4],
+		const N_SI4 *validtime1,
+		const N_SI4 *validtime2,
+		const char plane1[6],
+		const char plane2[6],
+		const char element[6],
+		const void *udata,
+		const char utype[2],
+		const N_SI4 *usize);
+
+N_SI4 NuSDaS_write_3d(const char type1[8],
+		const char type2[4],
+		const char type3[4],
+		const N_SI4 *basetime,
+		const char member[][4],
+		const N_SI4 validtime[],
+		const char plane[][6],
+		const char element[][6],
+		const N_SI4 *nrecs,
+		const void *udata,
+		const char utype[2],
+		const N_SI4 *usize);
+
+N_SI4 NuSDaS_uncpsd_nbytes(const void *pdata);
+
+N_SI4 NuSDaS_uncpsd(const void *pdata,
+		void *cdata,
+		N_SI4 csize);
+
+N_SI4 NuSDaS_unpack(const void *pdata,
+		void *udata, 
+		const char utype[2], 
+		N_SI4 usize);
+
+typedef struct nusdas_bigfile N_BIGFILE;
+
+	N_BIGFILE *
+NuSDaS_bfopen(const char *pathname, const char *mode);
+
+	int
+NuSDaS_bfclose(N_BIGFILE *fp); 
+
+	unsigned long
+NuSDaS_bfread(void *ptr, unsigned long nbytes, N_BIGFILE *fp);
+
+	unsigned long
+NuSDaS_bfwrite(void *ptr, unsigned long nbytes, N_BIGFILE *fp);
+
+	unsigned long
+NuSDaS_bfread_native(void *ptr, unsigned long size, unsigned long nmemb,
+		N_BIGFILE *fp);
+
+	unsigned long
+NuSDaS_bfwrite_native(void *ptr, unsigned long size, unsigned long nmemb,
+		N_BIGFILE *fp);
+
+	int
+NuSDaS_bfgetpos(N_BIGFILE *bf, N_SI8 *pos);
+
+	int
+NuSDaS_bfsetpos(N_BIGFILE *bf, N_SI8 pos);
+
+	int
+NuSDaS_bfseek(N_BIGFILE *bf, long offset, int whence);
+
+	int
+NuSDaS_snprintf(char *buf, unsigned bufsize, const char *fmt, ...);
+
+void NuSDaS_swab2(void *ary, N_UI4 count);
+void NuSDaS_swab4(void *ary, N_UI4 count);
+void NuSDaS_swab8(void *ary, N_UI4 count);
+void NuSDaS_swab_fmt(void *ary, const char *fmt);
+
+# define bfopen			NuSDaS_bfopen
+# define bfclose		NuSDaS_bfclose
+# define bfread			NuSDaS_bfread
+# define bfwrite		NuSDaS_bfwrite
+# define bfread_native		NuSDaS_bfread_native
+# define bfwrite_native		NuSDaS_bfwrite_native
+# define bfseek			NuSDaS_bfseek
+# define bfgetpos		NuSDaS_bfgetpos
+# define bfsetpos		NuSDaS_bfsetpos
+# define nusdas_snprintf	NuSDaS_snprintf
+# define endian_swab2		NuSDaS_swab2
+# define endian_swab4		NuSDaS_swab4
+# define endian_swab8		NuSDaS_swab8
+# define endian_swab_fmt	NuSDaS_swab_fmt
+# define n_decode_rlen_nbit_I1	NuSDaS_decode_rlen_nbit_I1
+# define n_encode_rlen_8bit	NuSDaS_encode_rlen_8bit
+# define n_encode_rlen_8bit_I1	NuSDaS_encode_rlen_8bit_I1
+
+# define nusdas_allfile_close	NuSDaS_allfile_close
+# define nusdas_cut		NuSDaS_cut
+# define nusdas_cut2		NuSDaS_cut2
+# define nusdas_cut_raw		NuSDaS_cut_raw
+# define nusdas_cut2_raw	NuSDaS_cut2_raw
+# define nusdas_esf_flush	NuSDaS_esf_flush
+# define nusdas_grid		NuSDaS_grid
+# define nusdas_grid2		NuSDaS_grid2
+# define nusdas_gunzip		NuSDaS_gunzip
+# define nusdas_gunzip_nbytes	NuSDaS_gunzip_nbytes
+# define nusdas_gzip		NuSDaS_gzip
+# define nusdas_info		NuSDaS_info
+# define nusdas_info2		NuSDaS_info2
+# define nusdas_inq_cntl	NuSDaS_inq_cntl
+# define nusdas_inq_cntl2	NuSDaS_inq_cntl2
+# define nusdas_inq_data	NuSDaS_inq_data
+# define nusdas_inq_data2	NuSDaS_inq_data2
+# define nusdas_inq_def		NuSDaS_inq_def
+# define nusdas_inq_nrdbtime	NuSDaS_inq_nrdbtime
+# define nusdas_inq_nrdvtime	NuSDaS_inq_nrdvtime
+# define nusdas_inq_parameter	NuSDaS_inq_parameter
+# define nusdas_inq_subcinfo	NuSDaS_inq_subcinfo
+# define nusdas_iocntl		NuSDaS_iocntl
+# define nusdas_make_mask	NuSDaS_make_mask
+# define nusdas_onefile_close	NuSDaS_onefile_close
+# define nusdas_onefile_close2	NuSDaS_onefile_close2
+# define nusdas_parameter_change	NuSDaS_parameter_change
+# define nusdas_parameter_reset	NuSDaS_parameter_reset
+# define nusdas_read		NuSDaS_read
+# define nusdas_read2		NuSDaS_read2
+# define nusdas_read2_raw	NuSDaS_read2_raw
+# define nusdas_scan_ds		NuSDaS_scan_ds
+# define nusdas_set_mask	NuSDaS_set_mask
+# define nusdas_subc_delt	NuSDaS_subc_delt
+# define nusdas_subc_delt2	NuSDaS_subc_delt2
+# define nusdas_subc_delt_preset1	NuSDaS_subc_delt_preset1
+# define nusdas_subc_eta	NuSDaS_subc_eta
+# define nusdas_subc_eta2	NuSDaS_subc_eta2
+# define nusdas_subc_eta_inq_nz	NuSDaS_subc_eta_inq_nz
+# define nusdas_subc_eta_inq_nz2	NuSDaS_subc_eta_inq_nz2
+# define nusdas_subc_preset1	NuSDaS_subc_preset1
+# define nusdas_subc_sigm	NuSDaS_subc_sigm
+# define nusdas_subc_sigm2	NuSDaS_subc_sigm2
+# define nusdas_subc_tdif	NuSDaS_subc_tdif
+# define nusdas_subc_tdif2	NuSDaS_subc_tdif2
+# define nusdas_subc_rgau_preset1	NuSDaS_subc_rgau_preset1
+# define nusdas_subc_rgau	NuSDaS_subc_rgau
+# define nusdas_subc_rgau2	NuSDaS_subc_rgau2
+# define nusdas_subc_rgau_inq_jn	NuSDaS_subc_rgau_inq_jn
+# define nusdas_subc_rgau_inq_jn2	NuSDaS_subc_rgau_inq_jn2
+# define nusdas_subc_srf	NuSDaS_subc_srf
+# define nusdas_subc_srf2	NuSDaS_subc_srf2
+# define nusdas_subc_srf_ship	NuSDaS_subc_srf_ship
+# define nusdas_subc_srf_ship2	NuSDaS_subc_srf_ship2
+# define nusdas_subc_zhyb_preset1	NuSDaS_subc_zhyb_preset1
+# define nusdas_subc_zhyb	NuSDaS_subc_zhyb
+# define nusdas_subc_zhyb2	NuSDaS_subc_zhyb2
+# define nusdas_write		NuSDaS_write
+# define nusdas_write2		NuSDaS_write2
+# define nusdas_uncpsd		NuSDaS_uncpsd
+# define nusdas_uncpsd_nbytes	NuSDaS_uncpsd_nbytes
+# define nusdas_unpack		NuSDaS_unpack
+
+#define N_ON	1
+#define N_OFF	0
+
+#define N_FOPEN_NOT	0
+#define N_FOPEN_READ	1
+#define N_FOPEN_WRITE	2
+#define N_FOPEN_ALL	3
+
+#define N_PC_MISSING_UI1	1
+#define	N_PC_MISSING_SI2	2
+#define	N_PC_MISSING_SI4	3
+#define N_PC_MISSING_R4		4
+#define N_PC_MISSING_R8		5
+#define N_PC_MASK_BIT		6
+#define N_PC_ID_SET		7
+#define N_PC_PACKING		8
+#define N_PC_SIZEX		9
+#define N_PC_SIZEY		10
+#define	N_PC_OPTIONS		13
+#define N_PC_WBUFFER		14
+#define N_PC_RBUFFER		15
+#define N_PC_KEEP_CFILE		16
+
+#define N_IO_MARK_END		0001
+#define N_IO_W_FCLOSE		0003
+#define N_IO_WARNING_OUT	0004
+#define N_IO_R_FCLOSE		0010
+#define N_IO_BADGRID		0020
+
+#define N_IO_PUT		"put"
+#define N_IO_GET		"get"
+#define N_MV_UI1		UCHAR_MAX
+#define N_MV_SI2		SHRT_MIN
+#define N_MV_SI4		INT_MIN
+#define N_MV_R4			FLT_MAX
+#define N_MV_R8			DBL_MAX
+
+#define N_I1	"I1"
+#define N_I2	"I2"
+#define N_I4	"I4"
+#define N_R4	"R4"
+#define N_R8	"R8"
+#define N_NC    "NC"
+#define N_ND    "ND"
+#define N_P_1PAC        "1PAC"
+#define N_P_2PAC        "2PAC"
+#define N_P_4PAC        "4PAC"
+#define N_P_R4          "R4  "
+#define N_P_R8          "R8  "
+#define N_P_I1          "I1  "
+#define N_P_I2          "I2  "
+#define N_P_I4          "I4  "
+#define N_P_N1I2        "N1I2"
+#define N_P_GRIB        "GRIB"
+#define N_P_RLEN        "RLEN"
+#define N_P_2UPC        "2UPC"
+#define N_P_2UPJ        "2UPJ"
+#define N_P_2UPP        "2UPP"
+
+#define N_MEMBER_NUM     0
+#define N_MEMBER_LIST    1
+#define N_VALIDTIME_NUM  2
+#define N_VALIDTIME_LIST 3
+#define N_PLANE_NUM      4
+#define N_PLANE_LIST     5
+#define N_ELEMENT_NUM    6
+#define N_ELEMENT_LIST   7
+#define N_ELEMENT_MAP    8
+#define N_GRID_SIZE      9
+#define N_GRID_DISTANCE  10
+#define N_GRID_BASEPOINT 11
+#define N_VALIDTIME_UNIT 12
+#define N_VALIDTIME2_LIST 13
+#define N_PLANE2_LIST    14
+#define N_BASETIME_NUM	 15
+#define	N_BASETIME_LIST	 16
+#define N_MISSING_MODE	 17
+#define	N_MISSING_VALUE	 18
+#define N_PROJECTION     19
+#define N_STAND_LATLON   20
+#define N_SPARE_LATLON   21
+#define N_DATA_NBYTES    22
+#define N_DATA_CONTENT   23
+#define N_DATA_QUADRUPLET 24
+#define N_SUBC_NUM	25
+#define N_SUBC_LIST	26
+#define N_SUBC_NBYTES	27
+#define N_SUBC_CONTENT	28
+#define N_INFO_NUM	29
+#define N_INFO_LIST	30
+#define N_INFO_NBYTES	31
+#define N_INFO_CONTENT	32
+#define N_NUSD_NBYTES	33
+#define N_NUSD_CONTENT	34
+#define N_CNTL_NBYTES	35
+#define N_CNTL_CONTENT	36
+#define N_RECORD_TIME	37
+#define N_DATA_MAP	38
+#define N_INDX_SIZE	39
+#define N_DATA_EXIST	40
+
+#endif /* ifdef NUSDAS_H */

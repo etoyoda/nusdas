@@ -1,0 +1,49 @@
+\subsection{nusdas\_subc\_rgau: SUBC RGAU へのアクセス }
+\APILabel{nusdas.subc.rgau}
+
+\Prototype
+\begin{quote}
+N\_SI4 {\bf nusdas\_subc\_rgau}(const char {\it type1}[8], const char {\it type2}[4], const char {\it type3}[4], const N\_SI4 $\ast${\it basetime}, const char {\it member}[4], const N\_SI4 $\ast${\it validtime}, N\_SI4 $\ast${\it j}, N\_SI4 $\ast${\it j\_start}, N\_SI4 $\ast${\it j\_n}, N\_SI4 {\it i}[\,], N\_SI4 {\it i\_start}[\,], N\_SI4 {\it i\_n}[\,], float {\it lat}[\,], const char {\it getput}[3]);
+\end{quote}
+
+\begin{tabular}{l|rp{20em}}
+\hline
+\ArgName & \ArgType & \ArgRole \\
+\hline
+{\it type1} & const char [8] &  種別1  \\
+{\it type2} & const char [4] &  種別2  \\
+{\it type3} & const char [4] &  種別3  \\
+{\it basetime} & const N\_SI4 $\ast$ &  基準時刻(通算分)  \\
+{\it member} & const char [4] &  メンバー名  \\
+{\it validtime} & const N\_SI4 $\ast$ &  対象時刻(通算分)  \\
+{\it j} & N\_SI4 $\ast$ &  全球の南北分割数  \\
+{\it j\_start} & N\_SI4 $\ast$ &  データの最北格子の番号(1始まり)  \\
+{\it j\_n} & N\_SI4 $\ast$ &  データの南北格子数  \\
+{\it i} & N\_SI4 [\,] &  全球の東西格子数  \\
+{\it i\_start} & N\_SI4 [\,] &  データの最西格子の番号(1始まり)  \\
+{\it i\_n} & N\_SI4 [\,] &  データの東西格子数  \\
+{\it lat} & float [\,] &  緯度  \\
+{\it getput} & const char [3] &  入出力指示 ({\it "GET}" または {\it "PUT}")  \\
+\hline
+\end{tabular}
+\paragraph{\FuncDesc}Reduced Gauss 格子を使う場合の補助管理情報へのアクセスを提供する。
+入出力指示が {\it GET} の場合においても、j\_n の値はセットする。
+特に const で宣言された変数を j\_n に指定してはならない。この j\_n の値は
+nusdas\_subc\_rgau\_inq\_jn を使って問い合わせできる。
+i, i\_start, i\_n, lat は j\_n 要素をもった配列を用意する。
+\paragraph{\ResultCode}
+\begin{quote}
+\begin{description}
+\item[{\bf 0}] 正常終了
+\item[{\bf -2}] レコードが存在しない、または書き込まれていない。
+\item[{\bf -3}] サイズの情報が引数と定義ファイルで不一致
+\item[{\bf -4}] 指定した入力値(j\_n, j\_start, j\_n, i, i\_start, i\_n)が不正(PUTのときのみ)
+\item[{\bf -5}] 入出力指示が不正
+\item[{\bf -6}] 指定した入力値(j\_n)が不正(GETのときのみ)
+\end{description}\end{quote}
+\paragraph{ 注意 }
+Reduced Gauss 格子を使う場合は1次元でデータを格納するので、定義ファイルの
+size(格子数)には (実際の格子数) 1 と指定する。また、SUBC のサイズは 
+16 $\ast$ j\_n + 12 を計算した値を定義ファイルに書く。
+\paragraph{ 履歴 }
+この関数はNuSDaS1.2で実装された

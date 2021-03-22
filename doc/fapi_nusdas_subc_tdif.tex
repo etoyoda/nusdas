@@ -1,0 +1,43 @@
+\subsection{NUSDAS\_SUBC\_TDIF: SUBC TDIF へのアクセス}
+\APILabel{nusdas.subc.tdif}
+
+\Prototype
+\begin{quote}
+CALL {\bf NUSDAS\_SUBC\_TDIF}({\it type1}, {\it type2}, {\it type3}, {\it basetime}, {\it member}, {\it validtime}, {\it diff\_time}, {\it total\_sec}, {\it getput}, {\it result})
+\end{quote}
+
+\begin{tabular}{l|rllp{16em}}
+\hline
+\ArgName & \ArgType & \ArrayDim & I/O & \ArgRole \\
+\hline
+{\it type1} & CHARACTER(8) &  & IN &  種別1  \\
+{\it type2} & CHARACTER(4) &  & IN &  種別2  \\
+{\it type3} & CHARACTER(4) &  & IN &  種別3  \\
+{\it basetime} & INTEGER(4) &  & IN &  基準時刻(通算分)  \\
+{\it member} & CHARACTER(4) &  & IN &  メンバー名  \\
+{\it validtime} & INTEGER(4) &  & IN &  対象時刻(通算分)  \\
+{\it diff\_time} & INTEGER(4) &  & I/O &  対象時刻からのずれ(秒)  \\
+{\it total\_sec} & INTEGER(4) &  & I/O &  総予報時間(秒)  \\
+{\it getput} & CHARACTER(3) &  & IN &  入出力指示 ({\it "GET}" または {\it "PUT}")  \\
+{\it result} & INTEGER(4) &  & OUT & \ResultCode \\
+\hline
+\end{tabular}
+\paragraph{\FuncDesc}格納した値の時刻の対象時間とのずれ、積算時間を格納する補助管理部 TDIF 
+へのアクセスを提供する。
+\paragraph{\ResultCode}
+\begin{quote}
+\begin{description}
+\item[{\bf 0}] 正常終了
+\item[{\bf -2}] 要求されたレコードが存在しない、または書き込まれていない。
+\item[{\bf -3}] レコードサイズが不正
+\item[{\bf -5}] 入出力指示が不正
+\end{description}\end{quote}
+
+\paragraph{補足}
+\begin{itemize}
+\item  diff\_time = 時間範囲始点 - 対象時刻 [秒単位]
+\item  total\_sec = 時間範囲終点 - 時間範囲始点 [秒単位]
+\end{itemize}
+
+\paragraph{履歴}
+この関数は NuSDaS1.0 から存在した。

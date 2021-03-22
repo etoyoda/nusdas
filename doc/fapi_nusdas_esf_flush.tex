@@ -1,0 +1,25 @@
+\subsection{NUSDAS\_ESF\_FLUSH: NAPS7型ESファイルの出力完了}
+\APILabel{nusdas.esf.flush}
+
+\Prototype
+\begin{quote}
+CALL {\bf NUSDAS\_ESF\_FLUSH}({\it type1}, {\it type2}, {\it type3}, {\it basetime}, {\it member}, {\it validtime}, {\it result})
+\end{quote}
+
+\begin{tabular}{l|rllp{16em}}
+\hline
+\ArgName & \ArgType & \ArrayDim & I/O & \ArgRole \\
+\hline
+{\it type1} & CHARACTER(8) &  & IN &  種別1  \\
+{\it type2} & CHARACTER(4) &  & IN &  種別2  \\
+{\it type3} & CHARACTER(4) &  & IN &  種別3  \\
+{\it basetime} & INTEGER(4) &  & IN &  基準時刻  \\
+{\it member} & CHARACTER(4) &  & IN &  メンバー名  \\
+{\it validtime} & INTEGER(4) &  & IN &  対象時刻  \\
+{\it result} & INTEGER(4) &  & OUT & \ResultCode \\
+\hline
+\end{tabular}
+\paragraph{\FuncDesc}
+\paragraph{履歴} \APILink{nusdas.esf.flush}{nusdas\_esf\_flush} は NuSDaS 1.0 から存在する。
+\paragraph{\Bug} NuSDaS 1.3 からは ES をサポートしていないため、
+この関数はダミーである。

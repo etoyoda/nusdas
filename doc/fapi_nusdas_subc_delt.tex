@@ -1,0 +1,34 @@
+\subsection{NUSDAS\_SUBC\_DELT: SUBC DELT へのアクセス }
+\APILabel{nusdas.subc.delt}
+
+\Prototype
+\begin{quote}
+CALL {\bf NUSDAS\_SUBC\_DELT}({\it type1}, {\it type2}, {\it type3}, {\it basetime}, {\it member}, {\it validtime}, {\it delt}, {\it getput}, {\it result})
+\end{quote}
+
+\begin{tabular}{l|rllp{16em}}
+\hline
+\ArgName & \ArgType & \ArrayDim & I/O & \ArgRole \\
+\hline
+{\it type1} & CHARACTER(8) &  & IN &  種別1  \\
+{\it type2} & CHARACTER(4) &  & IN &  種別2  \\
+{\it type3} & CHARACTER(4) &  & IN &  種別3  \\
+{\it basetime} & INTEGER(4) &  & IN &  基準時刻(通算分)  \\
+{\it member} & CHARACTER(4) &  & IN &  メンバー名  \\
+{\it validtime} & INTEGER(4) &  & IN &  対象時刻(通算分)  \\
+{\it delt} & REAL(4) &  & I/O &  DELT 数値へのポインタ  \\
+{\it getput} & CHARACTER(3) &  & IN &  入出力指示 ({\it "GET}" または {\it "PUT}")  \\
+{\it result} & INTEGER(4) &  & OUT & \ResultCode \\
+\hline
+\end{tabular}
+\paragraph{\FuncDesc}モデルの時間積分間隔を補助管理情報に記録しておくものである。
+\paragraph{\ResultCode}
+\begin{quote}
+\begin{description}
+\item[{\bf 0}] 正常終了
+\item[{\bf -2}] レコードが存在しない、または書き込まれていない。
+\item[{\bf -3}] レコードサイズが不正
+\item[{\bf -5}] 入出力指示が不正
+\end{description}\end{quote}
+\paragraph{ 履歴 }
+この関数は NuSDaS1.2で導入された。

@@ -1,0 +1,40 @@
+\subsection{SRF\_LV\_TRANS: レベル値を実数データ (代表値) に変換}
+\APILabel{srf.lv.trans}
+
+\Prototype
+\begin{quote}
+CALL {\bf SRF\_LV\_TRANS}({\it idat}, {\it fdat}, {\it dnum}, {\it ispec}, {\it result})
+\end{quote}
+
+\begin{tabular}{l|rllp{16em}}
+\hline
+\ArgName & \ArgType & \ArrayDim & I/O & \ArgRole \\
+\hline
+{\it idat} & INTEGER(4) & \AnySize & IN &  入力データ  \\
+{\it fdat} & REAL(4) & \AnySize & OUT &  結果格納配列  \\
+{\it dnum} & INTEGER(4) &  & IN &  データ要素数  \\
+{\it ispec} & INTEGER(4) & \AnySize & IN &  ISPEC 配列  \\
+{\it result} & INTEGER(4) &  & OUT & \ResultCode \\
+\hline
+\end{tabular}
+\paragraph{\FuncDesc}
+新 ISPEC 配列 {\it ispec} にしたがって
+配列 {\it idat} のレベル値を代表値 {\it fdat} に変換する。
+
+\paragraph{返却値}
+不明値以外となったデータの要素数
+
+\paragraph{注}
+\begin{itemize}
+\item 
+不明値は -1 となる。
+ただし、ISPEC のデータ種別 (先頭4バイト) が
+SRR2, SRF2, SRRR, SRFR の場合に限り -9999.0 となる。
+\item 
+ISPEC のレベル表は通常 0.1mm 単位と解釈される。
+ただし、ISPEC の先頭 3 バイトが `{\tt IER}' であるか、
+あるいは ISPEC の先頭から 4 バイト目が `{\tt 1}' のときは
+0.01mm 単位と解釈される。
+\end{itemize}
+\paragraph{履歴}
+この関数は NAPS7 時代から存在した。

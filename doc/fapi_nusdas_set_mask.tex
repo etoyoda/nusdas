@@ -1,0 +1,39 @@
+\subsection{NUSDAS\_SET\_MASK: 改善型マスクビット設定関数}
+\APILabel{nusdas.set.mask}
+
+\Prototype
+\begin{quote}
+CALL {\bf NUSDAS\_SET\_MASK}({\it type1}, {\it type2}, {\it type3}, {\it udata}, {\it utype}, {\it usize}, {\it result})
+\end{quote}
+
+\begin{tabular}{l|rllp{16em}}
+\hline
+\ArgName & \ArgType & \ArrayDim & I/O & \ArgRole \\
+\hline
+{\it type1} & CHARACTER(8) &  & IN &  種別1  \\
+{\it type2} & CHARACTER(4) &  & IN &  種別2  \\
+{\it type3} & CHARACTER(4) &  & IN &  種別3  \\
+{\it udata} & \AnyType & \AnySize & IN &  データ配列  \\
+{\it utype} & CHARACTER(2) &  & IN &  データ配列の型  \\
+{\it usize} & INTEGER(4) &  & IN &  配列の要素数  \\
+{\it result} & INTEGER(4) &  & OUT & \ResultCode \\
+\hline
+\end{tabular}
+\paragraph{\FuncDesc}
+配列 {\it udata} の内容に従って \APILink{nusdas.make.mask}{nusdas\_make\_mask} と同様に
+マスクビット列を作成し
+指定した種別のデータセットに対して設定する。
+
+\paragraph{\ResultCode}
+\begin{quote}
+\begin{description}
+\item[{\bf 0}] 正常終了
+\item[{\bf -5}] 未知の型名 {\it utype} が与えられた
+\end{description}\end{quote}
+
+\paragraph{注意}
+本関数によるマスクビットの設定は \APILink{nusdas.parameter.change}{nusdas\_parameter\_change} に
+優先するが、他のデータセットには効果をもたない。
+
+\paragraph{履歴}
+本関数は NuSDaS 1.3 で新設された。

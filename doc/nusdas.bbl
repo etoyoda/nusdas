@@ -1,0 +1,24 @@
+\begin{thebibliography}{1}
+
+\bibitem{snyder}
+John~Parr Snyder.
+\newblock {\em Map Projections --- a working manual}.
+\newblock U.S. G.P.O., Washington D.C., 1987.
+\newblock U.S. Geological Survey professional paper 1395.
+
+\bibitem{kanazawa}
+国土地理院地理調査部地図編集課(金沢敬).
+\newblock 300 万分の 1 「日本とその周辺」2.
+\newblock 国土地理院時報, Vol.~44, pp. 27--38, 1972.
+
+\bibitem{terakan}
+寺澤寛一.
+\newblock 物理応用のための数学概論 (増訂版).
+\newblock 岩波書店, 東京, 1954.
+
+\bibitem{makihara}
+牧原康隆.
+\newblock レーダーエコー合成図における合成手法について.
+\newblock レーダー観測技術資料, Vol.~39, pp. 1--10, 1990.
+
+\end{thebibliography}

@@ -1,0 +1,35 @@
+\subsection{NUSDAS\_ALLFILE\_CLOSE: 全てのデータファイルを閉じる}
+\APILabel{nusdas.allfile.close}
+
+\Prototype
+\begin{quote}
+CALL {\bf NUSDAS\_ALLFILE\_CLOSE}({\it param}, {\it result})
+\end{quote}
+
+\begin{tabular}{l|rllp{16em}}
+\hline
+\ArgName & \ArgType & \ArrayDim & I/O & \ArgRole \\
+\hline
+{\it param} & INTEGER(4) &  & IN &  閉じるファイルの種類  \\
+{\it result} & INTEGER(4) &  & OUT & \ResultCode \\
+\hline
+\end{tabular}
+\paragraph{\FuncDesc}
+今までに NuSDaS インターフェイスで開いた全てのファイルを閉じる.
+引数 param は次のいずれかを用いる:
+\begin{quote}\begin{description}
+\item[{\bf N\_FOPEN\_READ}] 読み込み用に開いたファイルだけを閉じる
+\item[{\bf N\_FOPEN\_WRITE}] 書き込み可で開いたファイルだけを閉じる
+\item[{\bf N\_FOPEN\_ALL}] すべてのファイルを閉じる
+\end{description}\end{quote}
+
+\paragraph{\ResultCode}
+\begin{quote}
+\begin{description}
+\item[{\bf 正}] 正常に閉じられたファイルの数
+\item[{\bf 0}] 閉じるべきファイルがなかった
+\item[{\bf 負}] 閉じる際にエラーが起こったファイルの数
+\end{description}\end{quote}
+
+\paragraph{履歴}
+この関数は NuSDaS 1.0 から存在した.

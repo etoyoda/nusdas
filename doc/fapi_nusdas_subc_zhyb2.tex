@@ -1,0 +1,32 @@
+\subsection{NUSDAS\_SUBC\_ZHYB2: SUBC ZHYB へのアクセス }
+\APILabel{nusdas.subc.zhyb2}
+
+\Prototype
+\begin{quote}
+CALL {\bf NUSDAS\_SUBC\_ZHYB2}({\it type1}, {\it type2}, {\it type3}, {\it basetime}, {\it member}, {\it validtime1}, {\it validtime2}, {\it nz}, {\it ptrf}, {\it presrf}, {\it zrp}, {\it zrw}, {\it vctrans\_p}, {\it vctrans\_w}, {\it dvtrans\_p}, {\it dvtrans\_w}, {\it getput}, {\it result})
+\end{quote}
+
+\begin{tabular}{l|rllp{16em}}
+\hline
+\ArgName & \ArgType & \ArrayDim & I/O & \ArgRole \\
+\hline
+{\it type1} & CHARACTER(8) &  & IN &  種別1  \\
+{\it type2} & CHARACTER(4) &  & IN &  種別2  \\
+{\it type3} & CHARACTER(4) &  & IN &  種別3  \\
+{\it basetime} & INTEGER(4) &  & IN &  基準時刻(通算分)  \\
+{\it member} & CHARACTER(4) &  & IN &  メンバー名  \\
+{\it validtime1} & INTEGER(4) &  & IN &  対象時刻1(通算分)  \\
+{\it validtime2} & INTEGER(4) &  & IN &  対象時刻2(通算分)  \\
+{\it nz} & INTEGER(4) &  & I/O &  鉛直層数  \\
+{\it ptrf} & REAL(4) &  & I/O &  温位の参照値  \\
+{\it presrf} & REAL(4) &  & I/O &  気圧の参照値  \\
+{\it zrp} & REAL(4) & \AnySize & I/O &  モデル面高度 (フルレベル)  \\
+{\it zrw} & REAL(4) & \AnySize & I/O &  モデル面高度 (ハーフレベル)  \\
+{\it vctrans\_p} & REAL(4) & \AnySize & I/O &  座標変換関数 (フルレベル)  \\
+{\it vctrans\_w} & REAL(4) & \AnySize & I/O &  座標変換関数 (ハーフレベル)  \\
+{\it dvtrans\_p} & REAL(4) & \AnySize & I/O &  座標変換関数の鉛直微分 (フルレベル)  \\
+{\it dvtrans\_w} & REAL(4) & \AnySize & I/O &  座標変換関数の鉛直微分 (ハーフレベル)  \\
+{\it getput} & CHARACTER(3) &  & IN &  入出力指示 ({\it "GET}" または {\it "PUT}")  \\
+{\it result} & INTEGER(4) &  & OUT & \ResultCode \\
+\hline
+\end{tabular}

@@ -1,0 +1,117 @@
+\subsection{NUSDAS\_INQ\_DEF: データセットの諸元問合せ }
+\APILabel{nusdas.inq.def}
+
+\Prototype
+\begin{quote}
+CALL {\bf NUSDAS\_INQ\_DEF}({\it type1}, {\it type2}, {\it type3}, {\it param}, {\it data}, {\it datasize}, {\it result})
+\end{quote}
+
+\begin{tabular}{l|rllp{16em}}
+\hline
+\ArgName & \ArgType & \ArrayDim & I/O & \ArgRole \\
+\hline
+{\it type1} & CHARACTER(8) &  & IN &  種別1  \\
+{\it type2} & CHARACTER(4) &  & IN &  種別2  \\
+{\it type3} & CHARACTER(4) &  & IN &  種別3  \\
+{\it param} & INTEGER(4) &  & IN &  問合せ項目コード  \\
+{\it data} & \AnyType & \AnySize & OUT &  結果格納配列  \\
+{\it datasize} & INTEGER(4) &  & IN &  結果格納配列の要素数  \\
+{\it result} & INTEGER(4) &  & OUT & \ResultCode \\
+\hline
+\end{tabular}
+\paragraph{\FuncDesc}引数 {\it type1} から {\it type3}で指定されるデータセットの定義ファイル
+に書かれた内容について、引数 {\it param} で指定される問合せを行う。
+\begin{quote}\begin{description}
+\item[{\bf N\_MEMBER\_NUM}] 
+定義ファイルに書かれたメンバーの個数が4バイト整数型変数 {\it data} に書かれる。
+\item[{\bf N\_MEMBER\_LIST}] 
+定義ファイルに書かれたメンバー名が配列 {\it data} に書かれる。
+配列 {\it data} は長さ 4 文字の文字型で
+{\it N\_MEMBER\_NUM} 要素存在しなければならない。
+\item[{\bf N\_VALIDTIME\_NUM}] 
+定義ファイルに書かれたvalidtimeの個数が4バイト整数型変数 
+{\it data} に書かれる。
+\item[{\bf N\_VALIDTIME\_LIST}] 
+定義ファイルに書かれたvalidtimeが配列 {\it data} に書かれる。
+配列 {\it data} は長さ 4 byte整数型で
+{\it N\_VALIDTIME\_NUM} 要素存在しなければならない。
+\item[{\bf N\_VALIDTIME\_LIST2}] 
+定義ファイルに書かれた validtime2 が配列 {\it data} に書かれる。
+\newline 配列 {\it data} は長さ 4 byte整数型で
+{\it N\_VALIDTIME\_NUM} 要素存在しなければならない。
+\item[{\bf N\_VALIDTIME\_UNIT}] 
+定義ファイルに書かれた validtime の単位が4文字の文字型変数 {\it data} 
+に書かれる。
+\item[{\bf N\_PLANE\_NUM}] 
+定義ファイルに書かれた面の個数が4バイト整数型変数 {\it data} に書かれる。
+\item[{\bf N\_PLANE\_LIST}] 
+定義ファイルに書かれた面の名前が配列 {\it data} に書かれる。
+配列 {\it data} は長さ 6 文字の文字型で
+{\it N\_PLANE\_NUM} 要素存在しなければならない。
+\item[{\bf N\_PLANE\_LIST2}] 
+定義ファイルに書かれた面2の名前が配列 {\it data} に書かれる。
+配列 {\it data} は長さ 6 文字の文字型で
+{\it N\_PLANE\_NUM} 要素存在しなければならない。
+\item[{\bf N\_ELEMENT\_NUM}] 
+定義ファイルに書かれた要素の個数が4バイト整数型変数 {\it data} に書かれる。
+\item[{\bf N\_ELEMENT\_LIST}] 
+定義ファイルに書かれた要素の名前が配列 {\it data} に書かれる。
+配列 {\it data} は長さ 6 文字の文字型で
+{\it N\_ELEMENT\_NUM} 要素存在しなければならない。
+\item[{\bf  N\_PROJECTION }] 
+定義ファイルに書かれた地図投影法の情報を4文字の文字型 {\it data} に格納する
+(記号の意味は巻末の表参照)。
+\item[{\bf  N\_GRID\_SIZE }] 
+定義ファイルに書かれたX方向、Y方向の格子数がこの順序で4バイト整数型の
+配列 {\it data} に書かれる。配列 {\it data} は 2 要素存在しなくてはならない。
+\item[{\bf  N\_GRID\_BASEPOINT }] 
+定義ファイルに書かれた基準点のx座標、y座標、緯度、経度が
+この順序で4バイト単精度浮動小数点型の配列 {\it data} に書かれる。
+配列 {\it data} は 4 要素存在しなくてはならない。
+\item[{\bf  N\_GRID\_DISTANCE }] 
+定義ファイルに書かれたX方向、Y方向の格子間隔がこの順序で
+4バイト単精度浮動小数点型の配列{\it data} に書かれる。
+配列 {\it data} は 2 要素存在しなくてはならない。
+\item[{\bf  N\_STAND\_LATLON }] 
+定義ファイルに書かれた標準緯度、標準経度、第2標準緯度、第2標準経度が
+この順序で4バイト単精度浮動小数点型の配列 {\it data} に書かれる。
+配列 {\it data} は 4 要素存在しなくてはならない。
+\item[{\bf  N\_SPARE\_LATLON }] 
+定義ファイルに書かれた緯度1、経度1、緯度2、経度2がこの順序で
+4バイト単精度浮動小数点型の配列 {\it data} に書かれる。
+配列 {\it data} は 4 要素存在しなくてはならない。
+\item[{\bf  N\_INDX\_SIZE }] 
+定義ファイルから算出されるINDX の個数が 4バイト整数型の変数 {\it data} 
+に書かれる。(この問い合わせはNuSDaS1.3で追加)
+\item[{\bf  N\_ELEMENT\_MAP }] 
+定義ファイルでデータの格納が許容されているか否かが1 or 0 によって、
+1バイト整数型の配列 {\it data} に書かれる。
+配列 {\it data} は {\it N\_INDX\_SIZE} 要素存在
+しなくてはならない。{\it dataはメンバー、validtime}, 面、要素をインデック
+スにした配列で、それぞれの順序は {\it N\_MEMBER\_LIST}, 
+{\it N\_VALIDTIME\_LIST}, {\it N\_PLANE\_LIST}, {\it N\_ELEMENT\_LIST}の問い合わせ
+結果と一致する。
+\item[{\bf N\_SUBC\_NUM}] 
+定義ファイルに書かれた SUBC 記録の個数が4バイト整数型変数 {\it buf} に書かれる。
+\item[{\bf N\_SUBC\_LIST}] 
+定義ファイルに書かれた SUBC 記録の群名が配列 {\it buf} に書かれる。
+配列 {\it buf} は長さ 4 文字の文字型で
+{\it N\_SUBC\_NUM} 要素存在しなければならない。
+\item[{\bf N\_INFO\_NUM}] 
+定義ファイルに書かれた INFO 記録の個数が4バイト整数型変数 {\it buf} に書かれる。
+\item[{\bf N\_INFO\_LIST}] 
+定義ファイルに書かれた INFO 記録の群名が配列 {\it buf} に書かれる。
+配列 {\it buf} は長さ 4 文字の文字型で
+{\it N\_INFO\_NUM} 要素存在しなければならない。
+\end{description}\end{quote}
+\paragraph{\ResultCode}
+\begin{quote}
+\begin{description}
+\item[{\bf 正}] 格納要素数
+\item[{\bf -1}] 格納配列が不足
+\item[{\bf -2}] 格納配列が確保されていない
+\item[{\bf -3}] 問い合わせが不正
+\end{description}\end{quote}
+\paragraph{ 履歴 }
+この関数は NuSDaS1.0 より実装されていたが、NuSDaS1.3 で N\_INDX\_SIZE の問い合わせ
+機能が追加されている。

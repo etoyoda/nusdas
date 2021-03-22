@@ -1,0 +1,35 @@
+\subsection{NUSDAS\_GUNZIP: gzip 圧縮データを展開}
+\APILabel{nusdas.gunzip}
+
+\Prototype
+\begin{quote}
+CALL {\bf NUSDAS\_GUNZIP}({\it in\_data}, {\it in\_nbytes}, {\it out\_buf}, {\it out\_nbytes}, {\it result})
+\end{quote}
+
+\begin{tabular}{l|rllp{16em}}
+\hline
+\ArgName & \ArgType & \ArrayDim & I/O & \ArgRole \\
+\hline
+{\it in\_data} & \AnyType & \AnySize & IN &  圧縮データ  \\
+{\it in\_nbytes} & INTEGER(4) &  & IN &  圧縮データのバイト数  \\
+{\it out\_buf} & \AnyType & \AnySize & OUT &  展開結果を格納する領域  \\
+{\it out\_nbytes} & INTEGER(4) &  & IN &  結果領域のバイト数  \\
+{\it result} & INTEGER(4) &  & OUT & \ResultCode \\
+\hline
+\end{tabular}
+\paragraph{\FuncDesc}
+入力データ {\it in\_data} を gzip 展開して {\it out\_buf} に格納する。
+\paragraph{\ResultCode}
+\begin{quote}
+\begin{description}
+\item[{\bf -98}] NuSDaS が ZLib を使うように設定されていない。
+\item[{\bf -99}] 入力は gzip 圧縮形式ではない。
+\item[{\bf -5}] 展開結果の長さが圧縮データと不整合。
+\item[{\bf -4}] 結果領域の長さ {\it out\_nbytes} が不足している。
+\item[{\bf -3}] 展開結果の CRC32 が圧縮データと不整合。
+\item[{\bf -2}] ZLib の inflateInit 関数がエラーを起こした。
+\item[{\bf -1}] ZLib の inflate 関数がエラーを起こした。
+\item[{\bf 他}] 展開データのバイト数
+\end{description}\end{quote}
+\paragraph{履歴}
+本関数は NuSDaS 1.3 で新設された。

@@ -1,0 +1,41 @@
+\subsection{NUSDAS\_SUBC\_ZHYB\_PRESET1: SUBC ZHYB のデフォルト値を設定}
+\APILabel{nusdas.subc.zhyb.preset1}
+
+\Prototype
+\begin{quote}
+CALL {\bf NUSDAS\_SUBC\_ZHYB\_PRESET1}({\it type1}, {\it type2}, {\it type3}, {\it nz}, {\it ptrf}, {\it presrf}, {\it zrp}, {\it zrw}, {\it vctrans\_p}, {\it vctrans\_w}, {\it dvtrans\_p}, {\it dvtrans\_w}, {\it result})
+\end{quote}
+
+\begin{tabular}{l|rllp{16em}}
+\hline
+\ArgName & \ArgType & \ArrayDim & I/O & \ArgRole \\
+\hline
+{\it type1} & CHARACTER(8) &  & IN &  種別1  \\
+{\it type2} & CHARACTER(4) &  & IN &  種別2  \\
+{\it type3} & CHARACTER(4) &  & IN &  種別3  \\
+{\it nz} & INTEGER(4) &  & IN &  鉛直層数  \\
+{\it ptrf} & REAL(4) &  & IN &  温位の参照値  \\
+{\it presrf} & REAL(4) &  & IN &  気圧の参照値  \\
+{\it zrp} & REAL(4) & \AnySize & IN &  モデル面高度 (フルレベル)  \\
+{\it zrw} & REAL(4) & \AnySize & IN &  モデル面高度 (ハーフレベル)  \\
+{\it vctrans\_p} & REAL(4) & \AnySize & IN &  座標変換関数 (フルレベル)  \\
+{\it vctrans\_w} & REAL(4) & \AnySize & IN &  座標変換関数 (ハーフレベル)  \\
+{\it dvtrans\_p} & REAL(4) & \AnySize & IN &  座標変換関数の鉛直微分 (フルレベル)  \\
+{\it dvtrans\_w} & REAL(4) & \AnySize & IN &  座標変換関数の鉛直微分 (ハーフレベル)  \\
+{\it result} & INTEGER(4) &  & OUT & \ResultCode \\
+\hline
+\end{tabular}
+\paragraph{\FuncDesc}ファイルが新たに生成される際にZHYBレコードに書き込む値を設定する。
+ZHYB レコードや引数についてはnusdas\_subc\_zhyb を参照。
+\paragraph{\ResultCode}
+\begin{quote}
+\begin{description}
+\item[{\bf 0}] 正常終了
+\item[{\bf -1}] 定義ファイルに "ZHYB" が登録されていない
+\item[{\bf -2}] メモリの確保に失敗した
+\end{description}\end{quote}
+\paragraph{ 互換性 }
+NuSDaS1.1 では、一つのNuSDaSデータセットに設定できる補助管理部の数は最大
+10 に制限されており、それを超えると-2が返された。一方、 NuSDaS 1.3 からは
+メモリが確保できる限り数に制限はなく、-2 をメモリ確保失敗のエラーコードに
+読み替えている。

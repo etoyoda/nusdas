@@ -1,0 +1,28 @@
+\subsection{bfread: ファイル入力}
+\APILabel{bfread}
+
+\Prototype
+\begin{quote}
+unsigned long {\bf bfread}(void $\ast${\it ptr}, unsigned long {\it nbytes}, N\_BIGFILE $\ast${\it bf});
+\end{quote}
+
+\begin{tabular}{l|rp{20em}}
+\hline
+\ArgName & \ArgType & \ArgRole \\
+\hline
+{\it ptr} & void $\ast$ &  読みだし先バッファ  \\
+{\it nbytes} & unsigned long &  バイト数  \\
+{\it bf} & N\_BIGFILE $\ast$ &  ファイル  \\
+\hline
+\end{tabular}
+\paragraph{\FuncDesc}
+あらかじめ \APILink{bfopen}{bfopen} で開かれた
+ファイル {\it bf} から {\it ptr} が指すバッファに {\it nbytes} バイト読み出す。
+\paragraph{\ResultCode}
+\begin{quote}
+\begin{description}
+\item[{\bf 正}] 読み出されたバイト数 (ファイル末尾などでは {\it nbytes} より少ない)
+\item[{\bf 0}] ちょうどファイル末尾から読み出そうとしたか、エラー
+\end{description}\end{quote}
+\paragraph{履歴}
+この関数は NuSDaS 1.3 で追加された。

@@ -1,0 +1,32 @@
+\subsection{nusdas\_gzip: gzip 圧縮}
+\APILabel{nusdas.gzip}
+
+\Prototype
+\begin{quote}
+N\_SI4 {\bf nusdas\_gzip}(const void $\ast${\it in\_data}, N\_UI4 {\it in\_nbytes}, void $\ast${\it out\_buf}, N\_UI4 {\it out\_nbytes});
+\end{quote}
+
+\begin{tabular}{l|rp{20em}}
+\hline
+\ArgName & \ArgType & \ArgRole \\
+\hline
+{\it in\_data} & const void $\ast$ &  入力データ  \\
+{\it in\_nbytes} & N\_UI4 &  入力データのバイト数  \\
+{\it out\_buf} & void $\ast$ &  圧縮結果を格納する領域  \\
+{\it out\_nbytes} & N\_UI4 &  結果領域のバイト数  \\
+\hline
+\end{tabular}
+\paragraph{\FuncDesc}
+入力データ {\it in\_data} を gzip 圧縮して {\it out\_buf} に格納する。
+\paragraph{\ResultCode}
+\begin{quote}
+\begin{description}
+\item[{\bf -98}] NuSDaS が ZLib を使うように設定されていない。
+\item[{\bf -9}] ZLib の deflateEnd 関数がエラーを起こした。
+\item[{\bf -4}] 結果領域の長さ {\it out\_nbytes} が不足している。
+\item[{\bf -2}] ZLib の deflateInit2 関数がエラーを起こした。
+\item[{\bf -1}] ZLib の deflate 関数がエラーを起こした。
+\item[{\bf 他}] 圧縮データの長さ
+\end{description}\end{quote}
+\paragraph{履歴}
+本関数は NuSDaS 1.3 で新設された。

@@ -1,0 +1,294 @@
+\section{pandora の概要}
+
+Pandora とは気象庁内部で数値予報システムを中心に使われている、
+RESTful な HTTP データ転送規約です。
+
+\section{pandora における NuSDaSデータの取り扱い}
+\subsection{URL規則}\label{pandora_url}
+NuSDaS データに対しては以下のようにして指定するものとする。
+\begin{verbatim}
+dataname ≡ '/NUSDAS/' nrd '/' type '/' basetime '/' member '/' validtime '/' validtime2 '/'
+  plane '/' plane2 '/' element [['/' ys, ye ]'/' xs, xe]
+type ≡type1 '.' type2 '.' type3
+basetime, validtime, validtime2 ≡ time
+time ≡ yyyy '-' mm '-' dd 't' hhMM
+type1 ≡ n[n[n[n[n[n[n[n]]]]]]]
+type2, type3, member, plane, plane2, element ≡ n[n[n[n]]]
+y, m, d, h, M　≡ digit
+xs, xe, ys, ye ≡ digit または *
+digit ≡ <数字>
+n ≡ <名前文字すなわち英数字、下線 (_)、単価記号 (@)、ハイフンマイナス(-)、加算記号(+)>
+\end{verbatim}
+
+なお、振り分け名を {\tt NUSDAS}の代わりに、{\tt NAPS8\_NUSDAS}にすること
+で、{\tt validtime2}、{\tt plane2}を省略できる。すなわち、
+\begin{verbatim}
+dataname ≡ '/NAPS8_NUSDAS/' nrd '/' type '/' basetime '/' member '/'
+validtime '/' plane '/' element [['/' ys, ye ]'/' xs, xe]
+\end{verbatim}
+
+\begin{itemize}
+\item {\tt nrd}はpandora オリジンサーバーにおける NuSDaS Root Directory
+\item {\tt xs}, {\tt xe}, {\tt ys}, {\tt ye}はそれぞれ領域指定における
+      $x$方向の始点、$x$方向の終点、$y$方向の始点、$y$方向の終点を表す。
+      なお、始点の格子点番号は meta データの{\tt first index x}, {\tt first
+      index y} によって決められる(NAPSの場合は1)。これらの領域指定を省略
+      した場合や ``*'' は全領域を表す。
+
+      例)
+      \begin{itemize}
+       \item 1,10/11,20 : X 方向は11〜20, Y方向は1〜10を切り出す
+       \item 1,10: X方向は全部、Y方向は1〜10
+       \item */11,20 : X方向は11〜20, Y 方向は全部
+       \item */* : XもYも全部(指定しないのと同じ)
+      \end{itemize}
+\item 要素名に 'LAT' または 'LON' を指定すると、各格子点の緯度、および経
+      度を投影情報を元に pandora サーバーで計算して返す。
+
+\end{itemize}
+
+
+\subsection{driver の仕様}
+pandora の規約が要求するように {\tt index}, {\tt data}, {\tt meta}, 
+{\tt schema}資源に要求に対するドライバーを整備している。また、{\tt meta} につ
+いては、さまざまなメタ情報に対応した資源がある。
+\subsubsection{index資源}
+\subsubsection{data資源}
+\verb|nusdas_read|によって取得したGPV値。
+\verb|nusview/nusdump|によって出力されている。
+
+\subsubsection{meta資源}
+
+
+\subsection{nusview ツールの仕様}
+\label{nusview}
+\subsubsection{共通事項}
+各ツールの出力には、HTTP のヘッダが付加される。最低限付加されるのは
+\begin{itemize}
+\item Content-Type
+\item Content-Length
+\end{itemize}
+であり、出力をそのままHTTPのレスポンスに利用することができる。
+その他、ツール独自のヘッダが付加されることがある。
+
+改行が2つ連続で続くところが、ヘッダとボディの境界になる。
+\subsubsection{nusdump}
+\verb|nusdas_read|によって取得したGPV値をオプションによって指定された形
+式で出力する。http のためのヘッダがつく。
+\begin{itemize}
+\item オプション一覧\\
+\begin{tabular}{ll}
+{\tt -tf} & 32ビット単精度浮動小数点形式で出力\\
+{\tt -tp} & ASCIIテキストで出力\\
+{\tt -tu} & 8bit 符号なし整数形式で出力\\
+{\tt -ti} & 32bit 符号付き整数形式で出力\\
+{\tt -tr} & 8bit ランレングス圧縮形式で出力 \\
+{\tt -td} & 64ビット倍精度浮動小数点形式で出力 \\
+{\tt -pG} or {\tt -PG} & Portable Graymap(テキスト)形式で出力 \\
+{\tt -pg} or {\tt -Pg} & Portable Graymap(テキスト)形式で出力 \\
+{\tt -pp} or {\tt -Pp} & Portable Pixmap 形式で出力\\
+{\tt -R}{\it ixst}/{\it ixen}/{\it jyst}/{\it jyen} & 切り出し領域指定
+\end{tabular}
+
+{\tt -t} と {\tt -p} で始まるオプションは排他。複数指定された場合は
+最後に指定されたものが有効。
+
+なにもオプションをつけない場合は {\tt -tf} がついていて、領域は全領域で
+あるとする。
+また、バイナリ形式のバイトオーダーはすべて big endian である。
+
+\item ヘッダ一覧\\
+\begin{tabular}{lp{10cm}}
+{\tt X-missing-value} & 欠損値 (NuSDaS の欠損値の取り扱いがMISSかMASKの
+ ときのみ)\\
+{\tt X-notice} & 注意喚起情報(変数型の変更)\\
+{\tt X-Nusdas-Return-Code} & NuSDaS APIの戻り値\\
+{\tt X-Data-Num} & 出力したデータ数(格子点数) \\
+{\tt X-Data-Range} & 出力したデータの領域(X方向始点、同終点、Y方向始点、
+ 同終点の順にカンマ区切りで出力)\\
+{\tt X-value-max}, {\tt X-value-min} & データの最大・最小値(Portable
+ Graymap/Pixmap の時のみ)\\
+{\tt X-gradation-step}& Portable Graymap/Pixmap のときの一つの色の幅の値\\
+\end{tabular}
+\end{itemize}
+
+\subsubsection{nusdump\_rawgz}
+GPV値をNuSDaSのDATAレコードに記録されている形式のまま出力する。
+\verb|nusdas_read_raw|の出力に対応。DATA レコードの項番10の「格子配列の
+大きさ」以降のデータが出力される。また、zlib がインストールされている環
+境では、デフォルトで gzip 圧縮されたデータが出力される。
+\begin{itemize}
+\item オプション一覧\\
+\begin{tabular}{ll}
+{\tt -r} & gzip 圧縮をせずに出力する
+\end{tabular} 
+\item ヘッダ一覧\\
+\verb|nusdump|と同じ。
+\end{itemize}
+
+\subsubsection{nusmeta}
+{\tt nusdas\_grid} の出力に対応する情報を出力する。
+切り出し領域指定の情報が反映された値が返される(後述の nuscntl では切り出
+し領域指定は考慮されないので注意)。
+
+\begin{itemize}
+\item オプション一覧\\
+\begin{tabular}{ll}
+{\tt -t} & htmlで出力(デフォルト)\\
+{\tt -tr} & rd(ruby document)形式で出力\\
+{\tt -tt} & タブ区切りテキスト\\
+{\tt -b} & バイナリ形式で出力\\
+{\tt -l} & テキストの場合にタイトルを出力する \\
+{\tt -R}{\it ixst}/{\it ixen}/{\it jyst}/{\it jyen} & 切り出し領域指定
+\end{tabular}
+
+html, rd, tsv(tab separated values)などのテキストファイルの場合には、
+各項目の値を示すのに次表の文字列をキーにしている。
+
+\begin{tabular}{l|l}\hline
+キー名          & 値  \\\hline
+{\tt projection type} & 投影法 \\
+{\tt number of x grids} & x方向の格子数 \\
+{\tt number of y grids} & y方向の格子数 \\
+{\tt base point x} & 基準点のX座標 \\
+{\tt base point y} & 基準点のY座標 \\
+{\tt base point lat} & 基準点の緯度 \\
+{\tt base point lon} & 基準点の経度 \\
+{\tt grid interval x} & X方向の格子間隔 \\
+{\tt grid interval y} & Y方向の格子間隔 \\
+{\tt standard lat 1} & 標準緯度 \\
+{\tt standard lon 1} & 標準経度 \\
+{\tt standard lat 2} & 第2標準緯度 \\
+{\tt standard lon 2} & 第2標準経度 \\
+{\tt latitude 1} & 緯度1 \\
+{\tt longitude 1} & 経度1 \\
+{\tt latitude 2} & 緯度2 \\
+{\tt longitude 2} & 経度2 \\
+{\tt representation} & 格子点の空間代表性\\
+{\tt first index x} & X方向の最初のインデックスの値\\
+{\tt first index y} & Y方向の最初のインデックスの値\\\hline
+\end{tabular}
+
+また、{\tt -b} によるバイナり出力のフォーマットは次表の通り。バイトオー
+ダーは big endian である。
+
+\begin{tabular}{l|l|c|c}\hline
+項目              & 変数型 & データ長  & 配列数\\\hline
+投影法            & char &  4 & 1 \\ 
+格子配列の大きさ  & int  &  4 & 2 \\
+基準点の座標      & float & 4 & 2 \\
+基準点の緯度経度  & float & 4 & 2 \\
+格子間隔          & float & 4 & 2 \\
+標準緯度経度      & float & 4 & 2 \\
+第2標準緯度経度   & float & 4 & 2 \\
+緯度経度1         & float & 4 & 2 \\
+緯度経度2         & float & 4 & 2 \\
+格子点の意味      & char  & 4 & 1\\
+最初のインデックス値  & float &    4 & 2 \\\hline
+
+\end{tabular}
+\end{itemize}
+
+\subsubsection{nuscntl}
+{\tt nusdas\_inq\_cntl} の出力に対応する情報を出力する。
+領域切り出し指定に関係なく、データファイルのCNTLレコードの内容を返す。
+ELEMENTMAP, DATAMAP は1バイトバイナリ、
+その他はrd形式の一覧のみ対応している。
+
+\begin{itemize}
+\item オプション一覧\\
+\begin{tabular}{ll}
+{\tt -tr} & rd 形式で出力する(デフォルト) \\
+{\tt -m} & ELEMENTMAP, DATAMAP を1バイトバイナリで出力する\\
+{\tt -l} & タイトルを出力する \\
+\end{tabular}
+
+{\tt member\_list}, {\tt validtime\_list}, 
+{\tt plane\_list}, {\tt element\_list} の場合、リスト
+の各要素との間は空白で区切
+る。また、{\tt validtime\_list} 以外の文字列の場合は、シングルクォーテー
+ション(')で各要素を囲む。
+
+RD出力の場合、各項目の値を示すのに次表の文字列をキーにしている。
+
+\begin{tabular}{l|l}\hline
+キー名          & 値  \\\hline
+{\tt number of member} & メンバー数 \\
+{\tt member list} & メンバーのリスト \\
+{\tt number of validtime} & validtime の数 \\
+{\tt validtime list} & validtime のリスト \\
+{\tt number of plane} & 面の数 \\
+{\tt plane list} & 面のリスト \\
+{\tt number of element} & 要素の数 \\
+{\tt element list} & 要素のリスト \\
+{\tt projection type} & 投影法 \\
+{\tt number of x grids} & x方向の格子数 \\
+{\tt number of y grids} & y方向の格子数 \\
+{\tt base point x} & 基準点のX座標 \\
+{\tt base point y} & 基準点のY座標 \\
+{\tt base point lat} & 基準点の緯度 \\
+{\tt base point lon} & 基準点の経度 \\
+{\tt grid interval x} & X方向の格子間隔 \\
+{\tt grid interval y} & Y方向の格子間隔 \\
+{\tt standard lat 1} & 標準緯度 \\
+{\tt standard lon 1} & 標準経度 \\
+{\tt standard lat 2} & 第2標準緯度 \\
+{\tt standard lon 2} & 第2標準経度 \\
+{\tt latitude 1} & 緯度1 \\
+{\tt longitude 1} & 経度1 \\
+{\tt latitude 2} & 緯度2 \\
+{\tt longitude 2} & 経度2 \\
+{\tt representation} & 格子点の空間代表性\\\hline
+\end{tabular}
+\end{itemize}
+
+\subsubsection{nussigm}
+{\tt nusdas\_subc\_sigm} または {\tt nusdas\_subc\_eta} の出力に対応する。
+バイナリ出力(big endian)のみに対応している。
+\begin{itemize}
+\item オプション一覧\\
+\begin{tabular}{ll}
+{\tt -s} & {\tt SIGM} レコードを読み出す(デフォルト) \\
+{\tt -e} & {\tt ETA} レコードを読み出す \\
+{\tt -b} & バイナリ出力をする(デフォルト)
+\end{tabular}
+
+バイナリ出力のフォーマットは次表の通り({\tt n\_lv}は面の数)。
+
+\begin{tabular}{l|l|c|c}\hline
+項目  & データ型 & データ長 & 配列数\\\hline
+$A(k)$ & float   & 4        & {\tt n\_lv+1} \\
+$B(k)$ & float   & 4        & {\tt n\_lv+1} \\
+$C(k)$ & float   & 4        & 1 \\\hline
+\end{tabular}
+
+\item ヘッダ一覧\\
+\begin{tabular}{lp{10cm}}
+{\tt X-PLANE-NUM} & 面の数({\tt n\_lv})\\
+\end{tabular}
+
+\end{itemize}
+
+
+\subsubsection{nusinqdef}
+{\tt nusdas\_inq\_def}に対応する情報を出力する。
+ELEMENTMAPは1バイトバイナリ、
+その他はrd形式の一覧のみ対応している。
+\begin{itemize}
+\item オプション一覧\\
+\begin{tabular}{ll}
+{\tt -tr} & rd 形式で出力する(デフォルト) \\
+{\tt -m} & ELEMENTMAP, DATAMAP を1バイトバイナリで出力する\\
+{\tt -l} & タイトルを出力する \\
+\end{tabular}
+
+\end{itemize}
+
+\subsubsection{nussubc\_srf}
+
+\subsubsection{nusinfo}
+\subsubsection{nusinqnz}
+\subsubsection{nusrgau}
+\subsubsection{nusrgaujn}
+\subsubsection{nuszhyb}
+

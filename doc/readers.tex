@@ -1,0 +1,237 @@
+\section{データを読み出すFortran プログラムの例}
+以下は、namelist から　type1, type2, type3, メンバー名(member), 
+面名(level), 要素(elem), 初期時刻(idate), 予報時間(ft: 単位hour) を指定
+して、NuSDaS からデータを読み出して、格子点の値を順にディスプレーに
+書き出すプログラムである。
+
+\begin{verbatim}
+program nusdas_sample
+  implicit none
+  
+  character(8) :: type1
+  character(4) :: type2, type3
+  
+  integer(4) :: ibase, ivalid
+  character(4) :: member
+
+  character(6) :: level, elem
+  integer(4) :: idate(5)
+  integer(4) :: ft
+
+  integer(4) :: gsize(2), nx, ny
+  real(4) :: ginfo(14)
+  character(4) :: proj, mean
+
+  integer(4) :: dnum, irt
+  real(4), allocatable :: data(:, :)
+  integer(4) :: ix, jy
+
+  include 'nusdas_fort.h'
+
+  namelist/nampar/ type1, type2, type3, member, level, elem, idate, ft
+
+  ! namelist を読み込む前にデフォルトの値を設定する
+  type1 = '_NHMLMLY'
+  type2 = 'FCSV'
+  type3 = 'STD1'
+  
+  member = '    '
+  level = 'SURF  '
+  elem = 'T     '
+
+  idate(1) = 2004
+  idate(2) = 9
+  idate(3) = 7
+  idate(4) = 12
+  idate(5) = 0
+
+  ft = 3
+
+  ! namelist を標準入力から読み込む
+  read(5, nampar)
+
+  ! idate から1801/1/1 0:00 からの通算分に変換する。
+  ! 通算分は ibase に格納される。
+  call nwp_ymdhm2seq(idate(1), idate(2), idate(3), idate(4), idate(5), ibase)
+
+  ivalid = ibase + ft * 60
+
+  ! 格子の情報を読み出す
+  call nusdas_grid(type1, type2, type3, ibase, member, ivalid, &
+    proj, gsize, ginfo, mean, N_IO_GET, irt)
+  ! エラーチェック
+  if(irt /= 0) then
+    write(6, *) 'nusdas_grid error: irt = ', irt
+    stop 1
+  end if
+  nx = gsize(1)
+  ny = gsize(2)
+  dnum = nx * ny
+
+  allocate(data(nx, ny))
+  
+  ! NuSDaS データを読み出す
+  call nusdas_read(type1, type2, type3, ibase, member, ivalid, level, elem, &
+    & data, N_R4, dnum, irt)
+  ! エラーチェック
+  if(irt /= dnum) then
+    write(6, *) 'nusdas_read error: irt=', irt
+  end if
+
+  ! データの書き出し
+  do jy = 1, ny
+    write(6, *) (data(ix, jy), ix = 1, nx)
+  end do
+
+  deallocate(data)
+
+end program nusdas_sample
+\end{verbatim}
+
+このプログラムを {\tt sample1} という名前でコンパイルし、
+以下のshell script で実行する。読み出したい NuSDaS Root Directory(NRD)を
+{\tt NUSDAS??}(??は数字)でシンボリックリンクを張ることがポイントである%
+\footnote{
+シンボリックリンクではなく、実体の名前が {\tt NUSDAS??} でもかまわないが、
+おすすめはしない。
+}。
+
+\begin{verbatim}
+#!/bin/sh
+
+# 読み出したいデータがある NuSDaS Root Directory (NRD)
+DATADIR=/home/taro/fcst_sfc.nus
+
+# 初期時刻の指定
+YYYY=2004
+MO=09
+DD=07
+HH=12
+MI=00
+
+# TYPE123, member, level, elem の設定
+TYPE1="_NHMLMLY"
+TYPE2="FCSV"
+TYPE3="STD1"
+MEMBER="    "
+
+LEVEL="SURF  "
+ELEM="T     "
+
+FT=3
+
+# NuSDaS Root Directory を NUSDAS?? (??は数字)に
+# シンボリックリンクを張る。
+# 読み出しの場合は ?? は 50 〜 99, 書き出しの場合は 01 〜 49 とする。
+# プログラム内で nusdas_parameter_change を使って、NRD の番号を指定して
+# いる場合にはその番号にする。そうでなければ、01〜99 の範囲で任意。
+ln -s ${DATADIR} NUSDAS60
+
+# namelist を作成の上、sample1 を実行
+cat<<EOF | ./sample1
+&NAMPAR
+TYPE1='${TYPE1}', TYPE2='${TYPE2}', TYPE3='${TYPE3}', MEMBER='${MEMBER}', 
+LEVEL='${LEVEL}', ELEM='${ELEM}', 
+IDATE=${YYYY}, ${MO}, ${DD}, ${HH}, ${MI}, 
+FT=${FT}
+&END
+EOF
+
+rm -f NUSDAS*
+\end{verbatim}
+
+
+\section{データ読み込み時のよくある質問}
+
+\subsection{データの走査方向}
+X方向が(通常地図を描く方向で)左から右、Y方向が上から下に走査する。
+経緯度格子のデータでは、北からデータを格納する。
+走査順はX方向に走査した後、Y方向に走査を一つ進める。
+
+(注) 格子間隔 (DISTANCE) に負値を設定することで格納する方向を逆に指定することは可能だが、現在用例は無い。
+
+\subsection{データ読み込みの際のNuSDaSの内部動作}
+NuSDaS は新規にデータファイルを作成する際に、定義ファイルの内容を CNTL
+レコードに格納する。データ読み込みの際には、データセットを特定する
+TYPE123, データファイルのパス構造(path)と対象時刻のリスト(validtime)だけ
+を定義ファイルから参照し、これらの情報から開くべきファイルを決める。ファ
+イルが開ければ、メタ情報は定義ファイルではなくてファイルのCNTLレコードを
+参照する。従って、データファイルがいったんできてしまえば、定義ファイルのメタ情
+報を変更しても効果がないことになる。たとえば、データファイルが存在している
+状態で定義ファイルに新しい物理量を付け加えても、物理量のリストの情報は
+定義ファイルではなく、既存ファイルの CNTL レコードから取得されるので、
+効果がない(いったん、データファイルを消す必要がある)。
+
+\subsection{nusdas\_inq\_cntl, nusdas\_grid の内部動作}
+各データファイルには一つのCNTLレコードを持っている。これらのAPIは、
+このCNTLレコードの内容を問い合わせるものである。
+
+これらのAPIでは、対象時刻(validtime)までを引数で指定するが、
+これは開くファイルを特定するためのものであり、その対象時刻の
+メタデータを指定するものでは{\bf ない}ことに注意が必要である。
+(ファイルと対象時刻は1対1に対応するとは限らない)
+
+\subsection{基準時刻を調べずに読む}
+
+観測データなど、対象時刻ひとつに1つしかデータ記録がない場合がある。
+基準時刻はデータ作成の都合で便宜的につけられるが、
+付け方がいろいろなのでプログラムするのが難しい。
+
+こういうときは基準時刻に特別な値 $-1$ を設定すると、
+データの読み込みの関数 (例えば nusdas\_read) は
+自動的に
+指定された対象時刻を持つ
+データファイルを探索して読み込み動作を行う。
+
+\subsection{欠損値はどのように得られるか}
+
+\APIRef{nusdas.read}{nusdas\_read}
+で得られた配列の
+欠損値のところに書かれるべき値は、
+利用者側配列の型に応じて表\ref{tab:rmisval}のようになる。
+この値を変更するにはあらかじめ
+\APIRef{nusdas.parameter.change}{nusdas\_parameter\_change}
+を呼び、現在設定されている値を取得するには
+\APIRef{nusdas.inq.parameter}{nusdas\_inq\_parameter}
+を呼ぶ。
+
+なお、\APIRef{nusdas.parameter.change}{nusdas\_parameter\_change} を呼ぶ際にはセットする値の型に注意が必要である。
+具体例として
+\begin{verbatim}
+call nusdas_parameter_change(N_PC_MISSING_R4, 1.d+10, irt)
+\end{verbatim}
+としてしまうと、API \APIRef{nusdas.parameter.change}{nusdas\_parameter\_change} の第2引数は N\_MV\_R4 と同じ型、すなわち R4 型を期待するため、欠損値の値として1.d+10の上位4byte(すなわち0.0)をセットしてしまう。
+この場合の正しい使い方は
+\begin{verbatim}
+call nusdas_parameter_change(N_PC_MISSING_R4, 1.e+10, irt)
+\end{verbatim}
+である。
+
+\paragraph{注意}
+PACKING が I1, I2, I4, R4, R8 の際に欠損値を指定して書き込みを行う場合、
+\APIRef{nusdas.parameter.change}{nusdas\_parameter\_change}で
+どのような値を設定しようとも、以下の値は必ず欠損値として扱われるので注意が必要。
+\begin{itemize}
+\item I1, I2, I4 では全bitが1となる -128, -32768, -2147483648
+\item R4, R8 ではINFを除いた最大値に相当する 3.40282347e+38, 1.7976931348623157d+308
+\end{itemize}
+なお、 PACKING が 2UPC などの上記一覧に該当しないものは、これに該当しない。
+
+
+\begin{table}
+\begin{center}
+\begin{tabular}{l|ll}
+\hline 
+型 & 規定の欠損値 & 変更・取得のためのキーワード \\
+\hline
+1バイト整数 & {\tt N\_MV\_UI1} & {\tt N\_PC\_MISSING\_UI1} \\
+2バイト整数 & {\tt N\_MV\_SI2} & {\tt N\_PC\_MISSING\_SI2} \\
+4バイト整数 & {\tt N\_MV\_SI4} & {\tt N\_PC\_MISSING\_SI4} \\
+4バイト実数 & {\tt N\_MV\_R4} & {\tt N\_PC\_MISSING\_R4} \\
+8バイト実数 & {\tt N\_MV\_R8} & {\tt N\_PC\_MISSING\_R8} \\
+\hline
+\end{tabular}
+\caption{データ読み取り時に設定される欠損値}
+\label{tab:rmisval}
+\end{center}
+\end{table}

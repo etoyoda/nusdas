@@ -1,0 +1,53 @@
+int NWP_ellipse2sphere_$TYPE2(const $TYPE1 *elat, const $TYPE1 *elon,
+    const int size, const $TYPE1 slat, const $TYPE1 slon,
+    $TYPE1 *lat, $TYPE1 *lon);
+int NWP_sphere2ellipse_$TYPE2(const $TYPE1 *lat, const $TYPE1 *lon,
+    const int size, const $TYPE1 slat, const $TYPE1 slon,
+    $TYPE1 *elat, $TYPE1 *elon);
+int NWP_sphere2oblique_$TYPE2(const $TYPE1 *lat, const $TYPE1 *lon,
+    const int size, const $TYPE1 slat, const $TYPE1 slon,
+    $TYPE1 *olat, $TYPE1 *olon);
+int NWP_oblique2sphere_$TYPE2(const $TYPE1 *olat, const $TYPE1 *olon,
+    const int size, const $TYPE1 slat, const $TYPE1 slon,
+    $TYPE1 *lat, $TYPE1 *lon);
+int NWP_sphere2lambert_$TYPE2(const $TYPE1 *lat, const $TYPE1 *lon,
+    const int size, const $TYPE1 slat1, const $TYPE1 slat2,
+    const $TYPE1 slon, const $TYPE1 rlat, const $TYPE1 rlon,
+    const $TYPE1 rx, const $TYPE1 ry, const $TYPE1 d,
+    $TYPE1 *x, $TYPE1 *y);
+int NWP_lambert2sphere_$TYPE2(const $TYPE1 *x, const $TYPE1 *y,
+    const int size, const $TYPE1 slat1, const $TYPE1 slat2,
+    const $TYPE1 slon, const $TYPE1 rlat, const $TYPE1 rlon,
+    const $TYPE1 rx, const $TYPE1 ry, const $TYPE1 d,
+    $TYPE1 *lat, $TYPE1 *lon);
+int NWP_sphere2mercator_$TYPE2(const $TYPE1 *lat, const $TYPE1 *lon,
+    const int size, const $TYPE1 slat, const $TYPE1 rlat,
+    const $TYPE1 rlon, const $TYPE1 rx, const $TYPE1 ry,
+    const $TYPE1 d, $TYPE1 *x, $TYPE1 *y);
+int NWP_sphere2mercator2_$TYPE2(const $TYPE1 *lat, const $TYPE1 *lon,
+    const int size, const $TYPE1 slat, const $TYPE1 rlat,
+    const $TYPE1 rlon, const $TYPE1 rx, const $TYPE1 ry,
+    const $TYPE1 d, $TYPE1 *x, $TYPE1 *y);
+int NWP_mercator2sphere_$TYPE2(const $TYPE1 *x, const $TYPE1 *y,
+    const int size, const $TYPE1 slat, const $TYPE1 rlat,
+    const $TYPE1 rlon, const $TYPE1 rx, const $TYPE1 ry,
+    const $TYPE1 d, $TYPE1 *lat, $TYPE1 *lon);
+int NWP_sphere2polar_$TYPE2(const $TYPE1 *lat, const $TYPE1 *lon,
+    const int size, const $TYPE1 slat, const $TYPE1 slon,
+    const $TYPE1 rlat, const $TYPE1 rlon,
+    const $TYPE1 rx, const $TYPE1 ry, const $TYPE1 d,
+    $TYPE1 *x, $TYPE1 *y);
+int NWP_polar2sphere_$TYPE2(const $TYPE1 *x, const $TYPE1 *y,
+    const int size, const $TYPE1 slat, const $TYPE1 slon,
+    const $TYPE1 rlat, const $TYPE1 rlon,
+    const $TYPE1 rx, const $TYPE1 ry, const $TYPE1 d,
+    $TYPE1 *lat, $TYPE1 *lon);
+int NWP_mf_lambert_$TYPE2(const $TYPE1 *lat, const int size,
+    const $TYPE1 slat1, const $TYPE1 slat2, $TYPE1 *mf);
+int NWP_mf_mercator_$TYPE2(const $TYPE1 *lat, const int size,
+    const $TYPE1 slat, $TYPE1 *mf);
+int NWP_mf_polar_$TYPE2(const $TYPE1 *lat, const int size,
+    const $TYPE1 slat, $TYPE1 *mf);
+$TYPE1 NWP_sphere_distance_$TYPE2(const $TYPE1 alat, const $TYPE1 alon,
+    const $TYPE1 blat, const $TYPE1 blon);
+

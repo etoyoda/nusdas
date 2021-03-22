@@ -1,0 +1,66 @@
+\subsection{nusdas\_cut: 領域限定のデータ読取}
+\APILabel{nusdas.cut}
+
+\Prototype
+\begin{quote}
+N\_SI4 {\bf nusdas\_cut}(const char {\it type1}[8], const char {\it type2}[4], const char {\it type3}[4], const N\_SI4 $\ast${\it basetime}, const char {\it member}[4], const N\_SI4 $\ast${\it validtime}, const char {\it plane}[6], const char {\it element}[6], void $\ast${\it udata}, const char {\it utype}[2], const N\_SI4 $\ast${\it usize}, const N\_SI4 $\ast${\it ixstart}, const N\_SI4 $\ast${\it ixfinal}, const N\_SI4 $\ast${\it iystart}, const N\_SI4 $\ast${\it iyfinal});
+\end{quote}
+
+\begin{tabular}{l|rp{20em}}
+\hline
+\ArgName & \ArgType & \ArgRole \\
+\hline
+{\it type1} & const char [8] &  種別1  \\
+{\it type2} & const char [4] &  種別2  \\
+{\it type3} & const char [4] &  種別3  \\
+{\it basetime} & const N\_SI4 $\ast$ &  基準時刻(通算分)  \\
+{\it member} & const char [4] &  メンバー名  \\
+{\it validtime} & const N\_SI4 $\ast$ &  対象時刻(通算分)  \\
+{\it plane} & const char [6] &  面  \\
+{\it element} & const char [6] &  要素名  \\
+{\it udata} & void $\ast$ &  データ格納先配列  \\
+{\it utype} & const char [2] &  データ格納先配列の型  \\
+{\it usize} & const N\_SI4 $\ast$ &  データ格納先配列の要素数  \\
+{\it ixstart} & const N\_SI4 $\ast$ &  $x$ 方向格子番号下限  \\
+{\it ixfinal} & const N\_SI4 $\ast$ &  $x$ 方向格子番号上限  \\
+{\it iystart} & const N\_SI4 $\ast$ &  $y$ 方向格子番号下限  \\
+{\it iyfinal} & const N\_SI4 $\ast$ &  $y$ 方向格子番号上限  \\
+\hline
+\end{tabular}
+\paragraph{\FuncDesc}
+\APILink{nusdas.read}{nusdas\_read} $\ast$ と同様だが、データレコードのうち格子点
+({\it ixstart} , {\it iystart} )--({\it ixfinal} , {\it iyfinal} )
+だけが {\it udata} に格納される。
+
+格子番号は 1 から始まるものとするため、
+{\it ixstart} や {\it iystart} は正でなければならず、また
+{\it ixfinal} や {\it iyfinal} はそれぞれ
+{\it ixstart} や {\it iystart} 以上でなければならない。
+この規則に反する指定を行った場合は、返却値-8のエラーとなる。
+なお、{\it iyfinal}, {\it jyfinal} の上限が格子数を超えていることの
+チェックはしていないので注意が必要。
+
+utypeは\ref{tab:typename}のものを指定するが、これらの値はN\_を接頭辞につけた定数で参照できる。
+例えば'R4'であれば定数N\_R4で参照できる。
+
+\paragraph{\ResultCode}
+\begin{quote}
+\begin{description}
+\item[{\bf 正}] 読み出して格納した格子数
+\item[{\bf 0}] 指定したデータは未記録(定義ファイルの elementmap によって書き込まれることは許容されているが、まだデータが書き込まれていない)
+\item[{\bf -2}] 指定したデータは記録することが許容されていない(elementmap によって禁止されている場合と指定した面名、要素名が登録されていない場合の両方を含む)。
+\item[{\bf -4}] 格納配列が不足
+\item[{\bf -5}] 格納配列の型とレコードの記録形式が不整合
+\item[{\bf -8}] 領域指定パラメータが不正
+\end{description}\end{quote}
+
+\paragraph{履歴}
+本関数は NuSDaS 1.1 で導入され、 NuSDaS 1.3 で初めてドキュメントされた。
+\paragraph{互換性}
+NuSDaS 1.1 では、ローカルのデータファイルに対しては、
+{\it ixstart} $\le$ 0 の場合は {\it ixstart} = 1 に({\it jystart} も同様), 
+{\it ixfinal} がX方向の格子数を超える場合には、{\it ixfinal} はX方向の格子数に
+({\it jyfinal} も同様)に読み替えられていたが、 NuSDaS 1.3 からは返却値-8のエラー
+とする。また、pandora データについては、{\it ixstart}, {\it ixfinal}, 
+{\it jystart}, {\it jyfinal} が非負であることだけがチェックされていた。
+NuSDaS 1.3 からはデータファイル、pandora とも上述の通りとなる。

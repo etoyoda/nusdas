@@ -1,0 +1,32 @@
+\subsection{NUSDAS\_SUBC\_ETA\_INQ\_NZ: SUBC 記録の鉛直層数問合せ}
+\APILabel{nusdas.subc.eta.inq.nz}
+
+\Prototype
+\begin{quote}
+CALL {\bf NUSDAS\_SUBC\_ETA\_INQ\_NZ}({\it type1}, {\it type2}, {\it type3}, {\it basetime}, {\it member}, {\it validtime}, {\it group}, {\it n\_levels}, {\it result})
+\end{quote}
+
+\begin{tabular}{l|rllp{16em}}
+\hline
+\ArgName & \ArgType & \ArrayDim & I/O & \ArgRole \\
+\hline
+{\it type1} & CHARACTER(8) &  & IN &  種別1  \\
+{\it type2} & CHARACTER(4) &  & IN &  種別2  \\
+{\it type3} & CHARACTER(4) &  & IN &  種別3  \\
+{\it basetime} & INTEGER(4) &  & IN &  基準時刻(通算分)  \\
+{\it member} & CHARACTER(4) &  & IN &  メンバー名  \\
+{\it validtime} & INTEGER(4) &  & IN &  対象時刻(通算分)  \\
+{\it group} & CHARACTER(4) &  & IN &  群名  \\
+{\it n\_levels} & INTEGER(4) &  & OUT &  鉛直層数  \\
+{\it result} & INTEGER(4) &  & OUT & \ResultCode \\
+\hline
+\end{tabular}
+\paragraph{\FuncDesc}SUBC レコードの ETA, SIGM, ZHYB に記録された鉛直層数を問い合わせる。
+群名には "ETA ", "SIGM", "ZHYB" のいずれかを指定する。
+\paragraph{\ResultCode}
+\begin{quote}
+\begin{description}
+\item[{\bf 正}] 正常終了
+\end{description}\end{quote}
+\paragraph{ 履歴 }
+この関数は NuSDaS1.2 で導入された。
